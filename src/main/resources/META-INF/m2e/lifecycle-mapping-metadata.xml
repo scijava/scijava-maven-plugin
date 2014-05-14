@@ -4,6 +4,7 @@
 			<pluginExecutionFilter>
 				<goals>
 					<goal>set-rootdir</goal>
+					<goal>versions</goal>
 				</goals>
 			</pluginExecutionFilter>
 			<action>
