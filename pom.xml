@@ -20,6 +20,16 @@
 		<maven.version>2.0</maven.version>
 	</properties>
 
+	<mailingLists>
+		<mailingList>
+			<name>SciJava</name>
+			<subscribe>https://groups.google.com/group/scijava</subscribe>
+			<unsubscribe>https://groups.google.com/group/scijava</unsubscribe>
+			<post>scijava@googlegroups.com</post>
+			<archive>https://groups.google.com/group/scijava</archive>
+		</mailingList>
+	</mailingLists>
+
 	<dependencies>
 		<dependency>
 			<groupId>org.apache.maven</groupId>
