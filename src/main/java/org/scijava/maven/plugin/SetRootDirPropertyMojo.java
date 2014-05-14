@@ -48,11 +48,13 @@ import org.apache.maven.project.MavenProject;
  */
 public class SetRootDirPropertyMojo extends AbstractMojo {
 
-	 /**
-	  * You can rename the rootdir property name to another property name if desired.
-	  *
-	  * @parameter expression="${setRootdir.rootdirPropertyName}" default-value="rootdir"
-	  */
+	/**
+	 * You can rename the rootdir property name to another property name if
+	 * desired.
+	 * 
+	 * @parameter expression="${setRootdir.rootdirPropertyName}"
+	 *            default-value="rootdir"
+	 */
 	private String rootdirPropertyName;
 
 	/**
@@ -71,7 +73,8 @@ public class SetRootDirPropertyMojo extends AbstractMojo {
 	private List<MavenProject> reactorProjects;
 
 	public void execute() throws MojoExecutionException {
-		if (currentProject.getProperties().getProperty(rootdirPropertyName) != null) {
+		if (currentProject.getProperties().getProperty(rootdirPropertyName) != null)
+		{
 			getLog().debug("Using previously defined rootdir");
 			return;
 		}
