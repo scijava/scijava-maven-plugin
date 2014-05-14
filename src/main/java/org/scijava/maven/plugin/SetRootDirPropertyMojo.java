@@ -49,7 +49,7 @@ import org.apache.maven.project.MavenProject;
 public class SetRootDirPropertyMojo extends AbstractMojo {
 
 	 /**
-	  * You can rename the timestamp property name to another property name if desired.
+	  * You can rename the rootdir property name to another property name if desired.
 	  *
 	  * @parameter expression="${setRootdir.rootdirPropertyName}" default-value="rootdir"
 	  */
