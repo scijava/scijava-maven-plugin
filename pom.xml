@@ -6,6 +6,7 @@
 		<groupId>org.scijava</groupId>
 		<artifactId>pom-scijava</artifactId>
 		<version>2.22</version>
+		<relativePath />
 	</parent>
 
 	<artifactId>scijava-maven-plugin</artifactId>
