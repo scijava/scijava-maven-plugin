@@ -35,6 +35,9 @@ import java.util.List;
 
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 
 /**
@@ -42,34 +45,24 @@ import org.apache.maven.project.MavenProject;
  * the current Maven project structure.
  * 
  * @author Johannes Schindelin
- * 
- * @goal set-rootdir
- * @phase validate
  */
+@Mojo(name = "set-rootdir", defaultPhase = LifecyclePhase.VALIDATE)
 public class SetRootDirPropertyMojo extends AbstractMojo {
 
 	/**
 	 * You can rename the rootdir property name to another property name if
 	 * desired.
-	 * 
-	 * @parameter expression="${setRootdir.rootdirPropertyName}"
-	 *            default-value="rootdir"
 	 */
+	@Parameter(defaultValue = "rootdir", property = "setRootdir.rootdirPropertyName")
 	private String rootdirPropertyName;
 
-	/**
-	 * @parameter expression="${project}"
-	 * @required
-	 * @readonly
-	 */
+	@Parameter(defaultValue = "${project}", required = true, readonly = true)
 	private MavenProject currentProject;
 
 	/**
 	 * Contains the full list of projects in the reactor.
-	 *
-	 * @parameter expression="${reactorProjects}"
-	 * @readonly
 	 */
+	@Parameter(defaultValue="${reactorProjects}", readonly = true)
 	private List<MavenProject> reactorProjects;
 
 	@Override
