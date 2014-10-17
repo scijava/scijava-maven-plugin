@@ -96,6 +96,79 @@ public class PomEditor {
 		writer.close();
 	}
 
+	/**
+	 * Inspect all referenced groupId/artifactId/version triplets, allowing to re-set the version.
+	 * 
+	 * @return the number of modifications
+	 * @throws XPathExpressionException
+	 * @throws MojoExecutionException
+	 */
+	public int visitVersions(final VersionVisitor visitor) throws XPathExpressionException, MojoExecutionException {
+		int modified = 0;
+
+		final String parentGroupId = cdata("//project/parent/groupId");
+		if (parentGroupId != null) {
+			final String artifactId = cdata("//project/parent/artifactId");
+			final NodeList versions = xpath("//project/parent/version");
+			if (versions == null || versions.getLength() != 1) {
+				throw new MojoExecutionException("Could not find parent version");
+			}
+			final Node node = versions.item(0);
+			final String version = node.getTextContent();
+			final String newVersion = visitor.visit(parentGroupId, artifactId, version);
+			if (!version.equals(newVersion)) {
+				log.info(parentGroupId + ":" + artifactId + ":" + version + " -> " + newVersion);
+				node.setTextContent(newVersion);
+				modified++;
+			}
+		}
+
+		final NodeList properties = xpath("//project/properties/*");
+		OUTER:
+		for (int i = 0; i < properties.getLength(); i++) {
+			final Node node = properties.item(i);
+			switch (node.getNodeType()) {
+			case Node.COMMENT_NODE:
+				if (node.getTextContent().contains("BEGIN MANUALLY MANAGED VERSIONS")) {
+					break OUTER;
+				}
+				break;
+			case Node.ELEMENT_NODE:
+				final String propertyName = node.getNodeName();
+				if (propertyName == null || !propertyName.endsWith(".version")) break;
+				String artifactId = propertyName.substring(0,
+					propertyName.length() - ".version".length());
+				if ("imagej1".equals(artifactId)) artifactId = "ij";
+				final String search = "[artifactId[.='" + artifactId + "']]/groupId";
+				NodeList groupIdNodes = xpath("//project/dependencyManagement/dependencies/dependency" + search);
+				if (groupIdNodes == null || groupIdNodes.getLength() == 0) {
+					groupIdNodes = xpath("//project/dependencies/dependency" + search);
+					if (groupIdNodes == null || groupIdNodes.getLength() == 0) {
+						groupIdNodes = xpath("//project/build/pluginManagement/plugins/plugin" + search);
+						if (groupIdNodes == null || groupIdNodes.getLength() == 0) {
+							groupIdNodes = xpath("//project/build/plugins/plugin" + search);
+						}
+					}
+				}
+				if (groupIdNodes == null || groupIdNodes.getLength() == 0) {
+					log.warn("Could not determine groupId for artifactId '" + artifactId + "'; Skipping");
+					continue;
+				}
+				final String groupId = groupIdNodes.item(0).getTextContent();
+				final String version = node.getTextContent();
+				final String newVersion = visitor.visit(groupId, artifactId, version);
+				if (!version.equals(newVersion)) {
+					log.info(groupId + ":" + artifactId + ":" + version + " -> " + newVersion);
+					node.setTextContent(newVersion);
+					modified++;
+				}
+				break;
+			}
+		}
+
+		return modified;
+	}
+
 	private String cdata(final String expression) throws XPathExpressionException {
 		final NodeList nodes = xpath(expression);
 		if (nodes == null || nodes.getLength() == 0) return null;

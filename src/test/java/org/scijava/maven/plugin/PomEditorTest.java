@@ -39,6 +39,7 @@ import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.plugin.logging.SystemStreamLog;
 import org.junit.Test;
 import org.scijava.maven.plugin.util.PomEditor;
+import org.scijava.maven.plugin.util.VersionVisitor;
 
 /**
  * A couple of test to verify that POM rewriting works as expected.
@@ -63,6 +64,29 @@ public class PomEditorTest {
 			"\t\t<version>2.22</version>\n" +
 			"\t\t<relativePath />\n" +
 			"\t</parent>\n" +
+			"\n" +
+			"\t<properties>\n" +
+			"\t\t<scijava-common.version>2.33.4</scijava-common.version>\n" +
+			"\t</properties>\n" +
+			"\n" +
+			"\t<dependencyManagement>\n" +
+			"\t\t<dependencies>\n" +
+			"\t\t\t<dependency>\n" +
+			"\t\t\t\t<groupId>org.scijava</groupId>\n" +
+			"\t\t\t\t<artifactId>scijava-common</artifactId>\n" +
+			"\t\t\t\t<version>${scijava-common.version}</version>\n" +
+			"\t\t\t</dependency>\n" +
+			"\t\t</dependencies>\n" +
+			"\t</dependencyManagement>\n" +
+			"\n" +
+			"\t<dependencies>\n" +
+			"\t\t<dependency>\n" +
+			"<!-- Intentionally funny order and formatting -->\n" +
+			"\t\t\t<version>4.12</version>\n" +
+			"\t\t\t<artifactId>junit</artifactId>\n" +
+			"\t\t\t <groupId>org.junit</groupId>\n" +
+			"\t\t</dependency>\n" +
+			"\t</dependencies>\n" +
 			"</project>\n";
 
 	@Test
@@ -72,6 +96,32 @@ public class PomEditorTest {
 		final StringWriter writer = new StringWriter();
 		editor.write(writer);
 		assertEquals(example, writer.toString());
+	}
+
+	@Test
+	public void visitVersions() throws Exception {
+		final String[] gavs = {
+			"org.scijava:pom-scijava:2.22",
+			"org.scijava:scijava-common:2.33.4"
+		};
+		final int[] counter = { 0 };
+		final InputStream in = new ByteArrayInputStream(example.getBytes());
+		final PomEditor editor = new PomEditor(in, log);
+		int modified = editor.visitVersions(new VersionVisitor() {
+
+			@Override
+			public String visit(String groupId, String artifactId, String version) {
+				assertEquals(gavs[counter[0]++], groupId + ":" + artifactId + ":" + version);
+				return version.replace("22", "23").replace("33", "67");
+			}
+
+		});
+		assertEquals(2, modified);
+		assertEquals(gavs.length, counter[0]);
+
+		final StringWriter writer = new StringWriter();
+		editor.write(writer);
+		assertEquals(example.replace("22", "23").replace("33", "67"), writer.toString());
 	}
 
 }
