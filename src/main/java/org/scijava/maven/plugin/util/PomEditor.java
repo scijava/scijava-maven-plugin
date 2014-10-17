@@ -38,6 +38,9 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.w3c.dom.DOMException;
@@ -55,6 +58,7 @@ public class PomEditor {
 
 	private final Document doc;
 	private final String projectTag;
+	private XPath xpath;
 
 	/**
 	 * Parses the specified <tt>pom.xml</tt> file.
@@ -87,6 +91,29 @@ public class PomEditor {
 		write(writer, doc.getDocumentElement());
 		writer.write("\n");
 		writer.close();
+	}
+
+	private String cdata(final String expression) throws XPathExpressionException {
+		final NodeList nodes = xpath(expression);
+		if (nodes == null || nodes.getLength() == 0) return null;
+
+		final NodeList children = nodes.item(0).getChildNodes();
+		if (children == null || children.getLength() == 0) return null;
+		for (int i = 0; i < children.getLength(); i++) {
+			final Node child = children.item(i);
+			if (child.getNodeType() != Node.TEXT_NODE) continue;
+			return child.getNodeValue();
+		}
+		return null;
+	}
+
+	private NodeList xpath(final String expression) throws XPathExpressionException {
+		return (NodeList) xpath().evaluate(expression, doc, XPathConstants.NODESET);
+	}
+
+	private synchronized XPath xpath() {
+		if (xpath == null) xpath = XPathFactory.newInstance().newXPath();
+		return xpath;
 	}
 
 	private static class ProjectTagExtractor extends FilterInputStream {
