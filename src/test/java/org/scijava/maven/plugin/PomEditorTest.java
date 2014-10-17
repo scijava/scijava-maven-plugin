@@ -35,6 +35,8 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.StringWriter;
 
+import org.apache.maven.plugin.logging.Log;
+import org.apache.maven.plugin.logging.SystemStreamLog;
 import org.junit.Test;
 import org.scijava.maven.plugin.util.PomEditor;
 
@@ -44,6 +46,8 @@ import org.scijava.maven.plugin.util.PomEditor;
  * @author Johannes Schindelin
  */
 public class PomEditorTest {
+
+	private static final Log log = new SystemStreamLog();
 
 	private final static String example =
 			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
@@ -64,7 +68,7 @@ public class PomEditorTest {
 	@Test
 	public void retainWhitespace() throws Exception {
 		final InputStream in = new ByteArrayInputStream(example.getBytes());
-		final PomEditor editor = new PomEditor(in);
+		final PomEditor editor = new PomEditor(in, log);
 		final StringWriter writer = new StringWriter();
 		editor.write(writer);
 		assertEquals(example, writer.toString());

@@ -43,6 +43,7 @@ import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.logging.Log;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -58,6 +59,7 @@ public class PomEditor {
 
 	private final Document doc;
 	private final String projectTag;
+	private final Log log;
 	private XPath xpath;
 
 	/**
@@ -68,7 +70,8 @@ public class PomEditor {
 	 * @throws SAXException
 	 * @throws IOException
 	 */
-	public PomEditor(final InputStream inputStream) throws ParserConfigurationException, SAXException, IOException {
+	public PomEditor(final InputStream inputStream, final Log log) throws ParserConfigurationException, SAXException, IOException {
+		this.log = log;
 		final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 		factory.setCoalescing(false);
 		factory.setExpandEntityReferences(false);
