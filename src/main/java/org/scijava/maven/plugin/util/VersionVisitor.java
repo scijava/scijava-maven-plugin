@@ -29,6 +29,8 @@
  */
 package org.scijava.maven.plugin.util;
 
+import org.apache.maven.plugin.MojoExecutionException;
+
 /**
  * A visitor to change versions of given groupId/artifactId/version triplets.
  * 
@@ -43,7 +45,8 @@ public interface VersionVisitor {
 	 * @param artifactId the artifactId
 	 * @param version the (possibly obsolete) version
 	 * @return the new version
+	 * @throws MojoExecutionException 
 	 */
-	String visit(String groupId, String artifactId, String version);
+	String visit(String groupId, String artifactId, String version) throws MojoExecutionException;
 
 }
