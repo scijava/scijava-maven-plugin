@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.scijava</groupId>
 		<artifactId>pom-scijava</artifactId>
-		<version>2.22</version>
+		<version>4.1</version>
 		<relativePath />
 	</parent>
 
@@ -117,6 +117,38 @@
 							</pluginExecutions>
 						</lifecycleMappingMetadata>
 					</configuration>
+				</plugin>
+
+				<plugin>
+					<artifactId>maven-enforcer-plugin</artifactId>
+					<executions>
+						<execution>
+							<id>enforce-rules</id>
+							<configuration>
+								<rules>
+									<banDuplicateClasses>
+										<dependencies>
+											<!-- Multiple plexus-utils are dragged in by maven-* dependencies -->
+											<dependency>
+												<artifactId>plexus-utils</artifactId>
+												<ignoreClasses>
+													<ignoreClass>org/codehaus/plexus/util/*</ignoreClass>
+												</ignoreClasses>
+											</dependency>
+
+											<!-- Multiple plexus-component-annotations are dragged in by maven-* dependencies -->
+											<dependency>
+												<artifactId>plexus-component-annotations</artifactId>
+												<ignoreClasses>
+													<ignoreClass>org/codehaus/plexus/component/annotations/*</ignoreClass>
+												</ignoreClasses>
+											</dependency>
+										</dependencies>
+									</banDuplicateClasses>
+								</rules>
+							</configuration>
+						</execution>
+					</executions>
 				</plugin>
 			</plugins>
 		</pluginManagement>
