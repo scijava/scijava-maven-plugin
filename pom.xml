@@ -18,7 +18,7 @@
 	<inceptionYear>2014</inceptionYear>
 
 	<properties>
-		<maven.version>2.0</maven.version>
+		<maven.version>3.0</maven.version>
 	</properties>
 
 	<mailingLists>
