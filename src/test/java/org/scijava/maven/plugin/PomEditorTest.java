@@ -72,6 +72,14 @@ public class PomEditorTest {
 			"\t<dependencyManagement>\n" +
 			"\t\t<dependencies>\n" +
 			"\t\t\t<dependency>\n" +
+			"\t\t\t\t<groupId>io.scif</groupId>\n" +
+			"\t\t\t\t<artifactId>pom-scifio</artifactId>\n" +
+			"\t\t\t\t<version>1.11</version>\n" +
+			"\t\t\t\t<type>pom</type>\n" +
+			"\t\t\t\t<scope>import</scope>\n" +
+			"\t\t\t</dependency>\n" +
+			"\n" +
+			"\t\t\t<dependency>\n" +
 			"\t\t\t\t<groupId>org.scijava</groupId>\n" +
 			"\t\t\t\t<artifactId>scijava-common</artifactId>\n" +
 			"\t\t\t\t<version>${scijava-common.version}</version>\n" +
@@ -102,7 +110,8 @@ public class PomEditorTest {
 	public void visitVersions() throws Exception {
 		final String[] gavs = {
 			"org.scijava:pom-scijava:2.22",
-			"org.scijava:scijava-common:2.33.4"
+			"org.scijava:scijava-common:2.33.4",
+			"io.scif:pom-scifio:1.11"
 		};
 		final int[] counter = { 0 };
 		final InputStream in = new ByteArrayInputStream(example.getBytes());
@@ -112,16 +121,16 @@ public class PomEditorTest {
 			@Override
 			public String visit(String groupId, String artifactId, String version) {
 				assertEquals(gavs[counter[0]++], groupId + ":" + artifactId + ":" + version);
-				return version.replace("22", "23").replace("33", "67");
+				return version.replace("11", "13").replace("22", "23").replace("33", "67");
 			}
 
 		});
-		assertEquals(2, modified);
+		assertEquals(3, modified);
 		assertEquals(gavs.length, counter[0]);
 
 		final StringWriter writer = new StringWriter();
 		editor.write(writer);
-		assertEquals(example.replace("22", "23").replace("33", "67"), writer.toString());
+		assertEquals(example.replace("11", "13").replace("22", "23").replace("33", "67"), writer.toString());
 	}
 
 }

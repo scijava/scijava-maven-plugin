@@ -152,6 +152,18 @@ public class PomEditor {
 			}
 		}
 
+		final NodeList importScopes = xpath("//project/dependencyManagement/dependencies/dependency[type[.='pom']][scope[.='import']]");
+		for (int i = 0; i < importScopes.getLength(); i++) {
+			final Node node = importScopes.item(i);
+			final String groupId = cdata("./groupId", node);
+			final String artifactId = cdata("./artifactId", node);
+			final NodeList versions = xpath("./version", node);
+			if (versions == null || versions.getLength() != 1) {
+				throw new MojoExecutionException("Could not find version for " + groupId + ":" + artifactId);
+			}
+			if (visitVersion(groupId, artifactId, versions.item(0), visitor)) modified++;
+		}
+
 		return modified;
 	}
 
@@ -167,7 +179,11 @@ public class PomEditor {
 	}
 
 	private String cdata(final String expression) throws XPathExpressionException {
-		final NodeList nodes = xpath(expression);
+		return cdata(expression, doc);
+	}
+
+	private String cdata(final String expression, final Node node) throws XPathExpressionException {
+		final NodeList nodes = xpath(expression, node);
 		if (nodes == null || nodes.getLength() == 0) return null;
 
 		final NodeList children = nodes.item(0).getChildNodes();
@@ -181,7 +197,11 @@ public class PomEditor {
 	}
 
 	private NodeList xpath(final String expression) throws XPathExpressionException {
-		return (NodeList) xpath().evaluate(expression, doc, XPathConstants.NODESET);
+		return xpath(expression, doc);
+	}
+
+	private NodeList xpath(final String expression, final Node node) throws XPathExpressionException {
+		return (NodeList) xpath().evaluate(expression, node, XPathConstants.NODESET);
 	}
 
 	private synchronized XPath xpath() {
