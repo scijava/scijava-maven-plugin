@@ -113,14 +113,7 @@ public class PomEditor {
 			if (versions == null || versions.getLength() != 1) {
 				throw new MojoExecutionException("Could not find parent version");
 			}
-			final Node node = versions.item(0);
-			final String version = node.getTextContent();
-			final String newVersion = visitor.visit(parentGroupId, artifactId, version);
-			if (!version.equals(newVersion)) {
-				log.info(parentGroupId + ":" + artifactId + ":" + version + " -> " + newVersion);
-				node.setTextContent(newVersion);
-				modified++;
-			}
+			if (visitVersion(parentGroupId, artifactId, versions.item(0), visitor)) modified++;
 		}
 
 		final NodeList properties = xpath("//project/properties/*");
@@ -154,19 +147,23 @@ public class PomEditor {
 					log.warn("Could not determine groupId for artifactId '" + artifactId + "'; Skipping");
 					continue;
 				}
-				final String groupId = groupIdNodes.item(0).getTextContent();
-				final String version = node.getTextContent();
-				final String newVersion = visitor.visit(groupId, artifactId, version);
-				if (!version.equals(newVersion)) {
-					log.info(groupId + ":" + artifactId + ":" + version + " -> " + newVersion);
-					node.setTextContent(newVersion);
-					modified++;
-				}
+				if (visitVersion(groupIdNodes.item(0).getTextContent(), artifactId, node, visitor)) modified++;
 				break;
 			}
 		}
 
 		return modified;
+	}
+
+	private boolean visitVersion(final String groupId, final String artifactId,
+		final Node node, final VersionVisitor visitor) throws MojoExecutionException
+	{
+		final String version = node.getTextContent();
+		final String newVersion = visitor.visit(groupId, artifactId, version);
+		if (newVersion == null || version.equals(newVersion)) return false;
+		log.info(groupId + ":" + artifactId + ":" + version + " -> " + newVersion);
+		node.setTextContent(newVersion);
+		return true;
 	}
 
 	private String cdata(final String expression) throws XPathExpressionException {
