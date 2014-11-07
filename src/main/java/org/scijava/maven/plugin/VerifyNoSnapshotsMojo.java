@@ -225,7 +225,6 @@ public class VerifyNoSnapshotsMojo extends AbstractMojo {
 	 * a failure.
 	 */
 	private void setFailure(final String message) throws MojoFailureException {
-		getLog().info("FailEarly value is: " + failEarly);
 		if (failEarly) {
 			throw new MojoFailureException(message);
 		}
