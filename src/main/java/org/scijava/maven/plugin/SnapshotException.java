@@ -30,54 +30,29 @@
 
 package org.scijava.maven.plugin;
 
-import org.apache.maven.artifact.repository.ArtifactRepository;
-import org.apache.maven.plugin.AbstractMojo;
-import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.project.MavenProjectBuilder;
-
 /**
- * Mojo wrapper for the {@link SnapshotFinder}.
- *
- * @goal verify-no-snapshots
- * @phase validate
+ * An exception thrown when an SNAPSHOT version is encountered.
+ * 
+ * @author Curtis Rueden
  */
-public class VerifyNoSnapshotsMojo extends AbstractMojo {
+public class SnapshotException extends Exception {
 
-	// -- Parameters --
+	private static final long serialVersionUID = 1L;
 
-	/** @parameter default-value="${project}" */
-	private org.apache.maven.project.MavenProject mavenProject;
-
-	/** @component role = "org.apache.maven.project.MavenProjectBuilder" */
-	private MavenProjectBuilder m_projectBuilder;
-
-	/** @parameter expression="${localRepository}" */
-	private ArtifactRepository m_localRepository;
-
-	/** @parameter property="failEarly" default-value=false */
-	private Boolean failEarly;
-
-	// -- Mojo API Methods --
-
-	/**
-	 * Entry point for mojo execution
-	 */
-	@Override
-	public void execute() throws MojoExecutionException, MojoFailureException {
-
-		// Enter recursive project checking
-		final SnapshotFinder fs =
-			new SnapshotFinder(m_projectBuilder, m_localRepository, failEarly);
-
-		fs.setLog(getLog());
-
-		// Failure at the end of execution
-		try {
-			fs.checkProject(mavenProject);
-		}
-		catch (SnapshotException e) {
-			throw new MojoFailureException(e.getMessage());
-		}
+	public SnapshotException() {
+		super();
 	}
+
+	public SnapshotException(final String s) {
+		super(s);
+	}
+
+	public SnapshotException(final String s, final Throwable cause) {
+		super(s, cause);
+	}
+
+	public SnapshotException(final Throwable cause) {
+		super(cause);
+	}
+
 }
