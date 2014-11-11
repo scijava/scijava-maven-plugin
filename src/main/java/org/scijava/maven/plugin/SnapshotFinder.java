@@ -45,13 +45,15 @@ import org.apache.maven.project.MavenProjectBuilder;
 import org.apache.maven.project.ProjectBuildingException;
 
 /**
- * This class recursively checks a specified project, all dependencies,
- * and parent poms of any of these projects, for SNAPSHOT couplings. Any such
+ * This class recursively checks a specified project, all dependencies, and
+ * parent poms of any of these projects, for SNAPSHOT couplings. Any such
  * couplings are reported, and cause a {@link SnapshotException} to be thrown.
  * <p>
  * Options:
  * <ul>
  * <li>failEarly - end execution after first failure (default: false)</li>
+ * <li>groupIds - an inclusive list of groupIds. Errors will only be reported
+ * for projects whose groupIds are contained this list.</li>
  * <ul>
  * </p>
  *
@@ -78,6 +80,8 @@ public class SnapshotFinder {
 
 	private final Boolean failEarly;
 
+	private final Set<String> groupIds = new HashSet<String>();
+
 	// -- Constructor --
 
 	public SnapshotFinder(final MavenProjectBuilder projectBuilder,
@@ -89,12 +93,25 @@ public class SnapshotFinder {
 	public SnapshotFinder(final MavenProjectBuilder projectBuilder,
 		final ArtifactRepository localRepository, final Boolean failEarly)
 	{
-		this.projectBuilder = projectBuilder;
-		this.localRepository = localRepository;
-		this.failEarly = failEarly;
+		this(projectBuilder, localRepository, failEarly, null);
 	}
 
 // -- Public API --
+
+	public SnapshotFinder(final MavenProjectBuilder projectBuilder,
+		final ArtifactRepository localRepository, final Boolean failEarly,
+		@SuppressWarnings("rawtypes") final List groupIds)
+	{
+		this.projectBuilder = projectBuilder;
+		this.localRepository = localRepository;
+		this.failEarly = failEarly;
+
+		if (groupIds != null) {
+			for (int i = 0; i < groupIds.size(); i++) {
+				this.groupIds.add((String) groupIds.get(i));
+			}
+		}
+	}
 
 	/**
 	 * Recursively checks the given project for SNAPSHOT dependencies.
@@ -159,6 +176,7 @@ public class SnapshotFinder {
 		for (final Dependency d : dependencies) {
 			try {
 				// Convert the dependency gav to a MavenProject object (pom)
+
 				final Artifact a =
 					new DefaultArtifact(d.getGroupId(), d.getArtifactId(), VersionRange
 						.createFromVersion(d.getVersion()), d.getScope(), d.getType(), d
@@ -170,6 +188,7 @@ public class SnapshotFinder {
 				// Check the processedGavs set to see if we have already processed this
 				// particular gav - avoids infinite recursion
 				final String gav = gav(dep);
+				//TODO instead of set, want to use a tree.. and if the current path to root doesn't contain this gav, go forward
 				if (!processedGavs.contains(gav)) {
 					debug("Checking gav: " + gav);
 					// Mark this gav as processed
@@ -178,7 +197,9 @@ public class SnapshotFinder {
 					final String depPath = makePath(path, dep);
 					debug("checking pom:\n" + depPath);
 					// Check for a SNAPSHOT version
-					if (dep.getVersion().contains(Artifact.SNAPSHOT_VERSION)) {
+					if (dep.getVersion().contains(Artifact.SNAPSHOT_VERSION) &&
+						checkGroupId(dep))
+					{
 						setFailure("Found SNAPSHOT version:\n" + depPath);
 					}
 					// Recursive call
@@ -186,16 +207,16 @@ public class SnapshotFinder {
 				}
 			}
 			catch (ProjectBuildingException e) {
-				// Report if the dependency pom could not be built
-				error("Could not resolve dependency: " + d + " of path:\n" + path);
+				if (checkGroupId(d.getGroupId())) {
+					// Report if the dependency pom could not be built
+					error("Could not resolve dependency: " + d + " of path:\n" + path);
+				}
 			}
 		}
 	}
 
 	/**
 	 * Recursively checks the parent pom looking for SNAPSHOT dependencies.
-	 * 
-	 * @throws
 	 */
 	private void checkParent(final MavenProject pom, final String path)
 		throws SnapshotException
@@ -214,7 +235,9 @@ public class SnapshotFinder {
 				debug("checking parent:\n" + parentPath);
 
 				// Check if the current pom is a SNAPSHOT
-				if (parent.getVersion().contains(Artifact.SNAPSHOT_VERSION)) {
+				if (parent.getVersion().contains(Artifact.SNAPSHOT_VERSION) &&
+					checkGroupId(parent))
+				{
 					setFailure("Found SNAPSHOT parent:\n" + parentPath);
 				}
 
@@ -222,6 +245,22 @@ public class SnapshotFinder {
 				checkParent(parent, parentPath);
 			}
 		}
+	}
+
+	/**
+	 * @return True iff no set of groupIds was specified, or the specified set
+	 *         contains the groupId of the given project.
+	 */
+	private boolean checkGroupId(final MavenProject project) {
+		return checkGroupId(project.getGroupId());
+	}
+
+	/**
+	 * @return True iff no set of groupIds was specified, or the specified set
+	 *         contains the given groupId.
+	 */
+	private boolean checkGroupId(final String groupId) {
+		return groupIds.isEmpty() || groupIds.contains(groupId);
 	}
 
 	/**

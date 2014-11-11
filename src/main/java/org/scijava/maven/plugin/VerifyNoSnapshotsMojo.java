@@ -30,6 +30,9 @@
 
 package org.scijava.maven.plugin;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -58,6 +61,13 @@ public class VerifyNoSnapshotsMojo extends AbstractMojo {
 	/** @parameter property="failEarly" default-value=false */
 	private Boolean failEarly;
 
+	/** @parameter property="groupId" */
+	private String groupId;
+
+	/** @parameter property="groupIds" */
+	@SuppressWarnings("rawtypes")
+	private List groupIds;
+
 	// -- Mojo API Methods --
 
 	/**
@@ -66,9 +76,11 @@ public class VerifyNoSnapshotsMojo extends AbstractMojo {
 	@Override
 	public void execute() throws MojoExecutionException, MojoFailureException {
 
+		if (groupId != null) addGroup(groupId);
+
 		// Enter recursive project checking
 		final SnapshotFinder fs =
-			new SnapshotFinder(m_projectBuilder, m_localRepository, failEarly);
+			new SnapshotFinder(m_projectBuilder, m_localRepository, failEarly, groupIds);
 
 		fs.setLog(getLog());
 
@@ -79,5 +91,15 @@ public class VerifyNoSnapshotsMojo extends AbstractMojo {
 		catch (SnapshotException e) {
 			throw new MojoFailureException(e.getMessage());
 		}
+	}
+
+	// -- Helper methods --
+
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	private void addGroup(final String groupId) {
+		if (groupIds == null) {
+			groupIds = new ArrayList();
+		}
+		groupIds.add(groupId);
 	}
 }
