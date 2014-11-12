@@ -61,6 +61,9 @@ public class VerifyNoSnapshotsMojo extends AbstractMojo {
 	/** @parameter property="failEarly" default-value=false */
 	private Boolean failEarly;
 
+	/** @parameter property="verbose" default-value=false */
+	private Boolean verbose;
+
 	/** @parameter property="groupId" */
 	private String groupId;
 
@@ -80,7 +83,8 @@ public class VerifyNoSnapshotsMojo extends AbstractMojo {
 
 		// Enter recursive project checking
 		final SnapshotFinder fs =
-			new SnapshotFinder(m_projectBuilder, m_localRepository, failEarly, groupIds);
+			new SnapshotFinder(m_projectBuilder, m_localRepository, failEarly,
+				verbose, groupIds);
 
 		fs.setLog(getLog());
 

@@ -31,7 +31,9 @@
 package org.scijava.maven.plugin;
 
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.maven.artifact.Artifact;
@@ -51,6 +53,7 @@ import org.apache.maven.project.ProjectBuildingException;
  * <p>
  * Options:
  * <ul>
+ * <li>verbose - prints full inheritance paths to all failures (default: false)</li>
  * <li>failEarly - end execution after first failure (default: false)</li>
  * <li>groupIds - an inclusive list of groupIds. Errors will only be reported
  * for projects whose groupIds are contained this list.</li>
@@ -61,6 +64,10 @@ import org.apache.maven.project.ProjectBuildingException;
  */
 public class SnapshotFinder {
 
+	// -- Constants --
+
+	private static final String PARENT_FLAG = "BAD PARENT";
+
 	// -- Fields --
 
 	@SuppressWarnings("rawtypes")
@@ -70,6 +77,9 @@ public class SnapshotFinder {
 
 	private boolean foundSnapshot = false;
 
+	private Map<String, Set<String>> badGavs =
+		new LinkedHashMap<String, Set<String>>();
+
 	// -- Parameters --
 
 	private final MavenProjectBuilder projectBuilder;
@@ -78,9 +88,11 @@ public class SnapshotFinder {
 
 	private final Boolean failEarly;
 
+	private final Boolean verbose;
+
 	private final Set<String> groupIds = new HashSet<String>();
 
-	// -- Constructor --
+	// -- Constructors --
 
 	public SnapshotFinder(final MavenProjectBuilder projectBuilder,
 		final ArtifactRepository localRepository)
@@ -91,18 +103,24 @@ public class SnapshotFinder {
 	public SnapshotFinder(final MavenProjectBuilder projectBuilder,
 		final ArtifactRepository localRepository, final Boolean failEarly)
 	{
-		this(projectBuilder, localRepository, failEarly, null);
+		this(projectBuilder, localRepository, failEarly, false);
 	}
-
-// -- Public API --
 
 	public SnapshotFinder(final MavenProjectBuilder projectBuilder,
 		final ArtifactRepository localRepository, final Boolean failEarly,
-		@SuppressWarnings("rawtypes") final List groupIds)
+		final Boolean verbose)
+	{
+		this(projectBuilder, localRepository, failEarly, verbose, null);
+	}
+
+	public SnapshotFinder(final MavenProjectBuilder projectBuilder,
+		final ArtifactRepository localRepository, final Boolean failEarly,
+		final Boolean verbose, @SuppressWarnings("rawtypes") final List groupIds)
 	{
 		this.projectBuilder = projectBuilder;
 		this.localRepository = localRepository;
 		this.failEarly = failEarly;
+		this.verbose = verbose;
 
 		if (groupIds != null) {
 			for (int i = 0; i < groupIds.size(); i++) {
@@ -110,6 +128,8 @@ public class SnapshotFinder {
 			}
 		}
 	}
+
+// -- Public API --
 
 	/**
 	 * Recursively checks the given project for SNAPSHOT dependencies.
@@ -125,9 +145,27 @@ public class SnapshotFinder {
 		final String projectGav = gav(project);
 		parentGavs.add(projectGav);
 
-		checkProjectHelper(project, "\t" + projectGav, parentGavs);
+		checkProjectHelper(project, "\t" + projectGav, parentGavs, null);
 
 		if (foundSnapshot) {
+
+			if (!verbose) {
+				String errorMessage =
+					"The following direct dependencies may cause unreproducible builds:\n";
+
+				for (final String directDep : badGavs.keySet()) {
+					errorMessage += "\n" + directDep;
+					for (final String dep : badGavs.get(directDep)) {
+						errorMessage += "\n\t" + dep;
+					}
+					errorMessage += "\n";
+				}
+
+				errorMessage += "\nFor full inheritance trees, run with verbose flag.";
+
+				error(errorMessage);
+			}
+
 			throw new SnapshotException(
 				"Found one or more SNAPSHOT couplings. See error log for more information.");
 		}
@@ -165,10 +203,11 @@ public class SnapshotFinder {
 	 * given project for SNAPSHOT dependencies.
 	 */
 	private void checkProjectHelper(final MavenProject project,
-		final String path, final Set<String> parentGavs) throws SnapshotException
+		final String path, final Set<String> parentGavs, final String directDepGav)
+		throws SnapshotException
 	{
 		// Check the parent hierarchy
-		checkParent(project, path, parentGavs);
+		checkParent(project, path, parentGavs, directDepGav);
 
 		@SuppressWarnings("unchecked")
 		final List<Dependency> dependencies = project.getDependencies();
@@ -201,16 +240,29 @@ public class SnapshotFinder {
 					if (dep.getVersion().contains(Artifact.SNAPSHOT_VERSION) &&
 						checkGroupId(dep))
 					{
-						setFailure("Found SNAPSHOT version:\n" + depPath);
+						setFailure("Found SNAPSHOT version:\n", path, depGav, directDepGav);
 					}
+
 					// Recursive call
-					checkProjectHelper(dep, depPath, childGavs(parentGavs, depGav));
+					if (directDepGav == null) {
+						checkProjectHelper(dep, depPath, childGavs(parentGavs, depGav),
+							depGav);
+					}
+					else {
+						checkProjectHelper(dep, depPath, childGavs(parentGavs, depGav),
+							directDepGav);
+					}
 				}
 			}
 			catch (ProjectBuildingException e) {
 				if (checkGroupId(d.getGroupId())) {
-					// Report if the dependency pom could not be built
-					error("Could not resolve dependency: " + d + " of path:\n" + path);
+					if (verbose) {
+						// Report if the dependency pom could not be built
+						error("Could not resolve dependency: " + d + " of path:\n" + path);
+					}
+					else {
+						flagProblem(directDepGav, gav(d));
+					}
 				}
 			}
 		}
@@ -220,7 +272,8 @@ public class SnapshotFinder {
 	 * Recursively checks the parent pom looking for SNAPSHOT dependencies.
 	 */
 	private void checkParent(final MavenProject pom, final String path,
-		final Set<String> parentGavs) throws SnapshotException
+		final Set<String> parentGavs, final String directDepGav)
+		throws SnapshotException
 	{
 		// If the current pom has no parent, we're done
 		if (pom.hasParent()) {
@@ -238,11 +291,12 @@ public class SnapshotFinder {
 				if (parent.getVersion().contains(Artifact.SNAPSHOT_VERSION) &&
 					checkGroupId(parent))
 				{
-					setFailure("Found SNAPSHOT parent:\n" + parentPath);
+					setFailure("Found SNAPSHOT parent:\n", path, nextGav, directDepGav);
 				}
 
 				// Recrusive call
-				checkParent(parent, parentPath, childGavs(parentGavs, nextGav));
+				checkParent(parent, parentPath, childGavs(parentGavs, nextGav),
+					directDepGav);
 			}
 		}
 	}
@@ -250,8 +304,8 @@ public class SnapshotFinder {
 	/**
 	 * @return A new Set, created from the union of the given parentGavs and child
 	 */
-	private Set<String>
-		childGavs(final Set<String> parentGavs, final String childGav)
+	private Set<String> childGavs(final Set<String> parentGavs,
+		final String childGav)
 	{
 		final Set<String> childGavs = new HashSet<String>(parentGavs);
 		childGavs.add(childGav);
@@ -278,7 +332,14 @@ public class SnapshotFinder {
 	 * Prepends the given project's gav, in a separate line, to the given path
 	 */
 	private String makePath(final String path, final MavenProject project) {
-		String newPath = "\t" + gav(project) + "\n" + path;
+		return makePath(path, gav(project));
+	}
+
+	/**
+	 * Prepends the given project's gav, in a separate line, to the given path
+	 */
+	private String makePath(final String path, final String gav) {
+		String newPath = "\t" + gav + "\n" + path;
 		return newPath;
 	}
 
@@ -286,19 +347,51 @@ public class SnapshotFinder {
 	 * Returns the GAV (groupId:artifactId:version) for the given project
 	 */
 	private String gav(final MavenProject project) {
-		return project.getGroupId() + ":" + project.getArtifactId() + ":" +
-			project.getVersion();
+		return gav(project.getGroupId(), project.getArtifactId(), project
+			.getVersion());
+	}
+
+	/**
+	 * Returns the GAV (groupId:artifactId:version) for the given dependency
+	 */
+	private String gav(Dependency d) {
+		return gav(d.getGroupId(), d.getArtifactId(), d.getVersion());
+	}
+
+	/**
+	 * Builds a GAV from a given groupId, artifactId and version.
+	 */
+	private String gav(final String groupId, final String artifactId,
+		final String version)
+	{
+		return groupId + ":" + artifactId + ":" + version;
 	}
 
 	/**
 	 * Prints the given message to the error log and marks this mojo execution as
 	 * a failure.
 	 */
-	private void setFailure(final String message) throws SnapshotException {
+	private void setFailure(final String message, final String path,
+		final String gav, final String directDepGav) throws SnapshotException
+	{
 		if (failEarly) {
-			throw new SnapshotException(message);
+			throw new SnapshotException(message + makePath(path, gav));
 		}
-		error(message);
+
+		if (verbose) error(message + makePath(path, gav));
+		else flagProblem(directDepGav, gav);
+
 		foundSnapshot = true;
+	}
+
+	private void flagProblem(String directDepGav, final String gav) {
+		// parent pom of the project
+		if (directDepGav == null) directDepGav = PARENT_FLAG;
+
+		if (badGavs.get(directDepGav) == null) {
+			badGavs.put(directDepGav, new HashSet<String>());
+		}
+
+		badGavs.get(directDepGav).add(gav);
 	}
 }
