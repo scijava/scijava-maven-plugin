@@ -63,8 +63,6 @@ public class SnapshotFinder {
 
 	// -- Fields --
 
-	private final Set<String> processedGavs = new HashSet<String>();
-
 	@SuppressWarnings("rawtypes")
 	private List remoteRepositories;
 
@@ -123,7 +121,11 @@ public class SnapshotFinder {
 		// Set the remote repository list by using the base project
 		remoteRepositories = project.getRemoteArtifactRepositories();
 
-		checkProjectHelper(project, "\t" + gav(project));
+		final Set<String> parentGavs = new HashSet<String>();
+		final String projectGav = gav(project);
+		parentGavs.add(projectGav);
+
+		checkProjectHelper(project, "\t" + projectGav, parentGavs);
 
 		if (foundSnapshot) {
 			throw new SnapshotException(
@@ -162,12 +164,11 @@ public class SnapshotFinder {
 	 * Recursively checks the parent pom hierarchy and each dependency of the
 	 * given project for SNAPSHOT dependencies.
 	 */
-	private void
-		checkProjectHelper(final MavenProject project, final String path)
-			throws SnapshotException
+	private void checkProjectHelper(final MavenProject project,
+		final String path, final Set<String> parentGavs) throws SnapshotException
 	{
 		// Check the parent hierarchy
-		checkParent(project, path);
+		checkParent(project, path, parentGavs);
 
 		@SuppressWarnings("unchecked")
 		final List<Dependency> dependencies = project.getDependencies();
@@ -187,12 +188,12 @@ public class SnapshotFinder {
 
 				// Check the processedGavs set to see if we have already processed this
 				// particular gav - avoids infinite recursion
-				final String gav = gav(dep);
-				//TODO instead of set, want to use a tree.. and if the current path to root doesn't contain this gav, go forward
-				if (!processedGavs.contains(gav)) {
-					debug("Checking gav: " + gav);
+				final String depGav = gav(dep);
+
+				if (!parentGavs.contains(depGav)) {
+					debug("Checking gav: " + depGav);
 					// Mark this gav as processed
-					processedGavs.add(gav);
+					parentGavs.add(depGav);
 					// Generate a path for this dependency
 					final String depPath = makePath(path, dep);
 					debug("checking pom:\n" + depPath);
@@ -203,7 +204,7 @@ public class SnapshotFinder {
 						setFailure("Found SNAPSHOT version:\n" + depPath);
 					}
 					// Recursive call
-					checkProjectHelper(dep, depPath);
+					checkProjectHelper(dep, depPath, childGavs(parentGavs, depGav));
 				}
 			}
 			catch (ProjectBuildingException e) {
@@ -218,23 +219,22 @@ public class SnapshotFinder {
 	/**
 	 * Recursively checks the parent pom looking for SNAPSHOT dependencies.
 	 */
-	private void checkParent(final MavenProject pom, final String path)
-		throws SnapshotException
+	private void checkParent(final MavenProject pom, final String path,
+		final Set<String> parentGavs) throws SnapshotException
 	{
 		// If the current pom has no parent, we're done
 		if (pom.hasParent()) {
 			final MavenProject parent = pom.getParent();
+			final String nextGav = gav(parent);
 
-			// Check the processedGavs set to see if we have already processed this
-			// particular gav - avoids infinite recursion
-			if (!processedGavs.contains(gav(parent))) {
+			// Avoid infinite recursion
+			if (!parentGavs.contains(nextGav)) {
 				// Mark this gav as processed
-				processedGavs.add(gav(parent));
 				// Generate a path for this parent
 				final String parentPath = makePath(path, parent);
 				debug("checking parent:\n" + parentPath);
 
-				// Check if the current pom is a SNAPSHOT
+				// Check if the parent pom is a SNAPSHOT
 				if (parent.getVersion().contains(Artifact.SNAPSHOT_VERSION) &&
 					checkGroupId(parent))
 				{
@@ -242,9 +242,20 @@ public class SnapshotFinder {
 				}
 
 				// Recrusive call
-				checkParent(parent, parentPath);
+				checkParent(parent, parentPath, childGavs(parentGavs, nextGav));
 			}
 		}
+	}
+
+	/**
+	 * @return A new Set, created from the union of the given parentGavs and child
+	 */
+	private Set<String>
+		childGavs(final Set<String> parentGavs, final String childGav)
+	{
+		final Set<String> childGavs = new HashSet<String>(parentGavs);
+		childGavs.add(childGav);
+		return childGavs;
 	}
 
 	/**
