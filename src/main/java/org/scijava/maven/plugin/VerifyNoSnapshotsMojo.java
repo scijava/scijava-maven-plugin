@@ -37,10 +37,23 @@ import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectBuilder;
 
 /**
  * Mojo wrapper for the {@link SnapshotFinder}.
+ * <p>
+ * Parameters:
+ * <ul>
+ * <li>failEarly - end execution after first failure (default: false)</li>
+ * <li>verbose - prints full inheritance paths to all failures (default: false)</li>
+ * <li>groupIds - an inclusive list of groupIds. Errors will only be reported
+ * for projects whose groupIds are contained this list. (default: empty - all
+ * groupIds considered)</li>
+ * <li>groupId - Singular groupIds option. Will be appended to groupIds if both
+ * are specified.</li>
+ * </ul>
+ * </p>
  *
  * @goal verify-no-snapshots
  * @phase validate
@@ -50,7 +63,7 @@ public class VerifyNoSnapshotsMojo extends AbstractMojo {
 	// -- Parameters --
 
 	/** @parameter default-value="${project}" */
-	private org.apache.maven.project.MavenProject mavenProject;
+	private MavenProject mavenProject;
 
 	/** @component role = "org.apache.maven.project.MavenProjectBuilder" */
 	private MavenProjectBuilder m_projectBuilder;

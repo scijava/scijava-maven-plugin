@@ -94,18 +94,39 @@ public class SnapshotFinder {
 
 	// -- Constructors --
 
+	/**
+	 * Minimal constructor. Sets:
+	 * <ul>
+	 * <li>failEarly = false</li>
+	 * <li>verbose = false</li>
+	 * <li>groupIds = *</li>
+	 * </ul>
+	 */
 	public SnapshotFinder(final MavenProjectBuilder projectBuilder,
 		final ArtifactRepository localRepository)
 	{
 		this(projectBuilder, localRepository, false);
 	}
 
+	/**
+	 * Sets:
+	 * <ul>
+	 * <li>verbose = false</li>
+	 * <li>groupIds = *</li>
+	 * </ul>
+	 */
 	public SnapshotFinder(final MavenProjectBuilder projectBuilder,
 		final ArtifactRepository localRepository, final Boolean failEarly)
 	{
 		this(projectBuilder, localRepository, failEarly, false);
 	}
 
+	/**
+	 * Sets:
+	 * <ul>
+	 * <li>groupIds = *</li>
+	 * </ul>
+	 */
 	public SnapshotFinder(final MavenProjectBuilder projectBuilder,
 		final ArtifactRepository localRepository, final Boolean failEarly,
 		final Boolean verbose)
@@ -113,6 +134,19 @@ public class SnapshotFinder {
 		this(projectBuilder, localRepository, failEarly, verbose, null);
 	}
 
+	/**
+	 * Fully-specified constructor.
+	 *
+	 * @param projectBuilder - {@link MavenProjectBuilder} reference
+	 * @param localRepository - {@link ArtifactRepository} corresponding to the
+	 *          local repo. Used to resolve dependencies.
+	 * @param failEarly - If true, projects will fail after finding any SNAPSHOT
+	 *          problems.
+	 * @param verbose - If true, full failing dependency paths will be printed.
+	 * @param groupIds - List of zero or more groupIds. If any are specified,
+	 *          problems will only be reported if they are of one of these
+	 *          groupIds.
+	 */
 	public SnapshotFinder(final MavenProjectBuilder projectBuilder,
 		final ArtifactRepository localRepository, final Boolean failEarly,
 		final Boolean verbose, @SuppressWarnings("rawtypes") final List groupIds)
@@ -134,6 +168,7 @@ public class SnapshotFinder {
 	/**
 	 * Recursively checks the given project for SNAPSHOT dependencies.
 	 * 
+	 * @param project - Base {@link MavenProject} (pom) to check.
 	 * @throws SnapshotException If a SNAPSHOT dependency is discovered
 	 */
 	public void checkProject(final MavenProject project) throws SnapshotException
@@ -141,14 +176,17 @@ public class SnapshotFinder {
 		// Set the remote repository list by using the base project
 		remoteRepositories = project.getRemoteArtifactRepositories();
 
+		// Initialize data structures
 		final Set<String> parentGavs = new HashSet<String>();
 		final String projectGav = gav(project);
 		parentGavs.add(projectGav);
 
+		// enter recursion
 		checkProjectHelper(project, "\t" + projectGav, parentGavs, null);
 
+		// print failing messages
 		if (foundSnapshot) {
-
+			// If not verbose, all reporting occurs at the end.
 			if (!verbose) {
 				String errorMessage =
 					"The following direct dependencies may cause unreproducible builds:\n";
@@ -166,13 +204,17 @@ public class SnapshotFinder {
 				error(errorMessage);
 			}
 
+			// Calling code can catch this SnapshotException and re-throw as needed
+			// (e.g. for Mojos or Enforcer rules)
 			throw new SnapshotException(
 				"Found one or more SNAPSHOT couplings. See error log for more information.");
 		}
 	}
 
 	/**
-	 * Sets the {@link Log} for this instance.
+	 * Sets the {@link Log} for this instance. This is an optional field that will
+	 * be used to report findings, but will not affect success or failure of a
+	 * {@link #checkProject(MavenProject)} execution.
 	 */
 	public void setLog(final Log log) {
 		this.log = log;
@@ -182,6 +224,8 @@ public class SnapshotFinder {
 
 	/**
 	 * {@link Log#debug} helper.
+	 *
+	 * @param message - Message to send to attached {@link Log}'s debug stream.
 	 */
 	private void debug(final String message) {
 		if (log != null) {
@@ -191,6 +235,8 @@ public class SnapshotFinder {
 
 	/**
 	 * {@link Log#error} helper.
+	 *
+	 * @param message - Message to send to attached {@link Log}'s error stream.
 	 */
 	private void error(final String message) {
 		if (log != null) {
@@ -201,6 +247,17 @@ public class SnapshotFinder {
 	/**
 	 * Recursively checks the parent pom hierarchy and each dependency of the
 	 * given project for SNAPSHOT dependencies.
+	 *
+	 * @param project Maven pom to check
+	 * @param path A formatted path (e.g. 1 gav per line) representing the
+	 *          hierarchy that was followed to this pom
+	 * @param parentGavs The set of all gavs which inherit from the current
+	 *          project. Used to avoid infinite recursion.
+	 * @param directDepGav Should be null for the first iteration. This is used to
+	 *          track the current direct dependency of the original base pom. For
+	 *          non-verbose execution, errors are reported per-direct dependency.
+	 * @throws SnapshotException If a SNAPSHOT dependency is discovered and this
+	 *           SnapshotFinder is supposed to fail fast.
 	 */
 	private void checkProjectHelper(final MavenProject project,
 		final String path, final Set<String> parentGavs, final String directDepGav)
@@ -216,7 +273,6 @@ public class SnapshotFinder {
 		for (final Dependency d : dependencies) {
 			try {
 				// Convert the dependency gav to a MavenProject object (pom)
-
 				final Artifact a =
 					new DefaultArtifact(d.getGroupId(), d.getArtifactId(), VersionRange
 						.createFromVersion(d.getVersion()), d.getScope(), d.getType(), d
@@ -225,10 +281,9 @@ public class SnapshotFinder {
 					projectBuilder.buildFromRepository(a, remoteRepositories,
 						localRepository);
 
-				// Check the processedGavs set to see if we have already processed this
-				// particular gav - avoids infinite recursion
 				final String depGav = gav(dep);
 
+				// Avoid infinite recursion
 				if (!parentGavs.contains(depGav)) {
 					debug("Checking gav: " + depGav);
 					// Mark this gav as processed
@@ -243,7 +298,7 @@ public class SnapshotFinder {
 						setFailure("Found SNAPSHOT version:\n", path, depGav, directDepGav);
 					}
 
-					// Recursive call
+					// Recursive call. directDepGav is null only at the top level.
 					if (directDepGav == null) {
 						checkProjectHelper(dep, depPath, childGavs(parentGavs, depGav),
 							depGav);
@@ -258,6 +313,8 @@ public class SnapshotFinder {
 				if (checkGroupId(d.getGroupId())) {
 					if (verbose) {
 						// Report if the dependency pom could not be built
+						// This will happen commonly with dependencies declared with version
+						// ranges
 						error("Could not resolve dependency: " + d + " of path:\n" + path);
 					}
 					else {
@@ -270,6 +327,17 @@ public class SnapshotFinder {
 
 	/**
 	 * Recursively checks the parent pom looking for SNAPSHOT dependencies.
+	 *
+	 * @param pom Maven project whose parent to check
+	 * @param path A formatted path (e.g. 1 gav per line) representing the
+	 *          hierarchy that was followed to this pom
+	 * @param parentGavs The set of all gavs which inherit from the current
+	 *          project. Used to avoid infinite recursion.
+	 * @param directDepGav The current direct dependency of the original base pom.
+	 *          For non-verbose execution, errors are reported per-direct
+	 *          dependency.
+	 * @throws SnapshotException If a SNAPSHOT dependency is discovered and this
+	 *           SnapshotFinder is supposed to fail fast.
 	 */
 	private void checkParent(final MavenProject pom, final String path,
 		final Set<String> parentGavs, final String directDepGav)
@@ -359,7 +427,7 @@ public class SnapshotFinder {
 	}
 
 	/**
-	 * Builds a GAV from a given groupId, artifactId and version.
+	 * Builds a formatted GAV from a given groupId, artifactId and version.
 	 */
 	private String gav(final String groupId, final String artifactId,
 		final String version)
@@ -370,6 +438,15 @@ public class SnapshotFinder {
 	/**
 	 * Prints the given message to the error log and marks this mojo execution as
 	 * a failure.
+	 *
+	 * @param message Error message to print
+	 * @param path A formatted path (e.g. 1 gav per line) representing the
+	 *          hierarchy that was followed to this pom
+	 * @param gav The gav of the failing project
+	 * @param directDepGav The direct dependency of the original base pom from
+	 *          which the failing gav was inherited. For non-verbose execution,
+	 *          errors are reported per-direct dependency.
+	 * @throws SnapshotException If this SnapshotFinder should fail fast.
 	 */
 	private void setFailure(final String message, final String path,
 		final String gav, final String directDepGav) throws SnapshotException
@@ -384,8 +461,17 @@ public class SnapshotFinder {
 		foundSnapshot = true;
 	}
 
+	/**
+	 * Helper method to record the problematic gavs for a given direct dependency
+	 * of a checked base pom.
+	 *
+	 * @param directDepGav The direct dependency of the original base pom which
+	 *          inherits from a failing gav. If null, indicates a problem in the
+	 *          base pom itself and a marker flag is used.
+	 * @param gav The problematic gav
+	 */
 	private void flagProblem(String directDepGav, final String gav) {
-		// parent pom of the project
+		// track failures of the base pom itself using a special flag
 		if (directDepGav == null) directDepGav = PARENT_FLAG;
 
 		if (badGavs.get(directDepGav) == null) {
