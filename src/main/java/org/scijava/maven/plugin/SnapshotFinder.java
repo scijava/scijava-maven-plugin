@@ -479,7 +479,8 @@ public class SnapshotFinder {
 		final String gav, final String directDepGav) throws SnapshotException
 	{
 		if (failEarly) {
-			throw new SnapshotException(message + makePath(path, gav));
+			throw new SnapshotException(message + makePath(path, gav) +
+				"\n\nThere may be other failures but <failEarly> was set to true");
 		}
 
 		if (verbose) error(message + makePath(path, gav));
