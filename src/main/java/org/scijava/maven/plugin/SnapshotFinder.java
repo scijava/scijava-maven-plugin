@@ -272,6 +272,24 @@ public class SnapshotFinder {
 		// iterate over each dependency
 		for (final Dependency d : dependencies) {
 			try {
+
+				// Fail fast if version is a range, as this can not be reproducible.
+				if (isRange(d.getVersion())) {
+					if (checkGroupId(d.getGroupId())) {
+						if (verbose) {
+							// Report if the dependency pom could not be built
+							// This will happen commonly with dependencies declared with version
+							// ranges
+							error("Dependency listed with version range: " + d +
+								" of path:\n" + path);
+						}
+						else {
+							flagProblem(directDepGav, gav(d));
+						}
+					}
+					continue;
+				}
+
 				// Convert the dependency gav to a MavenProject object (pom)
 				final Artifact a =
 					new DefaultArtifact(d.getGroupId(), d.getArtifactId(), VersionRange
@@ -394,6 +412,15 @@ public class SnapshotFinder {
 	 */
 	private boolean checkGroupId(final String groupId) {
 		return groupIds.isEmpty() || groupIds.contains(groupId);
+	}
+
+	/**
+	 * @return True iff the provided version string is a Maven version range (or
+	 *         malformed version)
+	 */
+	private boolean isRange(final String version) {
+		return version.startsWith("[") || version.startsWith("(") ||
+			version.endsWith("]") || version.endsWith(")");
 	}
 
 	/**
