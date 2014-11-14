@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.scijava</groupId>
 		<artifactId>pom-scijava</artifactId>
-		<version>2.22</version>
+		<version>5.0</version>
 		<relativePath />
 	</parent>
 
@@ -87,26 +87,6 @@
 			<artifactId>maven-project</artifactId>
 			<version>${maven.version}</version>
 		</dependency>
-		<dependency>
-			<groupId>org.apache.maven.shared</groupId>
-			<artifactId>maven-dependency-tree</artifactId>
-			<version>1.2</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.maven.plugins</groupId>
-			<artifactId>maven-dependency-plugin</artifactId>
-			<version>2.4</version>
-		</dependency>
-		<dependency>
-			<groupId>org.codehaus.plexus</groupId>
-			<artifactId>plexus-utils</artifactId>
-			<version>3.0</version>
-		</dependency>
-		<dependency>
-			<groupId>org.codehaus.plexus</groupId>
-			<artifactId>plexus-interpolation</artifactId>
-			<version>1.14</version>
-		</dependency>
 	</dependencies>
 
 	<build>
@@ -115,6 +95,35 @@
 			</plugins>
 		</pluginManagement>
 		<plugins>
+			<plugin>
+				<artifactId>maven-enforcer-plugin</artifactId>
+				<configuration>
+					<rules>
+						<banDuplicateClasses>
+							<dependencies>
+								<dependency>
+									<artifactId>plexus-container-default</artifactId>
+									<ignoreClasses>
+										<ignoreClass>org/codehaus/plexus/*</ignoreClass>
+									</ignoreClasses>
+								</dependency>
+								<dependency>
+									<artifactId>maven-reporting-api</artifactId>
+									<ignoreClasses>
+										<ignoreClass>org/apache/maven/reporting/*</ignoreClass>
+									</ignoreClasses>
+								</dependency>
+								<dependency>
+									<artifactId>maven-plugin-api</artifactId>
+									<ignoreClasses>
+										<ignoreClass>org/apache/maven/plugin/*</ignoreClass>
+									</ignoreClasses>
+								</dependency>
+							</dependencies>
+						</banDuplicateClasses>
+					</rules>
+				</configuration>
+			</plugin>
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>license-maven-plugin</artifactId>
