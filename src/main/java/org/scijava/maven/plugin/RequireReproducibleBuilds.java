@@ -7,13 +7,13 @@
  * %%
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- * 
+ *
  * 1. Redistributions of source code must retain the above copyright notice,
  *    this list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright notice,
  *    this list of conditions and the following disclaimer in the documentation
  *    and/or other materials provided with the distribution.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -30,8 +30,8 @@
 
 package org.scijava.maven.plugin;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.enforcer.rule.api.EnforcerRule;
@@ -40,6 +40,7 @@ import org.apache.maven.enforcer.rule.api.EnforcerRuleHelper;
 import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectBuilder;
+import org.apache.maven.shared.dependency.tree.DependencyTreeBuilder;
 import org.codehaus.plexus.component.configurator.expression.ExpressionEvaluationException;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 
@@ -48,8 +49,7 @@ import org.codehaus.plexus.component.repository.exception.ComponentLookupExcepti
  * <p>
  * Parameters:
  * <ul>
- * <li>failEarly - end execution after first failure (default: false)</li>
- * <li>verbose - prints full inheritance paths to all failures (default: false)</li>
+ * <li>failFast - end execution after first failure (default: false)</li>
  * <li>groupIds - an inclusive comma-separated list of groupIds. Errors will
  * only be reported for projects whose groupIds are contained this list.
  * (default: null - all groupIds considered)</li>
@@ -64,8 +64,7 @@ public class RequireReproducibleBuilds implements EnforcerRule {
 
 	// -- Parameters --
 
-	private boolean failEarly = false;
-	private boolean verbose = false;
+	private final boolean failFast = false;
 	private String groupId;
 	private String groupIds;
 
@@ -75,40 +74,48 @@ public class RequireReproducibleBuilds implements EnforcerRule {
 	 * Entry point for enforcer rule execution
 	 */
 	@Override
-	public void execute(EnforcerRuleHelper helper) throws EnforcerRuleException {
+	public void execute(final EnforcerRuleHelper helper)
+		throws EnforcerRuleException
+	{
 		final Log log = helper.getLog();
 		try {
-			MavenProject project = (MavenProject) helper.evaluate("${project}");
+			final MavenProject project = (MavenProject) helper.evaluate("${project}");
 			final ArtifactRepository localRepository =
 				(ArtifactRepository) helper.evaluate("${localRepository}");
 			final MavenProjectBuilder projectBuilder =
 				(MavenProjectBuilder) helper.getComponent(MavenProjectBuilder.class);
+			final DependencyTreeBuilder treeBuilder =
+				(DependencyTreeBuilder) helper
+					.getComponent(DependencyTreeBuilder.class);
 
-			@SuppressWarnings("rawtypes")
-			final List ids = new ArrayList();
-
-			if (groupId != null) addId(ids, groupId);
+			// populate groupIds
+			final Set<String> ids = new HashSet<String>();
+			if (groupId != null) ids.add(groupId);
 			if (groupIds != null) {
 				for (final String id : groupIds.split(",")) {
-					addId(ids, id);
+					ids.add(id);
 				}
 			}
 
 			// Enter recursive project checking
 			final SnapshotFinder fs =
-				new SnapshotFinder(projectBuilder, localRepository, failEarly, verbose,
-					ids);
+				new SnapshotFinder(projectBuilder, localRepository, project
+					.getRemoteArtifactRepositories());
 
 			fs.setLog(log);
-			fs.checkProject(project);
+			fs.setFailFast(failFast);
+			fs.setGroupIds(ids);
+
+			DependencyUtils.checkDependencies(project, localRepository, treeBuilder,
+				fs);
 		}
-		catch (ComponentLookupException e) {
+		catch (final ComponentLookupException e) {
 			throw new EnforcerRuleException(e.getMessage());
 		}
-		catch (ExpressionEvaluationException e) {
+		catch (final ExpressionEvaluationException e) {
 			throw new EnforcerRuleException(e.getMessage());
 		}
-		catch (SnapshotException e) {
+		catch (final SciJavaDependencyException e) {
 			throw new EnforcerRuleException(e.getMessage());
 		}
 	}
@@ -119,21 +126,12 @@ public class RequireReproducibleBuilds implements EnforcerRule {
 	}
 
 	@Override
-	public boolean isResultValid(EnforcerRule cachedRule) {
+	public boolean isResultValid(final EnforcerRule cachedRule) {
 		return false;
 	}
 
 	@Override
 	public String getCacheId() {
 		return null;
-	}
-
-	// -- Helper methods --
-
-	@SuppressWarnings("unchecked")
-	private void addId(@SuppressWarnings("rawtypes") final List ids,
-		final String groupId)
-	{
-		ids.add(groupId);
 	}
 }

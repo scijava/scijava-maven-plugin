@@ -7,13 +7,13 @@
  * %%
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- * 
+ *
  * 1. Redistributions of source code must retain the above copyright notice,
  *    this list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright notice,
  *    this list of conditions and the following disclaimer in the documentation
  *    and/or other materials provided with the distribution.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -31,27 +31,29 @@
 package org.scijava.maven.plugin;
 
 /**
- * An exception thrown when an SNAPSHOT version is encountered.
- * 
- * @author Curtis Rueden
+ * Convenience exception to use when {@link SciJavaDependencyChecker}s fail.
+ * This exception can then be wrapped and re-thrown as needed (e.g. for wrapping
+ * mojos, enforcer rules, etc...).
+ *
+ * @author Mark Hiner
  */
-public class SnapshotException extends Exception {
+public class SciJavaDependencyException extends Exception {
 
 	private static final long serialVersionUID = 1L;
 
-	public SnapshotException() {
+	public SciJavaDependencyException() {
 		super();
 	}
 
-	public SnapshotException(final String s) {
+	public SciJavaDependencyException(final String s) {
 		super(s);
 	}
 
-	public SnapshotException(final String s, final Throwable cause) {
+	public SciJavaDependencyException(final String s, final Throwable cause) {
 		super(s, cause);
 	}
 
-	public SnapshotException(final Throwable cause) {
+	public SciJavaDependencyException(final Throwable cause) {
 		super(cause);
 	}
 

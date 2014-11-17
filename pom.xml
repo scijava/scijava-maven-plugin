@@ -20,6 +20,7 @@
 	<properties>
 		<enforcer.version>1.3.1</enforcer.version>
 		<maven.version>3.0</maven.version>
+		<maven-dependency.version>2.9</maven-dependency.version>
 	</properties>
 
 	<mailingLists>
@@ -72,6 +73,11 @@
 					<artifactId>classworlds</artifactId>
 				</exclusion>
 			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.maven.plugins</groupId>
+			<artifactId>maven-dependency-plugin</artifactId>
+			<version>${maven-dependency.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.maven</groupId>

@@ -7,13 +7,13 @@
  * %%
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- * 
+ *
  * 1. Redistributions of source code must retain the above copyright notice,
  *    this list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright notice,
  *    this list of conditions and the following disclaimer in the documentation
  *    and/or other materials provided with the distribution.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -30,26 +30,20 @@
 
 package org.scijava.maven.plugin;
 
-import java.util.HashSet;
-import java.util.LinkedHashMap;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.maven.artifact.Artifact;
-import org.apache.maven.artifact.DefaultArtifact;
 import org.apache.maven.artifact.repository.ArtifactRepository;
-import org.apache.maven.artifact.versioning.VersionRange;
-import org.apache.maven.model.Dependency;
-import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectBuilder;
 import org.apache.maven.project.ProjectBuildingException;
+import org.apache.maven.shared.dependency.tree.DependencyNode;
 
 /**
- * This class recursively checks a specified project, all dependencies, and
- * parent poms of any of these projects, for SNAPSHOT couplings. Any such
- * couplings are reported, and cause a {@link SnapshotException} to be thrown.
+ * {@link SciJavaDependencyChecker} implementation that fails when it encounters
+ * a SNAPSHOT dependency or parent.
  * <p>
  * Options:
  * <ul>
@@ -62,450 +56,303 @@ import org.apache.maven.project.ProjectBuildingException;
  *
  * @author Mark Hiner
  */
-public class SnapshotFinder {
-
-	// -- Constants --
-
-	private static final String PARENT_FLAG = "BAD PARENT";
-
-	// -- Fields --
-
-	@SuppressWarnings("rawtypes")
-	private List remoteRepositories;
-
-	private Log log = null;
-
-	private boolean foundSnapshot = false;
-
-	private Map<String, Set<String>> badGavs =
-		new LinkedHashMap<String, Set<String>>();
+public class SnapshotFinder extends AbstractSciJavaDependencyChecker {
 
 	// -- Parameters --
 
+	@SuppressWarnings("rawtypes")
+	private final List remoteRepositories;
 	private final MavenProjectBuilder projectBuilder;
-
 	private final ArtifactRepository localRepository;
 
-	private final Boolean failEarly;
+	// -- Fields --
 
-	private final Boolean verbose;
+	private final Map<DependencyNode, Result> results =
+		new HashMap<DependencyNode, Result>();
 
-	private final Set<String> groupIds = new HashSet<String>();
+	// -- Constructor --
 
-	// -- Constructors --
-
-	/**
-	 * Minimal constructor. Sets:
-	 * <ul>
-	 * <li>failEarly = false</li>
-	 * <li>verbose = false</li>
-	 * <li>groupIds = *</li>
-	 * </ul>
-	 */
 	public SnapshotFinder(final MavenProjectBuilder projectBuilder,
-		final ArtifactRepository localRepository)
-	{
-		this(projectBuilder, localRepository, false);
-	}
-
-	/**
-	 * Sets:
-	 * <ul>
-	 * <li>verbose = false</li>
-	 * <li>groupIds = *</li>
-	 * </ul>
-	 */
-	public SnapshotFinder(final MavenProjectBuilder projectBuilder,
-		final ArtifactRepository localRepository, final Boolean failEarly)
-	{
-		this(projectBuilder, localRepository, failEarly, false);
-	}
-
-	/**
-	 * Sets:
-	 * <ul>
-	 * <li>groupIds = *</li>
-	 * </ul>
-	 */
-	public SnapshotFinder(final MavenProjectBuilder projectBuilder,
-		final ArtifactRepository localRepository, final Boolean failEarly,
-		final Boolean verbose)
-	{
-		this(projectBuilder, localRepository, failEarly, verbose, null);
-	}
-
-	/**
-	 * Fully-specified constructor.
-	 *
-	 * @param projectBuilder - {@link MavenProjectBuilder} reference
-	 * @param localRepository - {@link ArtifactRepository} corresponding to the
-	 *          local repo. Used to resolve dependencies.
-	 * @param failEarly - If true, projects will fail after finding any SNAPSHOT
-	 *          problems.
-	 * @param verbose - If true, full failing dependency paths will be printed.
-	 * @param groupIds - List of zero or more groupIds. If any are specified,
-	 *          problems will only be reported if they are of one of these
-	 *          groupIds.
-	 */
-	public SnapshotFinder(final MavenProjectBuilder projectBuilder,
-		final ArtifactRepository localRepository, final Boolean failEarly,
-		final Boolean verbose, @SuppressWarnings("rawtypes") final List groupIds)
+		final ArtifactRepository localRepository,
+		@SuppressWarnings("rawtypes") final List remoteRepositories)
 	{
 		this.projectBuilder = projectBuilder;
 		this.localRepository = localRepository;
-		this.failEarly = failEarly;
-		this.verbose = verbose;
+		this.remoteRepositories = remoteRepositories;
+	}
 
-		if (groupIds != null) {
-			for (int i = 0; i < groupIds.size(); i++) {
-				this.groupIds.add((String) groupIds.get(i));
+	// -- SciJavaDependencyChecker API --
+
+	@Override
+	public String makeExceptionMessage() {
+		if (!failed()) return null;
+		// Header
+		String message =
+			"\nThe following dependencies either are SNAPSHOT versions (V), contain "
+				+ "\nSNAPSHOT parents (P), or contain SNAPSHOT dependencies (D):\n\n";
+
+		// Because we are using the Maven 2 DependencyTree, artifacts can be listed
+		// multiple times if multiple components depend on them. Thus we need to
+		// merge our dependencies to a set of artifacts.
+		final Map<Artifact, Result> mergedResults = new HashMap<Artifact, Result>();
+
+		for (final DependencyNode node : results.keySet()) {
+			final Artifact a = node.getArtifact();
+			final Result r = results.get(node);
+			if (mergedResults.containsKey(a)) {
+				mergedResults.get(a).merge(r);
+			}
+			else mergedResults.put(a, r);
+		}
+
+		// Take the list of artifacts and add any failures to the exception message
+		for (final Artifact a : mergedResults.keySet()) {
+			final Result r = mergedResults.get(a);
+			if (r.failed() && matches(a.getGroupId())) {
+				message +=
+					r.failTags() + " " + a.getGroupId() + ":" + a.getArtifactId() + ":" +
+						a.getVersion() + "\n";
 			}
 		}
+
+		// Add a note about failing fast, if appropriate
+		if (isFailFast()) {
+			message += "\nThere may be others but <failFast> was set to false\n";
+		}
+
+		return message;
 	}
 
-// -- Public API --
+	// -- DependencyNodeVisitor API --
 
-	/**
-	 * Recursively checks the given project for SNAPSHOT dependencies.
-	 * 
-	 * @param project - Base {@link MavenProject} (pom) to check.
-	 * @throws SnapshotException If a SNAPSHOT dependency is discovered
-	 */
-	public void checkProject(final MavenProject project) throws SnapshotException
-	{
-		// Set the remote repository list by using the base project
-		remoteRepositories = project.getRemoteArtifactRepositories();
+	@Override
+	public boolean visit(final DependencyNode node) {
+		final Artifact a = node.getArtifact();
+		MavenProject pom = null;
+		Result r = null;
+		try {
+			pom = getProject(a);
 
-		// Initialize data structures
-		final Set<String> parentGavs = new HashSet<String>();
-		final String projectGav = gav(project);
-		parentGavs.add(projectGav);
-
-		// enter recursion
-		checkProjectHelper(project, "\t" + projectGav, parentGavs, null);
-
-		// print failing messages
-		if (foundSnapshot) {
-			// If not verbose, all reporting occurs at the end.
-			if (!verbose) {
-				String errorMessage =
-					"The following direct dependencies may cause unreproducible builds:\n";
-
-				for (final String directDep : badGavs.keySet()) {
-					errorMessage += "\n" + directDep;
-					for (final String dep : badGavs.get(directDep)) {
-						errorMessage += "\n\t" + dep;
-					}
-					errorMessage += "\n";
-				}
-
-				errorMessage += "\nFor full inheritance trees, run with verbose flag.";
-
-				error(errorMessage);
+			// for the root node, we want to check its parents but we don't care if
+			// it is a SNAPSHOT itself.
+			if (isRoot(node)) {
+				r = new Result();
+				checkParent(pom, r);
 			}
-
-			// Calling code can catch this SnapshotException and re-throw as needed
-			// (e.g. for Mojos or Enforcer rules)
-			throw new SnapshotException(
-				"Found one or more SNAPSHOT couplings. See error log for more information.");
-		}
-	}
-
-	/**
-	 * Sets the {@link Log} for this instance. This is an optional field that will
-	 * be used to report findings, but will not affect success or failure of a
-	 * {@link #checkProject(MavenProject)} execution.
-	 */
-	public void setLog(final Log log) {
-		this.log = log;
-	}
-
-//-- Helper methods --
-
-	/**
-	 * {@link Log#debug} helper.
-	 *
-	 * @param message - Message to send to attached {@link Log}'s debug stream.
-	 */
-	private void debug(final String message) {
-		if (log != null) {
-			log.debug(message);
-		}
-	}
-
-	/**
-	 * {@link Log#error} helper.
-	 *
-	 * @param message - Message to send to attached {@link Log}'s error stream.
-	 */
-	private void error(final String message) {
-		if (log != null) {
-			log.error(message);
-		}
-	}
-
-	/**
-	 * Recursively checks the parent pom hierarchy and each dependency of the
-	 * given project for SNAPSHOT dependencies.
-	 *
-	 * @param project Maven pom to check
-	 * @param path A formatted path (e.g. 1 gav per line) representing the
-	 *          hierarchy that was followed to this pom
-	 * @param parentGavs The set of all gavs which inherit from the current
-	 *          project. Used to avoid infinite recursion.
-	 * @param directDepGav Should be null for the first iteration. This is used to
-	 *          track the current direct dependency of the original base pom. For
-	 *          non-verbose execution, errors are reported per-direct dependency.
-	 * @throws SnapshotException If a SNAPSHOT dependency is discovered and this
-	 *           SnapshotFinder is supposed to fail fast.
-	 */
-	private void checkProjectHelper(final MavenProject project,
-		final String path, final Set<String> parentGavs, final String directDepGav)
-		throws SnapshotException
-	{
-		// Check the parent hierarchy
-		checkParent(project, path, parentGavs, directDepGav);
-
-		@SuppressWarnings("unchecked")
-		final List<Dependency> dependencies = project.getDependencies();
-
-		// iterate over each dependency
-		for (final Dependency d : dependencies) {
-			try {
-
-				// Fail fast if version is a range, as this can not be reproducible.
-				if (isRange(d.getVersion())) {
-					if (checkGroupId(d.getGroupId())) {
-						if (verbose) {
-							// Report if the dependency pom could not be built
-							// This will happen commonly with dependencies declared with version
-							// ranges
-							error("Dependency listed with version range: " + d +
-								" of path:\n" + path);
-						}
-						else {
-							flagProblem(directDepGav, gav(d));
-						}
-					}
-					continue;
-				}
-
-				// Convert the dependency gav to a MavenProject object (pom)
-				final Artifact a =
-					new DefaultArtifact(d.getGroupId(), d.getArtifactId(), VersionRange
-						.createFromVersion(d.getVersion()), d.getScope(), d.getType(), d
-						.getClassifier(), project.getArtifact().getArtifactHandler());
-				final MavenProject dep =
-					projectBuilder.buildFromRepository(a, remoteRepositories,
-						localRepository);
-
-				final String depGav = gav(dep);
-
-				// Avoid infinite recursion
-				if (!parentGavs.contains(depGav)) {
-					debug("Checking gav: " + depGav);
-					// Mark this gav as processed
-					parentGavs.add(depGav);
-					// Generate a path for this dependency
-					final String depPath = makePath(path, dep);
-					debug("checking pom:\n" + depPath);
-					// Check for a SNAPSHOT version
-					if (dep.getVersion().contains(Artifact.SNAPSHOT_VERSION) &&
-						checkGroupId(dep))
-					{
-						setFailure("Found SNAPSHOT version:\n", path, depGav, directDepGav);
-					}
-
-					// Recursive call. directDepGav is null only at the top level.
-					if (directDepGav == null) {
-						checkProjectHelper(dep, depPath, childGavs(parentGavs, depGav),
-							depGav);
-					}
-					else {
-						checkProjectHelper(dep, depPath, childGavs(parentGavs, depGav),
-							directDepGav);
-					}
-				}
-			}
-			catch (ProjectBuildingException e) {
-				if (checkGroupId(d.getGroupId())) {
-					if (verbose) {
-						// Report if the dependency pom could not be built
-						// This will happen commonly with dependencies declared with version
-						// ranges
-						error("Could not resolve dependency: " + d + " of path:\n" + path);
-					}
-					else {
-						flagProblem(directDepGav, gav(d));
-					}
-				}
+			else {
+				r = containsSnapshots(pom);
 			}
 		}
+		catch (final ProjectBuildingException e) {
+			r = new Result();
+			r.setFailTag(" Failed to build pom.");
+		}
+
+		// save the results
+		results.put(node, r);
+
+		// set failure and propagate to parent nodes
+		if (r.failed() && matches(a.getGroupId())) {
+			setFailed();
+			markParent(node);
+		}
+
+		return !stopVisit();
+	}
+
+	// -- Helper methods --
+
+	/**
+	 * Recursively sets the {@link Result}s of all parents of the given node as
+	 * having {@link Result#badDep()}.
+	 *
+	 * @param badDependency A failed {@link DependencyNode}.
+	 */
+	private void markParent(final DependencyNode badDependency) {
+		final DependencyNode parent = badDependency.getParent();
+
+		if (parent != null && !isRoot(parent)) {
+			final Result r = results.get(parent);
+			// badDep returns the value previously set for the Result#dep field.
+			// We only set badDep here, thus if it was already true we know we've
+			// already ascended this path before and do not need to recurse further.
+			if (!r.badDep()) markParent(parent);
+		}
 	}
 
 	/**
-	 * Recursively checks the parent pom looking for SNAPSHOT dependencies.
+	 * Generate a {@link Result} if the specified {@link MavenProject} is a
+	 * SNAPSHOT version or contains a SNAPSHOT in its parent pom hierarchy.
+	 * <p>
+	 * NB: we do not need to check the dependencies of the given pom, as this is
+	 * done implicitly by the visitor pattern. However, pom parents are not
+	 * visited! Thus they must be recursively checked.
+	 * </p>
 	 *
-	 * @param pom Maven project whose parent to check
-	 * @param path A formatted path (e.g. 1 gav per line) representing the
-	 *          hierarchy that was followed to this pom
-	 * @param parentGavs The set of all gavs which inherit from the current
-	 *          project. Used to avoid infinite recursion.
-	 * @param directDepGav The current direct dependency of the original base pom.
-	 *          For non-verbose execution, errors are reported per-direct
-	 *          dependency.
-	 * @throws SnapshotException If a SNAPSHOT dependency is discovered and this
-	 *           SnapshotFinder is supposed to fail fast.
+	 * @param pom {@link MavenProject} to check for SNAPSHOT dependencies.
 	 */
-	private void checkParent(final MavenProject pom, final String path,
-		final Set<String> parentGavs, final String directDepGav)
-		throws SnapshotException
-	{
-		// If the current pom has no parent, we're done
+	private Result containsSnapshots(final MavenProject pom) {
+		final Result r = new Result();
+
+		// If there is a parent pom, recurse its hierarchy looking for SNAPSHOTs
 		if (pom.hasParent()) {
-			final MavenProject parent = pom.getParent();
-			final String nextGav = gav(parent);
+			checkParent(pom, r);
+		}
 
-			// Avoid infinite recursion
-			if (!parentGavs.contains(nextGav)) {
-				// Mark this gav as processed
-				// Generate a path for this parent
-				final String parentPath = makePath(path, parent);
-				debug("checking parent:\n" + parentPath);
+		// If the pom itself is bad, mark it as such.
+		if (isSnapshot(pom.getVersion())) {
+			r.badVersion();
+		}
 
-				// Check if the parent pom is a SNAPSHOT
-				if (parent.getVersion().contains(Artifact.SNAPSHOT_VERSION) &&
-					checkGroupId(parent))
-				{
-					setFailure("Found SNAPSHOT parent:\n", path, nextGav, directDepGav);
-				}
+		return r;
+	}
 
-				// Recrusive call
-				checkParent(parent, parentPath, childGavs(parentGavs, nextGav),
-					directDepGav);
+	/**
+	 * Recursively check the parents of a given {@link MavenProject} for SNAPSHOT
+	 * versions.
+	 *
+	 * @param pom {@link MavenProject} to check for SNAPSHOT parents.
+	 * @param result {@link Result} instance for the original base pom, to record
+	 *          if a bad parent is found.
+	 */
+	private void checkParent(final MavenProject pom, final Result result) {
+		final MavenProject parent = pom.getParent();
+
+		// We don't record the exact SNAPSHOT parent - just whether or not one
+		// was found. So if this parent is a SNAPSHOT, short-circuit and return.
+		// Otherwise recurse to the next parent if there is one.
+		if (isSnapshot(parent.getVersion())) {
+			result.badParent();
+		}
+		else if (parent.hasParent()) {
+			// Recurse if needed
+			checkParent(parent, result);
+		}
+	}
+
+	/**
+	 * Helper method to build a {@link MavenProject} from an {@link Artifact}.
+	 *
+	 * @param a Artifact specifying the {@link MavenProject} to build.
+	 * @return An initialized {@link MavenProject}.
+	 * @throws ProjectBuildingException As
+	 *           {@link MavenProjectBuilder#buildFromRepository}.
+	 */
+	private MavenProject getProject(final Artifact a)
+		throws ProjectBuildingException
+	{
+		final MavenProject project =
+			projectBuilder
+				.buildFromRepository(a, remoteRepositories, localRepository);
+		return project;
+	}
+
+	/**
+	 * Helper method to check if a version is a SNAPSHOT.
+	 *
+	 * @param version Version string to check.
+	 * @return True iff the given version string is a SNAPSHOT version.
+	 */
+	private boolean isSnapshot(final String version) {
+		return version.contains(Artifact.SNAPSHOT_VERSION);
+	}
+
+	/**
+	 * Helper class to track failures by cause.
+	 */
+	private static class Result {
+
+		// -- Fields --
+
+		private boolean parent = false;
+		private boolean dep = false;
+		private boolean version = false;
+		private String tag = "";
+
+		// -- Result API --
+
+		/**
+		 * Marks this {@link Result} as having a bad parent pom.
+		 */
+		public void badParent() {
+			parent = true;
+		}
+
+		/**
+		 * Marks this {@link Result} as having a bad transitive dependency.
+		 *
+		 * @return The previous value of this flag (e.g. will return false the first
+		 *         time it is called, and true afterwards).
+		 */
+		public boolean badDep() {
+			final boolean oldValue = dep;
+			dep = true;
+			return oldValue;
+		}
+
+		/**
+		 * Marks this {@link Result} as being a SNAPSHOT version.
+		 */
+		public void badVersion() {
+			version = true;
+		}
+
+		/**
+		 * Marks this {@link Result} as failing for an unusual reason (e.g. couldn't
+		 * check it due to an exception}. Typically tags are generated dynamically
+		 * from the {@link #failTags()} method, but this allows exception messages
+		 * to be preserved for final output.
+		 *
+		 * @param tag Explicit message tag to use for this {@link Result}
+		 */
+		public void setFailTag(final String tag) {
+			this.tag = tag;
+		}
+
+		/**
+		 * @return true if this {@link Result} has one or more of:
+		 *         <ul>
+		 *         <li>a bad parent</li>
+		 *         <li>bad dependency</li>
+		 *         <li>is a SNAPSHOT</li>
+		 *         <li>has a custom failure tag set</li>
+		 *         </ul>
+		 */
+		public boolean failed() {
+			return !tag.isEmpty() || parent || dep || version;
+		}
+
+		/**
+		 * @return A string containing all applicable failure causes for this
+		 *         {@link Result}.
+		 */
+		public String failTags() {
+			return tag + (version ? " (V) " : "") + (parent ? " (P) " : "") +
+				(dep ? " (D) " : "");
+		}
+
+		/**
+		 * Merges this and a provided {@link Result}'s failure causes. For example,
+		 * if this has a bad parent and the provided {@code Result} has a bad
+		 * dependency, after the merge this would indicate a bad parent and bad
+		 * dependency.
+		 * <p>
+		 * Custom tag messages are appended.
+		 * </p>
+		 * 
+		 * @param r Result to merge into this.
+		 */
+		public void merge(final Result r) {
+			parent = parent || r.parent;
+			dep = dep || r.dep;
+			version = version || r.version;
+
+			if (!tag.isEmpty() && r.tag.isEmpty()) {
+				tag = tag + " | " + r.tag;
 			}
-		}
-	}
+			else tag += r.tag;
 
-	/**
-	 * @return A new Set, created from the union of the given parentGavs and child
-	 */
-	private Set<String> childGavs(final Set<String> parentGavs,
-		final String childGav)
-	{
-		final Set<String> childGavs = new HashSet<String>(parentGavs);
-		childGavs.add(childGav);
-		return childGavs;
-	}
-
-	/**
-	 * @return True iff no set of groupIds was specified, or the specified set
-	 *         contains the groupId of the given project.
-	 */
-	private boolean checkGroupId(final MavenProject project) {
-		return checkGroupId(project.getGroupId());
-	}
-
-	/**
-	 * @return True iff no set of groupIds was specified, or the specified set
-	 *         contains the given groupId.
-	 */
-	private boolean checkGroupId(final String groupId) {
-		return groupIds.isEmpty() || groupIds.contains(groupId);
-	}
-
-	/**
-	 * @return True iff the provided version string is a Maven version range (or
-	 *         malformed version)
-	 */
-	private boolean isRange(final String version) {
-		return version.startsWith("[") || version.startsWith("(") ||
-			version.endsWith("]") || version.endsWith(")");
-	}
-
-	/**
-	 * Prepends the given project's gav, in a separate line, to the given path
-	 */
-	private String makePath(final String path, final MavenProject project) {
-		return makePath(path, gav(project));
-	}
-
-	/**
-	 * Prepends the given project's gav, in a separate line, to the given path
-	 */
-	private String makePath(final String path, final String gav) {
-		String newPath = "\t" + gav + "\n" + path;
-		return newPath;
-	}
-
-	/**
-	 * Returns the GAV (groupId:artifactId:version) for the given project
-	 */
-	private String gav(final MavenProject project) {
-		return gav(project.getGroupId(), project.getArtifactId(), project
-			.getVersion());
-	}
-
-	/**
-	 * Returns the GAV (groupId:artifactId:version) for the given dependency
-	 */
-	private String gav(Dependency d) {
-		return gav(d.getGroupId(), d.getArtifactId(), d.getVersion());
-	}
-
-	/**
-	 * Builds a formatted GAV from a given groupId, artifactId and version.
-	 */
-	private String gav(final String groupId, final String artifactId,
-		final String version)
-	{
-		return groupId + ":" + artifactId + ":" + version;
-	}
-
-	/**
-	 * Prints the given message to the error log and marks this mojo execution as
-	 * a failure.
-	 *
-	 * @param message Error message to print
-	 * @param path A formatted path (e.g. 1 gav per line) representing the
-	 *          hierarchy that was followed to this pom
-	 * @param gav The gav of the failing project
-	 * @param directDepGav The direct dependency of the original base pom from
-	 *          which the failing gav was inherited. For non-verbose execution,
-	 *          errors are reported per-direct dependency.
-	 * @throws SnapshotException If this SnapshotFinder should fail fast.
-	 */
-	private void setFailure(final String message, final String path,
-		final String gav, final String directDepGav) throws SnapshotException
-	{
-		if (failEarly) {
-			throw new SnapshotException(message + makePath(path, gav) +
-				"\n\nThere may be other failures but <failEarly> was set to true");
 		}
 
-		if (verbose) error(message + makePath(path, gav));
-		else flagProblem(directDepGav, gav);
-
-		foundSnapshot = true;
-	}
-
-	/**
-	 * Helper method to record the problematic gavs for a given direct dependency
-	 * of a checked base pom.
-	 *
-	 * @param directDepGav The direct dependency of the original base pom which
-	 *          inherits from a failing gav. If null, indicates a problem in the
-	 *          base pom itself and a marker flag is used.
-	 * @param gav The problematic gav
-	 */
-	private void flagProblem(String directDepGav, final String gav) {
-		// track failures of the base pom itself using a special flag
-		if (directDepGav == null) directDepGav = PARENT_FLAG;
-
-		if (badGavs.get(directDepGav) == null) {
-			badGavs.put(directDepGav, new HashSet<String>());
-		}
-
-		badGavs.get(directDepGav).add(gav);
 	}
 }

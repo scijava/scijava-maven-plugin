@@ -7,13 +7,13 @@
  * %%
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- * 
+ *
  * 1. Redistributions of source code must retain the above copyright notice,
  *    this list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright notice,
  *    this list of conditions and the following disclaimer in the documentation
  *    and/or other materials provided with the distribution.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -30,8 +30,9 @@
 
 package org.scijava.maven.plugin;
 
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.plugin.AbstractMojo;
@@ -39,14 +40,14 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectBuilder;
+import org.apache.maven.shared.dependency.tree.DependencyTreeBuilder;
 
 /**
  * Mojo wrapper for the {@link SnapshotFinder}.
  * <p>
  * Parameters:
  * <ul>
- * <li>failEarly - end execution after first failure (default: false)</li>
- * <li>verbose - prints full inheritance paths to all failures (default: false)</li>
+ * <li>failFast - end execution after first failure (default: false)</li>
  * <li>groupIds - an inclusive list of groupIds. Errors will only be reported
  * for projects whose groupIds are contained this list. (default: empty - all
  * groupIds considered)</li>
@@ -65,17 +66,20 @@ public class VerifyNoSnapshotsMojo extends AbstractMojo {
 	/** @parameter default-value="${project}" */
 	private MavenProject mavenProject;
 
+	/**
+	 * @component role =
+	 *            "org.apache.maven.shared.dependency.tree.DependencyTreeBuilder"
+	 */
+	private DependencyTreeBuilder dependencyTreeBuilder;
+
 	/** @component role = "org.apache.maven.project.MavenProjectBuilder" */
-	private MavenProjectBuilder m_projectBuilder;
+	private MavenProjectBuilder projectBuilder;
 
 	/** @parameter expression="${localRepository}" */
-	private ArtifactRepository m_localRepository;
+	private ArtifactRepository localRepository;
 
-	/** @parameter property="failEarly" default-value=false */
-	private Boolean failEarly;
-
-	/** @parameter property="verbose" default-value=false */
-	private Boolean verbose;
+	/** @parameter property="failFast" default-value=false */
+	private Boolean failFast;
 
 	/** @parameter property="groupId" */
 	private String groupId;
@@ -92,31 +96,35 @@ public class VerifyNoSnapshotsMojo extends AbstractMojo {
 	@Override
 	public void execute() throws MojoExecutionException, MojoFailureException {
 
-		if (groupId != null) addGroup(groupId);
-
 		// Enter recursive project checking
 		final SnapshotFinder fs =
-			new SnapshotFinder(m_projectBuilder, m_localRepository, failEarly,
-				verbose, groupIds);
+			new SnapshotFinder(projectBuilder, localRepository, mavenProject
+				.getRemoteArtifactRepositories());
 
 		fs.setLog(getLog());
+		fs.setFailFast(failFast);
+		fs.setGroupIds(getGroupIds());
 
-		// Failure at the end of execution
 		try {
-			fs.checkProject(mavenProject);
+			DependencyUtils.checkDependencies(mavenProject, localRepository,
+				dependencyTreeBuilder, fs);
 		}
-		catch (SnapshotException e) {
-			throw new MojoFailureException(e.getMessage());
+		catch (final SciJavaDependencyException e) {
+			throw new MojoFailureException(e.getMessage() +
+				"\nTo disable Maven Enforcer rules for local development, re-run" +
+				" Maven\n with the -Denforcer.skip property set.\n");
 		}
 	}
 
 	// -- Helper methods --
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	private void addGroup(final String groupId) {
-		if (groupIds == null) {
-			groupIds = new ArrayList();
+	private Set<String> getGroupIds() {
+		final Set<String> ids = new HashSet<String>();
+		if (groupIds != null) {
+			for (final Object id : groupIds)
+				ids.add((String) id);
 		}
-		groupIds.add(groupId);
+		if (groupId != null) ids.add(groupId);
+		return ids;
 	}
 }
