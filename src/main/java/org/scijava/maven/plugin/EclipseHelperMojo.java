@@ -31,8 +31,6 @@
 package org.scijava.maven.plugin;
 
 import java.io.File;
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -44,28 +42,26 @@ import org.apache.maven.model.Build;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 
 /**
  * Runs the annotation processor of the <tt>scijava-common</tt> artifact even inside Eclipse.
  * 
  * @author Johannes Schindelin
- * 
- * @goal eclipse-helper
- * @phase process-classes
- * @requiresProject
- * @requiresDependencyResolution compile
  */
+@Mojo(name = "eclipse-helper", defaultPhase = LifecyclePhase.PROCESS_CLASSES,
+	requiresProject = true,
+	requiresDependencyResolution = ResolutionScope.COMPILE)
 public class EclipseHelperMojo extends AbstractMojo {
 
 	private static final String SCIJAVA_COMMON_ARTIFACTID = "scijava-common";
 	private static final String SCIJAVA_COMMON_GROUPID = "org.scijava";
 
-	/**
-	 * @parameter expression="${project}"
-	 * @required
-	 * @readonly
-	 */
+	@Parameter(defaultValue="${project}", required = true, readonly = true)
 	private MavenProject currentProject;
 
 	@Override
@@ -81,7 +77,6 @@ public class EclipseHelperMojo extends AbstractMojo {
 
 		getLog().info("Parsing SciJava annotations");
 		try {
-			@SuppressWarnings("unchecked")
 			final List<String> elements = currentProject.getCompileClasspathElements();
 			final URL[] classpath = new URL[elements.size() + 1];
 			classpath[0] = buildDirectory.toURI().toURL();
@@ -131,7 +126,6 @@ public class EclipseHelperMojo extends AbstractMojo {
 	 * @return true iff the project depends on <code>scijava-common</code>
 	 */
 	private boolean dependsOnScijavaCommon(final MavenProject project) {
-		@SuppressWarnings("unchecked")
 		final List<Dependency> dependencies = project.getCompileDependencies();
 		if (dependencies == null) return false;
 
