@@ -66,6 +66,12 @@
 			<groupId>org.apache.maven.enforcer</groupId>
 			<artifactId>enforcer-api</artifactId>
 			<version>${enforcer.version}</version>
+			<exclusions>
+				<exclusion>
+					<groupId>classworlds</groupId>
+					<artifactId>classworlds</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.maven</groupId>
@@ -124,38 +130,6 @@
 						</lifecycleMappingMetadata>
 					</configuration>
 				</plugin>
-
-				<plugin>
-					<artifactId>maven-enforcer-plugin</artifactId>
-					<executions>
-						<execution>
-							<id>enforce-rules</id>
-							<configuration>
-								<rules>
-									<banDuplicateClasses>
-										<dependencies>
-											<!-- Multiple plexus-utils are dragged in by maven-* dependencies -->
-											<dependency>
-												<artifactId>plexus-utils</artifactId>
-												<ignoreClasses>
-													<ignoreClass>org/codehaus/plexus/util/*</ignoreClass>
-												</ignoreClasses>
-											</dependency>
-
-											<!-- Multiple plexus-component-annotations are dragged in by maven-* dependencies -->
-											<dependency>
-												<artifactId>plexus-component-annotations</artifactId>
-												<ignoreClasses>
-													<ignoreClass>org/codehaus/plexus/component/annotations/*</ignoreClass>
-												</ignoreClasses>
-											</dependency>
-										</dependencies>
-									</banDuplicateClasses>
-								</rules>
-							</configuration>
-						</execution>
-					</executions>
-				</plugin>
 			</plugins>
 		</pluginManagement>
 		<plugins>
@@ -166,9 +140,21 @@
 						<banDuplicateClasses>
 							<dependencies>
 								<dependency>
+									<artifactId>plexus-component-annotations</artifactId>
+									<ignoreClasses>
+										<ignoreClass>org/codehaus/plexus/component/annotations/*</ignoreClass>
+									</ignoreClasses>
+								</dependency>
+								<dependency>
 									<artifactId>plexus-container-default</artifactId>
 									<ignoreClasses>
 										<ignoreClass>org/codehaus/plexus/*</ignoreClass>
+									</ignoreClasses>
+								</dependency>
+								<dependency>
+									<artifactId>plexus-utils</artifactId>
+									<ignoreClasses>
+										<ignoreClass>org/codehaus/plexus/util/*</ignoreClass>
 									</ignoreClasses>
 								</dependency>
 								<dependency>
