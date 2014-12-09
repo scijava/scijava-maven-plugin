@@ -20,7 +20,8 @@
 	<properties>
 		<enforcer.version>1.3.1</enforcer.version>
 		<maven.version>3.0</maven.version>
-		<maven-dependency.version>2.9</maven-dependency.version>
+		<maven2.version>2.2.1</maven2.version>
+		<maven-tree.version>2.2</maven-tree.version>
 	</properties>
 
 	<mailingLists>
@@ -72,27 +73,92 @@
 					<groupId>classworlds</groupId>
 					<artifactId>classworlds</artifactId>
 				</exclusion>
+				<exclusion>
+					<groupId>org.apache.maven</groupId>
+					<artifactId>maven-plugin-api</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.codehaus.plexus</groupId>
+					<artifactId>plexus-utils</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.codehaus.plexus</groupId>
+					<artifactId>plexus-container-default</artifactId>
+				</exclusion>
 			</exclusions>
 		</dependency>
 		<dependency>
-			<groupId>org.apache.maven.plugins</groupId>
-			<artifactId>maven-dependency-plugin</artifactId>
-			<version>${maven-dependency.version}</version>
+			<groupId>org.apache.maven</groupId>
+			<artifactId>maven-artifact</artifactId>
+			<version>${maven2.version}</version>
+			<exclusions>
+				<exclusion>
+					<groupId>org.codehaus.plexus</groupId>
+					<artifactId>plexus-utils</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.maven</groupId>
+			<artifactId>maven-project</artifactId>
+			<version>${maven2.version}</version>
+			<exclusions>
+				<exclusion>
+					<groupId>org.codehaus.plexus</groupId>
+					<artifactId>plexus-interpolation</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.codehaus.plexus</groupId>
+					<artifactId>plexus-utils</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.apache.maven</groupId>
+					<artifactId>maven-artifact-manager</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.apache.maven</groupId>
+					<artifactId>maven-model</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.apache.maven</groupId>
+					<artifactId>maven-settings</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>classworlds</groupId>
+					<artifactId>classworlds</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.maven</groupId>
 			<artifactId>maven-plugin-api</artifactId>
 			<version>${maven.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.maven</groupId>
-			<artifactId>maven-compat</artifactId>
-			<version>${maven.version}</version>
+			<exclusions>
+				<exclusion>
+					<groupId>org.sonatype.sisu</groupId>
+					<artifactId>sisu-inject-plexus</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.maven</groupId>
 			<artifactId>maven-core</artifactId>
 			<version>${maven.version}</version>
+			<exclusions>
+				<exclusion>
+					<groupId>org.sonatype.sisu</groupId>
+					<artifactId>sisu-inject-plexus</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.codehaus.plexus</groupId>
+					<artifactId>plexus-utils</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.maven.shared</groupId>
+			<artifactId>maven-dependency-tree</artifactId>
+			<version>${maven-tree.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.maven.plugin-tools</groupId>
@@ -144,35 +210,19 @@
 				<configuration>
 					<rules>
 						<banDuplicateClasses>
+							<!-- maven-artifact and maven-project are 2.0 artifacts that
+									 clash with maven-core 3.0 -->
 							<dependencies>
 								<dependency>
-									<artifactId>plexus-component-annotations</artifactId>
+									<artifactId>maven-artifact</artifactId>
 									<ignoreClasses>
-										<ignoreClass>org/codehaus/plexus/component/annotations/*</ignoreClass>
+										<ignoreClass>org/apache/maven/artifact/*</ignoreClass>
 									</ignoreClasses>
 								</dependency>
 								<dependency>
-									<artifactId>plexus-container-default</artifactId>
+									<artifactId>maven-project</artifactId>
 									<ignoreClasses>
-										<ignoreClass>org/codehaus/plexus/*</ignoreClass>
-									</ignoreClasses>
-								</dependency>
-								<dependency>
-									<artifactId>plexus-utils</artifactId>
-									<ignoreClasses>
-										<ignoreClass>org/codehaus/plexus/util/*</ignoreClass>
-									</ignoreClasses>
-								</dependency>
-								<dependency>
-									<artifactId>maven-reporting-api</artifactId>
-									<ignoreClasses>
-										<ignoreClass>org/apache/maven/reporting/*</ignoreClass>
-									</ignoreClasses>
-								</dependency>
-								<dependency>
-									<artifactId>maven-plugin-api</artifactId>
-									<ignoreClasses>
-										<ignoreClass>org/apache/maven/plugin/*</ignoreClass>
+										<ignoreClass>org/apache/maven/project/*</ignoreClass>
 									</ignoreClasses>
 								</dependency>
 							</dependencies>
