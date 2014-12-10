@@ -195,9 +195,7 @@ public class SnapshotFinder extends AbstractSciJavaDependencyChecker {
 		final Result r = new Result();
 
 		// If there is a parent pom, recurse its hierarchy looking for SNAPSHOTs
-		if (pom.hasParent()) {
-			checkParent(pom, r);
-		}
+		checkParent(pom, r);
 
 		// If the pom itself is bad, mark it as such.
 		if (isSnapshot(pom.getVersion())) {
@@ -216,15 +214,14 @@ public class SnapshotFinder extends AbstractSciJavaDependencyChecker {
 	 *          if a bad parent is found.
 	 */
 	private void checkParent(final MavenProject pom, final Result result) {
-		final MavenProject parent = pom.getParent();
-
-		// We don't record the exact SNAPSHOT parent - just whether or not one
-		// was found. So if this parent is a SNAPSHOT, short-circuit and return.
-		// Otherwise recurse to the next parent if there is one.
-		if (isSnapshot(parent.getVersion())) {
-			result.badParent();
-		}
-		else if (parent.hasParent()) {
+		if (pom.hasParent()) {
+			final MavenProject parent = pom.getParent();
+			// We don't record the exact SNAPSHOT parent - just whether or not one
+			// was found. So if this parent is a SNAPSHOT, short-circuit and return.
+			// Otherwise recurse to the next parent if there is one.
+			if (isSnapshot(parent.getVersion())) {
+				result.badParent();
+			}
 			// Recurse if needed
 			checkParent(parent, result);
 		}
