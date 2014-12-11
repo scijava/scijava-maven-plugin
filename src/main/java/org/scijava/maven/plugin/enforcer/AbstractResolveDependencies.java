@@ -119,7 +119,7 @@ public abstract class AbstractResolveDependencies implements EnforcerRule
                 dependencies = new HashSet<Artifact>();
                 for( DependencyNode depNode : node.getChildren() )
                 {
-                    dependencies.add( depNode.getArtifact() );
+                    dependencies.add( getResolvedArtifact(depNode) );
                 }
             }
         }
@@ -141,7 +141,7 @@ public abstract class AbstractResolveDependencies implements EnforcerRule
             {
                 try
                 {
-                    Artifact artifact = depNode.getArtifact();
+                    Artifact artifact = getResolvedArtifact(depNode);
     
                     resolver.resolve( artifact, remoteRepositories, localRepository );
                     
@@ -165,6 +165,12 @@ public abstract class AbstractResolveDependencies implements EnforcerRule
             }
         }
         return children;
+    }
+
+    private Artifact getResolvedArtifact(DependencyNode depNode) {
+      // Use the getRelatedArtifact if there was a resolved conflict.
+      return depNode.getRelatedArtifact() == null ? 
+        depNode.getArtifact() : depNode.getRelatedArtifact();
     }
 
     protected Log getLog()
