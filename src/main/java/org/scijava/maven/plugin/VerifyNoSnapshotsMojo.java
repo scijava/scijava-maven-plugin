@@ -78,6 +78,9 @@ public class VerifyNoSnapshotsMojo extends AbstractMojo {
 	/** @parameter expression="${localRepository}" */
 	private ArtifactRepository localRepository;
 
+	/** @parameter expression="${reactorProjects}" */
+	private List<MavenProject> reactorModules;
+
 	/** @parameter property="failFast" default-value=false */
 	private Boolean failFast;
 
@@ -104,6 +107,7 @@ public class VerifyNoSnapshotsMojo extends AbstractMojo {
 		fs.setLog(getLog());
 		fs.setFailFast(failFast);
 		fs.setGroupIds(getGroupIds());
+		fs.setReactorModules(reactorModules);
 
 		try {
 			DependencyUtils.checkDependencies(mavenProject, localRepository,

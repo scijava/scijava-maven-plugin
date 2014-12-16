@@ -31,8 +31,10 @@
 package org.scijava.maven.plugin;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.ArtifactRepository;
@@ -70,6 +72,8 @@ public class SnapshotFinder extends AbstractSciJavaDependencyChecker {
 	private final Map<DependencyNode, Result> results =
 		new HashMap<DependencyNode, Result>();
 
+	private Set<MavenProject> reactorModules = new HashSet<MavenProject>();
+
 	// -- Constructor --
 
 	public SnapshotFinder(final MavenProjectBuilder projectBuilder,
@@ -82,6 +86,24 @@ public class SnapshotFinder extends AbstractSciJavaDependencyChecker {
 	}
 
 	// -- SciJavaDependencyChecker API --
+
+	/**
+	 * Using this method, a set of projects can be "whitelisted" to accept as
+	 * SNAPSHOT couplings. This is because, for a given reactor, building a Maven
+	 * project from the top level is inherently reproducible even with
+	 * inter-dependent SNAPSHOT-coupled modules.
+	 * <p>
+	 * NB: Reproducibility is NOT guaranteed if an individual module is built
+	 * instead of the whole reactor. This could trigger the downloading of a
+	 * remote SNAPSHOT dependency which may or may not be compatible.
+	 * </p>
+	 *
+	 * @param modules A list of all {@link MavenProject}s in the core project's
+	 *          reactor.
+	 */
+	public void setReactorModules(final List<MavenProject> modules) {
+		reactorModules = new HashSet<MavenProject>(modules);
+	}
 
 	@Override
 	public String makeExceptionMessage() {
@@ -127,6 +149,7 @@ public class SnapshotFinder extends AbstractSciJavaDependencyChecker {
 
 	@Override
 	public boolean visit(final DependencyNode node) {
+
 		final Artifact a = node.getArtifact();
 		MavenProject pom = null;
 		Result r = null;
@@ -198,7 +221,7 @@ public class SnapshotFinder extends AbstractSciJavaDependencyChecker {
 		checkParent(pom, r);
 
 		// If the pom itself is bad, mark it as such.
-		if (isSnapshot(pom.getVersion())) {
+		if (isSnapshot(pom)) {
 			r.badVersion();
 		}
 
@@ -219,7 +242,7 @@ public class SnapshotFinder extends AbstractSciJavaDependencyChecker {
 			// We don't record the exact SNAPSHOT parent - just whether or not one
 			// was found. So if this parent is a SNAPSHOT, short-circuit and return.
 			// Otherwise recurse to the next parent if there is one.
-			if (isSnapshot(parent.getVersion())) {
+			if (isSnapshot(parent)) {
 				result.badParent();
 			}
 			// Recurse if needed
@@ -245,13 +268,15 @@ public class SnapshotFinder extends AbstractSciJavaDependencyChecker {
 	}
 
 	/**
-	 * Helper method to check if a version is a SNAPSHOT.
+	 * Helper method to check if a project is a SNAPSHOT.
 	 *
-	 * @param version Version string to check.
-	 * @return True iff the given version string is a SNAPSHOT version.
+	 * @param pom MavenProject to check.
+	 * @return True iff the version of the given project is a SNAPSHOT version,
+	 *         and the project is not in the base reactor.
 	 */
-	private boolean isSnapshot(final String version) {
-		return version.contains(Artifact.SNAPSHOT_VERSION);
+	private boolean isSnapshot(final MavenProject pom) {
+		return pom.getVersion().contains(Artifact.SNAPSHOT_VERSION) &&
+			!reactorModules.contains(pom);
 	}
 
 	/**

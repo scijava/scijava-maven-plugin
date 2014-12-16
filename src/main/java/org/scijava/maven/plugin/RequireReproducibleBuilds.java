@@ -31,6 +31,7 @@
 package org.scijava.maven.plugin;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.maven.artifact.repository.ArtifactRepository;
@@ -82,6 +83,10 @@ public class RequireReproducibleBuilds implements EnforcerRule {
 			final MavenProject project = (MavenProject) helper.evaluate("${project}");
 			final ArtifactRepository localRepository =
 				(ArtifactRepository) helper.evaluate("${localRepository}");
+
+			@SuppressWarnings("unchecked")
+			final List<MavenProject> reactorModules =
+				(List<MavenProject>) helper.evaluate("${reactorProjects}");
 			final MavenProjectBuilder projectBuilder =
 				(MavenProjectBuilder) helper.getComponent(MavenProjectBuilder.class);
 			final DependencyTreeBuilder treeBuilder =
@@ -105,6 +110,7 @@ public class RequireReproducibleBuilds implements EnforcerRule {
 			fs.setLog(log);
 			fs.setFailFast(failFast);
 			fs.setGroupIds(ids);
+			fs.setReactorModules(reactorModules);
 
 			DependencyUtils.checkDependencies(project, localRepository, treeBuilder,
 				fs);
