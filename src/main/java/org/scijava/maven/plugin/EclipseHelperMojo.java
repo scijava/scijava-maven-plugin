@@ -108,7 +108,7 @@ public class EclipseHelperMojo extends AbstractMojo {
 			throw new MojoExecutionException("Could not build class path for EclipseHelper", e);
 		}
 		catch (ClassNotFoundException e) {
-			throw new MojoExecutionException("Could not load EclipseHelper", e);
+			throw new MojoExecutionException("Could not load EclipseHelper. If you are using Eclipse and have scijava-common open - close it.", e);
 		}
 		catch (NoSuchMethodException e) {
 			throw new MojoExecutionException("Could not find EclipseHelper's main() method", e);
