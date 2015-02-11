@@ -2,7 +2,7 @@
  * #%L
  * A plugin for managing SciJava-based projects.
  * %%
- * Copyright (C) 2014 Board of Regents of the University of
+ * Copyright (C) 2014 - 2015 Board of Regents of the University of
  * Wisconsin-Madison.
  * %%
  * Redistribution and use in source and binary forms, with or without
@@ -27,6 +27,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  * #L%
  */
+
 package org.scijava.maven.plugin;
 
 import static org.junit.Assert.assertEquals;
