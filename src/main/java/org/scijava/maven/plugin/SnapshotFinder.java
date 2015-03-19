@@ -110,7 +110,7 @@ public class SnapshotFinder extends AbstractSciJavaDependencyChecker {
 		if (!failed()) return null;
 		// Header
 		String message =
-			"\nThe following dependencies either are SNAPSHOT versions (V), contain "
+			"\nThe following artifacts either - are SNAPSHOT versions (V), contain "
 				+ "\nSNAPSHOT parents (P), or contain SNAPSHOT dependencies (D):\n\n";
 
 		// Because we are using the Maven 2 DependencyTree, artifacts can be listed
