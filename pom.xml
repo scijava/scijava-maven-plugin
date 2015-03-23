@@ -210,8 +210,10 @@
 				<configuration>
 					<rules>
 						<banClasses>
-							<!-- maven-artifact and maven-project are 2.0 artifacts that
-									 clash with maven-core 3.0 -->
+							<!--
+							NB: maven-artifact and maven-project are 2.0 artifacts
+							that clash with maven-core 3.0.
+							-->
 							<dependencies>
 								<dependency>
 									<artifactId>maven-artifact</artifactId>
