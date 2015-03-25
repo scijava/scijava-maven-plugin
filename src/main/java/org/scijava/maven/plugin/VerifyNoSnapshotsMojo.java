@@ -35,11 +35,13 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.maven.artifact.repository.ArtifactRepository;
+import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectBuilder;
+import org.apache.maven.project.ProjectBuildingException;
 import org.apache.maven.shared.dependency.tree.DependencyTreeBuilder;
 
 /**
@@ -62,6 +64,9 @@ import org.apache.maven.shared.dependency.tree.DependencyTreeBuilder;
 public class VerifyNoSnapshotsMojo extends AbstractMojo {
 
 	// -- Parameters --
+
+	/** @parameter default-value="${session}" */
+	private MavenSession mavenSession;
 
 	/** @parameter default-value="${project}" */
 	private MavenProject mavenProject;
@@ -98,6 +103,17 @@ public class VerifyNoSnapshotsMojo extends AbstractMojo {
 	 */
 	@Override
 	public void execute() throws MojoExecutionException, MojoFailureException {
+
+
+		try {
+			reactorModules =
+				DependencyUtils.findEffectiveReactor(reactorModules, mavenSession,
+					mavenProject, projectBuilder, localRepository);
+		}
+		catch (ProjectBuildingException exc) {
+			getLog()
+				.warn("Error during project construction:\n" + exc.getMessage(), exc);
+		}
 
 		// Enter recursive project checking
 		final SnapshotFinder fs =

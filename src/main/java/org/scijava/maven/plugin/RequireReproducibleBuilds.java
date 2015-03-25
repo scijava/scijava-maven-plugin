@@ -38,9 +38,11 @@ import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.enforcer.rule.api.EnforcerRule;
 import org.apache.maven.enforcer.rule.api.EnforcerRuleException;
 import org.apache.maven.enforcer.rule.api.EnforcerRuleHelper;
+import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectBuilder;
+import org.apache.maven.project.ProjectBuildingException;
 import org.apache.maven.shared.dependency.tree.DependencyTreeBuilder;
 import org.codehaus.plexus.component.configurator.expression.ExpressionEvaluationException;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
@@ -81,17 +83,28 @@ public class RequireReproducibleBuilds implements EnforcerRule {
 		final Log log = helper.getLog();
 		try {
 			final MavenProject project = (MavenProject) helper.evaluate("${project}");
+			final MavenSession session = (MavenSession) helper.evaluate("${session}");
 			final ArtifactRepository localRepository =
 				(ArtifactRepository) helper.evaluate("${localRepository}");
-
-			@SuppressWarnings("unchecked")
-			final List<MavenProject> reactorModules =
-				(List<MavenProject>) helper.evaluate("${reactorProjects}");
 			final MavenProjectBuilder projectBuilder =
 				(MavenProjectBuilder) helper.getComponent(MavenProjectBuilder.class);
 			final DependencyTreeBuilder treeBuilder =
 				(DependencyTreeBuilder) helper
 					.getComponent(DependencyTreeBuilder.class);
+
+			@SuppressWarnings("unchecked")
+			List<MavenProject> reactorModules =
+				(List<MavenProject>) helper.evaluate("${reactorProjects}");
+
+			try {
+				reactorModules =
+					DependencyUtils.findEffectiveReactor(reactorModules, session,
+						project, projectBuilder, localRepository);
+			}
+			catch (ProjectBuildingException exc) {
+				log
+					.warn("Error during project construction:\n" + exc.getMessage(), exc);
+			}
 
 			// populate groupIds
 			final Set<String> ids = new HashSet<String>();
@@ -140,4 +153,5 @@ public class RequireReproducibleBuilds implements EnforcerRule {
 	public String getCacheId() {
 		return null;
 	}
+
 }
