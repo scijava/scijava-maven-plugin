@@ -7,13 +7,13 @@
  * %%
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- * 
+ *
  * 1. Redistributions of source code must retain the above copyright notice,
  *    this list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright notice,
  *    this list of conditions and the following disclaimer in the documentation
  *    and/or other materials provided with the distribution.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -30,15 +30,28 @@
 
 package org.scijava.maven.plugin;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Properties;
+import java.util.Set;
+
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.artifact.resolver.filter.AndArtifactFilter;
 import org.apache.maven.artifact.resolver.filter.ArtifactFilter;
 import org.apache.maven.artifact.resolver.filter.ScopeArtifactFilter;
+import org.apache.maven.execution.MavenSession;
+import org.apache.maven.profiles.DefaultProfileManager;
+import org.apache.maven.profiles.ProfileManager;
 import org.apache.maven.project.MavenProject;
+import org.apache.maven.project.MavenProjectBuilder;
+import org.apache.maven.project.ProjectBuildingException;
 import org.apache.maven.shared.dependency.tree.DependencyNode;
 import org.apache.maven.shared.dependency.tree.DependencyTreeBuilder;
 import org.apache.maven.shared.dependency.tree.DependencyTreeBuilderException;
+import org.codehaus.plexus.PlexusContainer;
 
 /**
  * Utility class for initiating Maven-based dependency checks.
@@ -126,7 +139,90 @@ public final class DependencyUtils {
 		}
 	}
 
+	/**
+	 * Manually constructs an list of effective reactor projects by recursively
+	 * searching parent and submodule projects. This allows the intention of the
+	 * reactor to be preserved, as long as it is fully available on disk, even
+	 * when building a submodule directly.
+	 *
+	 * @param defaultReactor Return value to use if a comprehensive list can not
+	 *          be discovered.
+	 * @param baseProject {@link MavenProject} where invocation started.
+	 * @return A list of MavenProjects that can be treated as though within the
+	 *         current reactor.
+	 * @throws ProjectBuildingException
+	 */
+	public static List<MavenProject> findEffectiveReactor(
+		final List<MavenProject> defaultReactor, final MavenSession session,
+		final MavenProject baseProject, final MavenProjectBuilder projectBuilder,
+		final ArtifactRepository localRepository) throws ProjectBuildingException
+	{
+		final Set<MavenProject> reactor = new HashSet<MavenProject>();
+		final Set<MavenProject> visited = new HashSet<MavenProject>();
+		final ProfileManager profileManager = getProfileManager(session);
+
+		findEffectiveReactor(reactor, visited, baseProject, baseProject,
+			projectBuilder, localRepository, profileManager);
+
+		if (reactor.size() <= 1 || !reactor.contains(baseProject)) return defaultReactor;
+		return new ArrayList<MavenProject>(reactor);
+	}
+
 	// -- Helper methods --
+
+	/**
+	 * Helper method to recursively populate a set of {@link MavenProject}s that
+	 * can be considered to be within the same reactor.
+	 */
+	private static void findEffectiveReactor(final Set<MavenProject> reactor,
+		final Set<MavenProject> visited, final MavenProject currentProject,
+		final MavenProject target, final MavenProjectBuilder projectBuilder,
+		final ArtifactRepository localRepository,
+		final ProfileManager profileManager) throws ProjectBuildingException
+	{
+		// short-circuit if already visited this project
+		if (!visited.add(currentProject)) return;
+
+		final File baseDir = currentProject.getBasedir();
+
+		// We only are interested in local projects
+		if (baseDir != null && baseDir.exists()) {
+
+			// If the current project lists any modules , then that project itself
+			// needs to be included in the reactor
+			if (currentProject.getModules().size() > 0) {
+				reactor.add(currentProject);
+			}
+
+			// Recursively add each submodule to the reactor
+			for (final Object o : currentProject.getModules()) {
+				final File submodule =
+					new File(baseDir.getAbsolutePath() + File.separator + o.toString() +
+						File.separator + "pom.xml");
+				final MavenProject p =
+					projectBuilder.build(submodule, localRepository, profileManager);
+				reactor.add(p);
+				findEffectiveReactor(reactor, visited, p, target, projectBuilder,
+					localRepository, profileManager);
+			}
+		}
+
+		// Recurse into parent
+		if (currentProject.hasParent()) findEffectiveReactor(reactor, visited,
+			currentProject.getParent(), target, projectBuilder, localRepository,
+			profileManager);
+	}
+
+	/**
+	 * Convenience method to get the {@link ProfileManager} for a given
+	 * {@link MavenSession}.
+	 */
+	@SuppressWarnings("deprecation")
+	private static ProfileManager getProfileManager(final MavenSession session) {
+		final PlexusContainer container = session.getContainer();
+		final Properties execution = session.getExecutionProperties();
+		return new DefaultProfileManager(container, execution);
+	}
 
 	/**
 	 * Helper method to build an {@link ArtifactFilter}. Multiple filters can be
