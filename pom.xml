@@ -10,7 +10,7 @@
 	</parent>
 
 	<artifactId>scijava-maven-plugin</artifactId>
-	<version>0.4.5-SNAPSHOT</version>
+	<version>0.5.0-SNAPSHOT</version>
 	<packaging>maven-plugin</packaging>
 
 	<name>SciJava plugin for Maven</name>
