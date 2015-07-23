@@ -3,14 +3,48 @@ SciJava Maven Plugin
 
 scijava-maven-plugin is a Maven plugin for managing SciJava-based software.
 
-It provides one goal:
+Goals
+-----
 
-* __set-rootdir__ (as part of the _validate_ phase of the life cycle): finds the project root
-  directory of nested Maven projects and sets the __rootdir__ property to point there. This goal is
-  useful if you want to define the location of the _ImageJ.app/_ directory relative to the project
-  root directory.
+```shell
+$ mvn scijava:help
+[INFO] SciJava plugin for Maven 0.5.0
+  A plugin for managing SciJava-based projects.
 
-It is recommended to enable it automatically by making the
+This plugin has 5 goals:
+
+scijava:bump
+  Bumps dependency and parent versions in SciJava projects.
+
+scijava:eclipse-helper
+  Runs the annotation processor of the scijava-common artifact even inside
+  Eclipse.
+
+scijava:help
+  Display help information on scijava-maven-plugin.
+  Call mvn scijava:help -Ddetail=true -Dgoal=<goal-name> to display parameter
+  details.
+
+scijava:set-rootdir
+  Sets the project.rootdir property to the top-level directory of the current
+  Maven project structure.
+
+scijava:verify-no-snapshots
+  Mojo wrapper for the SnapshotFinder.
+  Parameters:
+
+  - failFast - end execution after first failure (default: false)
+  - groupIds - an inclusive list of groupIds. Errors will only be reported for
+    projects whose groupIds are contained this list. (default: empty - all
+    groupIds considered)
+  - groupId - Singular groupIds option. Will be appended to groupIds if both are
+    specified.
+```
+
+Usage
+-----
+
+It is recommended to enable the set-rootdir goal by making the
 [SciJava POM](http://github.com/scijava/pom-scijava) the parent project:
 
 ```xml
@@ -18,7 +52,7 @@ It is recommended to enable it automatically by making the
   <parent>
     <groupId>org.scijava</groupId>
     <artifactId>pom-scijava</artifactId>
-    <version>1.156</version>
+    <version>7.5.2</version>
   </parent>
   ...
 </project>
