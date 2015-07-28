@@ -93,8 +93,7 @@ public class VerifyNoSnapshotsMojo extends AbstractMojo {
 	private String groupId;
 
 	/** @parameter property="groupIds" */
-	@SuppressWarnings("rawtypes")
-	private List groupIds;
+	private List<Object> groupIds;
 
 	// -- Mojo API Methods --
 
@@ -142,7 +141,7 @@ public class VerifyNoSnapshotsMojo extends AbstractMojo {
 		final Set<String> ids = new HashSet<String>();
 		if (groupIds != null) {
 			for (final Object id : groupIds)
-				ids.add((String) id);
+				ids.add(id == null ? null : id.toString());
 		}
 		if (groupId != null) ids.add(groupId);
 		return ids;
