@@ -48,6 +48,7 @@ import org.apache.maven.profiles.ProfileManager;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectBuilder;
 import org.apache.maven.project.ProjectBuildingException;
+import org.apache.maven.shared.dependency.graph.DependencyGraphBuilder;
 import org.apache.maven.shared.dependency.tree.DependencyNode;
 import org.apache.maven.shared.dependency.tree.DependencyTreeBuilder;
 import org.apache.maven.shared.dependency.tree.DependencyTreeBuilderException;
@@ -59,7 +60,7 @@ import org.codehaus.plexus.PlexusContainer;
  * <ul>
  * <li>The {@link #checkDependencies} methods can be used to initiate one or
  * more {@link SciJavaDependencyChecker}s in visiting a Maven dependency tree.
- * Uses {@link DependencyTreeBuilder} instead of {@code DependencyGraphBuidler}
+ * Uses {@link DependencyTreeBuilder} instead of {@link DependencyGraphBuilder}
  * to get the more verbose Maven 2 dependency tree.</li>
  * </ul>
  * </p>
