@@ -89,7 +89,7 @@ public class Dependency {
 	 *
 	 * @param groupId a {@link java.lang.String} object.
 	 */
-	public void setGroupId(String groupId) {
+	public void setGroupId(final String groupId) {
 		this.groupId = groupId;
 	}
 
@@ -111,7 +111,7 @@ public class Dependency {
 	 *
 	 * @param artifactId a {@link java.lang.String} object.
 	 */
-	public void setArtifactId(String artifactId) {
+	public void setArtifactId(final String artifactId) {
 		this.artifactId = artifactId;
 	}
 
@@ -133,7 +133,7 @@ public class Dependency {
 	 *
 	 * @param classifier a {@link java.lang.String} object.
 	 */
-	public void setClassifier(String classifier) {
+	public void setClassifier(final String classifier) {
 		this.classifier = classifier;
 	}
 
@@ -155,7 +155,7 @@ public class Dependency {
 	 *
 	 * @param type a {@link java.lang.String} object.
 	 */
-	public void setType(String type) {
+	public void setType(final String type) {
 		this.type = type;
 	}
 
@@ -177,14 +177,14 @@ public class Dependency {
 	 *
 	 * @param ignoreClasses an array of {@link java.lang.String} objects.
 	 */
-	public void setIgnoreClasses(String[] ignoreClasses) {
+	public void setIgnoreClasses(final String[] ignoreClasses) {
 		this.ignoreClasses = ignoreClasses;
 	}
 
 	/** {@inheritDoc} */
 	@Override
 	public String toString() {
-		StringBuffer sb = new StringBuffer();
+		final StringBuffer sb = new StringBuffer();
 		sb.append(groupId).append(':').append(artifactId).append(':').append(type);
 		if (classifier != null) {
 			sb.append(':').append(classifier);

@@ -108,7 +108,7 @@ public class VerifyNoSnapshotsMojo extends AbstractMojo {
 				DependencyUtils.findEffectiveReactor(reactorModules, mavenSession,
 					mavenProject, projectBuilder, localRepository);
 		}
-		catch (ProjectBuildingException exc) {
+		catch (final ProjectBuildingException exc) {
 			getLog().warn("Error during project construction:\n" + exc.getMessage(),
 				exc);
 		}

@@ -117,10 +117,12 @@ public class PomEditorTest {
 		final int[] counter = { 0 };
 		final InputStream in = new ByteArrayInputStream(example.getBytes());
 		final PomEditor editor = new PomEditor(in, log);
-		int modified = editor.visitVersions(new VersionVisitor() {
+		final int modified = editor.visitVersions(new VersionVisitor() {
 
 			@Override
-			public String visit(String groupId, String artifactId, String version) {
+			public String visit(final String groupId, final String artifactId,
+				final String version)
+			{
 				assertEquals(gavs[counter[0]++], groupId + ":" + artifactId + ":" +
 					version);
 				return version.replace("11", "13").replace("22", "23").replace("33",

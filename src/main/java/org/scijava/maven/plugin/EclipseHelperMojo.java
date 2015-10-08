@@ -99,7 +99,7 @@ public class EclipseHelperMojo extends AbstractMojo {
 				thread.setContextClassLoader(loader);
 				main.invoke(null, (Object) new String[0]);
 			}
-			catch (Exception e) {
+			catch (final Exception e) {
 				throw new MojoExecutionException(
 					"Could not execute EclipseHelper's main() method", e);
 			}
@@ -107,23 +107,23 @@ public class EclipseHelperMojo extends AbstractMojo {
 				thread.setContextClassLoader(previousLoader);
 			}
 		}
-		catch (DependencyResolutionRequiredException e) {
+		catch (final DependencyResolutionRequiredException e) {
 			throw new MojoExecutionException("Could not get the class path", e);
 		}
-		catch (MalformedURLException e) {
+		catch (final MalformedURLException e) {
 			throw new MojoExecutionException(
 				"Could not build class path for EclipseHelper", e);
 		}
-		catch (ClassNotFoundException e) {
+		catch (final ClassNotFoundException e) {
 			throw new MojoExecutionException(
 				"Could not load EclipseHelper. If you are using Eclipse and have scijava-common open - close it.",
 				e);
 		}
-		catch (NoSuchMethodException e) {
+		catch (final NoSuchMethodException e) {
 			throw new MojoExecutionException(
 				"Could not find EclipseHelper's main() method", e);
 		}
-		catch (SecurityException e) {
+		catch (final SecurityException e) {
 			throw new MojoExecutionException(
 				"Could not access EclipseHelper's main() method", e);
 		}

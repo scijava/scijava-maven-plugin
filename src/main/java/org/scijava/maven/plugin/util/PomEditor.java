@@ -242,28 +242,30 @@ public class PomEditor {
 		private int counter;
 		private final StringBuilder builder = new StringBuilder();
 
-		private ProjectTagExtractor(InputStream in) {
+		private ProjectTagExtractor(final InputStream in) {
 			super(in);
 		}
 
 		@Override
 		public int read() throws IOException {
-			int result = super.read();
+			final int result = super.read();
 			if (result > 0) handle((byte) result);
 			return result;
 		}
 
 		@Override
-		public int read(byte[] buffer) throws IOException {
-			int result = super.read(buffer);
+		public int read(final byte[] buffer) throws IOException {
+			final int result = super.read(buffer);
 			for (int i = 0; i < result; i++)
 				handle(buffer[i]);
 			return result;
 		}
 
 		@Override
-		public int read(byte[] buffer, int offset, int length) throws IOException {
-			int result = super.read(buffer, offset, length);
+		public int read(final byte[] buffer, final int offset, final int length)
+			throws IOException
+		{
+			final int result = super.read(buffer, offset, length);
 			for (int i = 0; i < result; i++)
 				handle(buffer[offset + i]);
 			return result;
@@ -274,7 +276,7 @@ public class PomEditor {
 			return builder.toString();
 		}
 
-		private void handle(byte ch) {
+		private void handle(final byte ch) {
 			if (counter < 0) return;
 			if (counter < magic.length) {
 				if (ch == magic[counter]) {

@@ -101,8 +101,8 @@ public class BumpMojo extends AbstractMojo {
 			editor.visitVersions(new VersionVisitor() {
 
 				@Override
-				public String visit(String groupId, String artifactId, String version)
-					throws MojoExecutionException
+				public String visit(final String groupId, final String artifactId,
+					final String version) throws MojoExecutionException
 				{
 					return latestVersion(groupId, artifactId);
 				}
@@ -113,13 +113,13 @@ public class BumpMojo extends AbstractMojo {
 		catch (final IOException e) {
 			throw new MojoExecutionException("Could not read POM", e);
 		}
-		catch (ParserConfigurationException e) {
+		catch (final ParserConfigurationException e) {
 			throw new MojoExecutionException("Could not parse POM", e);
 		}
-		catch (SAXException e) {
+		catch (final SAXException e) {
 			throw new MojoExecutionException("Could not parse POM", e);
 		}
-		catch (XPathExpressionException e) {
+		catch (final XPathExpressionException e) {
 			throw new MojoExecutionException(
 				"Could not extract information from POM", e);
 		}
@@ -128,7 +128,7 @@ public class BumpMojo extends AbstractMojo {
 	@Component
 	private ProjectDependenciesResolver projectDependenciesResolver;
 
-	private String latestVersion(String groupId, String artifactId)
+	private String latestVersion(final String groupId, final String artifactId)
 		throws MojoExecutionException
 	{
 		final VersionRangeRequest request = new VersionRangeRequest();
@@ -136,7 +136,8 @@ public class BumpMojo extends AbstractMojo {
 			new DefaultArtifact(groupId, artifactId, null, "[0,)");
 		request.setArtifact(artifact);
 		makeImageJRepositoryKnown();
-		List<RemoteRepository> repositories = new ArrayList<RemoteRepository>();
+		final List<RemoteRepository> repositories =
+			new ArrayList<RemoteRepository>();
 		repositories.addAll(remoteRepositories);
 		request.setRepositories(repositories);
 		VersionRangeResult result;
@@ -153,7 +154,7 @@ public class BumpMojo extends AbstractMojo {
 				"Found no candidates for " + groupId + ":" + artifactId + "; Skipping");
 			return null;
 		}
-		catch (VersionRangeResolutionException e) {
+		catch (final VersionRangeResolutionException e) {
 			throw new MojoExecutionException("Could not resolve version for " +
 				groupId + ":" + artifactId, e);
 		}

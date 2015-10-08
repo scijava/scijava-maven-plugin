@@ -101,7 +101,7 @@ public class RequireReproducibleBuilds implements EnforcerRule {
 					DependencyUtils.findEffectiveReactor(reactorModules, session,
 						project, projectBuilder, localRepository);
 			}
-			catch (ProjectBuildingException exc) {
+			catch (final ProjectBuildingException exc) {
 				log
 					.warn("Error during project construction:\n" + exc.getMessage(), exc);
 			}

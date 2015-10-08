@@ -96,20 +96,21 @@ public class BanDuplicateClasses extends AbstractResolveDependencies {
 	private List<String> scopes;
 
 	@Override
-	protected void handleArtifacts(Set<Artifact> artifacts)
+	protected void handleArtifacts(final Set<Artifact> artifacts)
 		throws EnforcerRuleException
 	{
-		List<IgnorableDependency> ignorableDependencies =
+		final List<IgnorableDependency> ignorableDependencies =
 			new ArrayList<IgnorableDependency>();
 		if (ignoreClasses != null) {
-			IgnorableDependency ignorableDependency = new IgnorableDependency();
+			final IgnorableDependency ignorableDependency = new IgnorableDependency();
 			ignorableDependency.applyIgnoreClasses(ignoreClasses, false);
 			ignorableDependencies.add(ignorableDependency);
 		}
 		if (dependencies != null) {
-			for (Dependency dependency : dependencies) {
+			for (final Dependency dependency : dependencies) {
 				getLog().info("Adding ignorable dependency: " + dependency);
-				IgnorableDependency ignorableDependency = new IgnorableDependency();
+				final IgnorableDependency ignorableDependency =
+					new IgnorableDependency();
 				if (dependency.getGroupId() != null) {
 					ignorableDependency.groupId =
 						Pattern.compile(asRegex(dependency.getGroupId()));
@@ -132,17 +133,17 @@ public class BanDuplicateClasses extends AbstractResolveDependencies {
 			}
 		}
 
-		Map<String, Artifact> classNames = new HashMap<String, Artifact>();
-		Map<String, Set<Artifact>> duplicates =
+		final Map<String, Artifact> classNames = new HashMap<String, Artifact>();
+		final Map<String, Set<Artifact>> duplicates =
 			new HashMap<String, Set<Artifact>>();
-		for (Artifact o : artifacts) {
+		for (final Artifact o : artifacts) {
 			if (scopes != null && !scopes.contains(o.getScope())) {
 				if (getLog().isDebugEnabled()) {
 					getLog().debug("Skipping " + o.toString() + " due to scope");
 				}
 				continue;
 			}
-			File file = o.getFile();
+			final File file = o.getFile();
 			getLog().debug("Searching for duplicate classes in " + file);
 			if (file == null || !file.exists()) {
 				getLog().warn("Could not find " + o + " at " + file);
@@ -152,13 +153,13 @@ public class BanDuplicateClasses extends AbstractResolveDependencies {
 					@SuppressWarnings("unchecked")
 					final List<String> fileNames =
 						FileUtils.getFileNames(file, null, null, false);
-					for (String name : fileNames) {
+					for (final String name : fileNames) {
 						getLog().debug("  " + name);
 						checkAndAddName(o, name, classNames, duplicates,
 							ignorableDependencies);
 					}
 				}
-				catch (IOException e) {
+				catch (final IOException e) {
 					throw new EnforcerRuleException("Unable to process dependency " +
 						o.toString() + " due to " + e.getLocalizedMessage(), e);
 				}
@@ -166,9 +167,11 @@ public class BanDuplicateClasses extends AbstractResolveDependencies {
 			else if (file.isFile() && "jar".equals(o.getType())) {
 				try {
 					// @todo use UnArchiver as defined per type
-					JarFile jar = new JarFile(file);
+					final JarFile jar = new JarFile(file);
 					try {
-						for (JarEntry entry : Collections.<JarEntry> list(jar.entries())) {
+						for (final JarEntry entry : Collections.<JarEntry> list(jar
+							.entries()))
+						{
 							checkAndAddName(o, entry.getName(), classNames, duplicates,
 								ignorableDependencies);
 						}
@@ -177,21 +180,22 @@ public class BanDuplicateClasses extends AbstractResolveDependencies {
 						try {
 							jar.close();
 						}
-						catch (IOException e) {
+						catch (final IOException e) {
 							// ignore
 						}
 					}
 				}
-				catch (IOException e) {
+				catch (final IOException e) {
 					throw new EnforcerRuleException("Unable to process dependency " +
 						o.toString() + " due to " + e.getLocalizedMessage(), e);
 				}
 			}
 		}
 		if (!duplicates.isEmpty()) {
-			Map<Set<Artifact>, List<String>> inverted =
+			final Map<Set<Artifact>, List<String>> inverted =
 				new HashMap<Set<Artifact>, List<String>>();
-			for (Map.Entry<String, Set<Artifact>> entry : duplicates.entrySet()) {
+			for (final Map.Entry<String, Set<Artifact>> entry : duplicates.entrySet())
+			{
 				List<String> s = inverted.get(entry.getValue());
 				if (s == null) {
 					s = new ArrayList<String>();
@@ -199,18 +203,20 @@ public class BanDuplicateClasses extends AbstractResolveDependencies {
 				s.add(entry.getKey());
 				inverted.put(entry.getValue(), s);
 			}
-			StringBuilder buf =
+			final StringBuilder buf =
 				new StringBuilder(message == null ? "Duplicate classes found:"
 					: message);
 			buf.append('\n');
-			for (Map.Entry<Set<Artifact>, List<String>> entry : inverted.entrySet()) {
+			for (final Map.Entry<Set<Artifact>, List<String>> entry : inverted
+				.entrySet())
+			{
 				buf.append("\n  Found in:");
-				for (Artifact a : entry.getKey()) {
+				for (final Artifact a : entry.getKey()) {
 					buf.append("\n    ");
 					buf.append(a);
 				}
 				buf.append("\n  Duplicate classes:");
-				for (String className : entry.getValue()) {
+				for (final String className : entry.getValue()) {
 					buf.append("\n    ");
 					buf.append(className);
 				}
@@ -221,15 +227,16 @@ public class BanDuplicateClasses extends AbstractResolveDependencies {
 
 	}
 
-	private void checkAndAddName(Artifact artifact, String name,
-		Map<String, Artifact> classNames, Map<String, Set<Artifact>> duplicates,
-		Collection<IgnorableDependency> ignores) throws EnforcerRuleException
+	private void checkAndAddName(final Artifact artifact, final String name,
+		final Map<String, Artifact> classNames,
+		final Map<String, Set<Artifact>> duplicates,
+		final Collection<IgnorableDependency> ignores) throws EnforcerRuleException
 	{
 		if (!name.endsWith(".class")) {
 			return;
 		}
 
-		for (IgnorableDependency c : ignores) {
+		for (final IgnorableDependency c : ignores) {
 			if (c.matchesArtifact(artifact) && c.matches(name)) {
 				if (classNames.containsKey(name)) {
 					getLog().debug("Ignoring excluded class " + name);
@@ -239,9 +246,9 @@ public class BanDuplicateClasses extends AbstractResolveDependencies {
 		}
 
 		if (classNames.containsKey(name)) {
-			Artifact dup = classNames.put(name, artifact);
+			final Artifact dup = classNames.put(name, artifact);
 			if (!(findAllDuplicates && duplicates.containsKey(name))) {
-				for (IgnorableDependency c : ignores) {
+				for (final IgnorableDependency c : ignores) {
 					if (c.matchesArtifact(artifact) && c.matches(name)) {
 						getLog().debug("Ignoring duplicate class " + name);
 						return;
@@ -259,7 +266,7 @@ public class BanDuplicateClasses extends AbstractResolveDependencies {
 				duplicates.put(name, dups);
 			}
 			else {
-				StringBuilder buf =
+				final StringBuilder buf =
 					new StringBuilder(message == null ? "Duplicate class found:"
 						: message);
 				buf.append('\n');

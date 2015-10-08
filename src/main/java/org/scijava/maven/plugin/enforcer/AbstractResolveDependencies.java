@@ -89,7 +89,9 @@ public abstract class AbstractResolveDependencies implements EnforcerRule {
 	private transient EnforcerRuleHelper ruleHelper;
 
 	@Override
-	public void execute(EnforcerRuleHelper helper) throws EnforcerRuleException {
+	public void execute(final EnforcerRuleHelper helper)
+		throws EnforcerRuleException
+	{
 		ruleHelper = helper;
 
 		// Get components
@@ -100,7 +102,7 @@ public abstract class AbstractResolveDependencies implements EnforcerRule {
 				(DependencyTreeBuilder) helper
 					.getComponent(DependencyTreeBuilder.class);
 		}
-		catch (ComponentLookupException e) {
+		catch (final ComponentLookupException e) {
 			throw new EnforcerRuleException(
 				"Unable to lookup DependencyTreeBuilder: ", e);
 		}
@@ -119,12 +121,13 @@ public abstract class AbstractResolveDependencies implements EnforcerRule {
 					.evaluate("${project.remoteArtifactRepositories}");
 			remoteRepositories = result;
 		}
-		catch (ExpressionEvaluationException e) {
+		catch (final ExpressionEvaluationException e) {
 			throw new EnforcerRuleException("Unable to lookup an expression " +
 				e.getLocalizedMessage(), e);
 		}
 
-		Set<Artifact> artifacts = getDependenciesToCheck(project, localRepository);
+		final Set<Artifact> artifacts =
+			getDependenciesToCheck(project, localRepository);
 
 		handleArtifacts(artifacts);
 	}
@@ -136,12 +139,12 @@ public abstract class AbstractResolveDependencies implements EnforcerRule {
 		return true;
 	}
 
-	private Set<Artifact> getDependenciesToCheck(MavenProject project,
-		ArtifactRepository repository)
+	private Set<Artifact> getDependenciesToCheck(final MavenProject project,
+		final ArtifactRepository repository)
 	{
 		Set<Artifact> dependencies = null;
 		try {
-			DependencyNode node =
+			final DependencyNode node =
 				treeBuilder.buildDependencyTree(project, repository, null);
 
 			if (isSearchTransitive()) {
@@ -149,42 +152,42 @@ public abstract class AbstractResolveDependencies implements EnforcerRule {
 			}
 			else if (node.getChildren() != null) {
 				dependencies = new HashSet<Artifact>();
-				for (DependencyNode depNode : node.getChildren()) {
+				for (final DependencyNode depNode : node.getChildren()) {
 					dependencies.add(depNode.getArtifact());
 				}
 			}
 		}
-		catch (DependencyTreeBuilderException e) {
+		catch (final DependencyTreeBuilderException e) {
 			// otherwise we need to change the signature of this protected method
 			throw new RuntimeException(e);
 		}
 		return dependencies;
 	}
 
-	private Set<Artifact> getAllDescendants(DependencyNode node) {
+	private Set<Artifact> getAllDescendants(final DependencyNode node) {
 		Set<Artifact> children = null;
 		if (node.getChildren() != null) {
 			children = new HashSet<Artifact>();
-			for (DependencyNode depNode : node.getChildren()) {
+			for (final DependencyNode depNode : node.getChildren()) {
 				try {
 					if (depNode.getState() == DependencyNode.INCLUDED) {
-						Artifact artifact = depNode.getArtifact();
+						final Artifact artifact = depNode.getArtifact();
 
 						resolver.resolve(artifact, remoteRepositories, localRepository);
 
 						children.add(artifact);
 
-						Set<Artifact> subNodes = getAllDescendants(depNode);
+						final Set<Artifact> subNodes = getAllDescendants(depNode);
 
 						if (subNodes != null) {
 							children.addAll(subNodes);
 						}
 					}
 				}
-				catch (ArtifactResolutionException e) {
+				catch (final ArtifactResolutionException e) {
 					getLog().warn(e.getMessage());
 				}
-				catch (ArtifactNotFoundException e) {
+				catch (final ArtifactNotFoundException e) {
 					getLog().warn(e.getMessage());
 				}
 			}
@@ -202,7 +205,7 @@ public abstract class AbstractResolveDependencies implements EnforcerRule {
 	}
 
 	@Override
-	public boolean isResultValid(EnforcerRule enforcerRule) {
+	public boolean isResultValid(final EnforcerRule enforcerRule) {
 		return false;
 	}
 
@@ -217,11 +220,11 @@ public abstract class AbstractResolveDependencies implements EnforcerRule {
 	 * @param wildcard the wildcard to convert.
 	 * @return the equivalent regex.
 	 */
-	protected static String asRegex(String wildcard) {
-		StringBuilder result = new StringBuilder(wildcard.length());
+	protected static String asRegex(final String wildcard) {
+		final StringBuilder result = new StringBuilder(wildcard.length());
 		result.append('^');
 		for (int index = 0; index < wildcard.length(); index++) {
-			char character = wildcard.charAt(index);
+			final char character = wildcard.charAt(index);
 			switch (character) {
 				case '*':
 					result.append(".*");
@@ -264,14 +267,14 @@ public abstract class AbstractResolveDependencies implements EnforcerRule {
 		public Pattern type;
 		public List<Pattern> ignorePatterns = new ArrayList<Pattern>();
 
-		public IgnorableDependency applyIgnoreClasses(String[] ignores,
-			boolean indent)
+		public IgnorableDependency applyIgnoreClasses(final String[] ignores,
+			final boolean indent)
 		{
-			String prefix = indent ? "  " : "";
+			final String prefix = indent ? "  " : "";
 			for (String ignore : ignores) {
 				getLog().info(prefix + "Adding ignore: " + ignore);
 				ignore = ignore.replace('.', '/');
-				String pattern = asRegex(ignore);
+				final String pattern = asRegex(ignore);
 				getLog().debug(
 					prefix + "Ignore: " + ignore + " maps to regex " + pattern);
 				ignorePatterns.add(Pattern.compile(pattern));
@@ -279,7 +282,7 @@ public abstract class AbstractResolveDependencies implements EnforcerRule {
 			return this;
 		}
 
-		public boolean matchesArtifact(Artifact dup) {
+		public boolean matchesArtifact(final Artifact dup) {
 			return (artifactId == null || artifactId.matcher(dup.getArtifactId())
 				.matches()) &&
 				(groupId == null || groupId.matcher(dup.getGroupId()).matches()) &&
@@ -288,8 +291,8 @@ public abstract class AbstractResolveDependencies implements EnforcerRule {
 				(type == null || type.matcher(dup.getType()).matches());
 		}
 
-		public boolean matches(String className) {
-			for (Pattern p : ignorePatterns) {
+		public boolean matches(final String className) {
+			for (final Pattern p : ignorePatterns) {
 				if (p.matcher(className).matches()) {
 					return true;
 				}
