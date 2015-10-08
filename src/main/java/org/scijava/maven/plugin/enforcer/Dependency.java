@@ -50,12 +50,13 @@ package org.scijava.maven.plugin.enforcer;
  */
 
 /**
- * <p>Dependency class.</p>
+ * <p>
+ * Dependency class.
+ * </p>
  *
  * @version $Id: $
  */
-public class Dependency
-{
+public class Dependency {
 
 	private String groupId;
 
@@ -71,114 +72,122 @@ public class Dependency
 	private String[] ignoreClasses;
 
 	/**
-	 * <p>Getter for the field <code>groupId</code>.</p>
+	 * <p>
+	 * Getter for the field <code>groupId</code>.
+	 * </p>
 	 *
 	 * @return a {@link java.lang.String} object.
 	 */
-	public String getGroupId()
-	{
+	public String getGroupId() {
 		return groupId;
 	}
 
 	/**
-	 * <p>Setter for the field <code>groupId</code>.</p>
+	 * <p>
+	 * Setter for the field <code>groupId</code>.
+	 * </p>
 	 *
 	 * @param groupId a {@link java.lang.String} object.
 	 */
-	public void setGroupId( String groupId )
-	{
+	public void setGroupId(String groupId) {
 		this.groupId = groupId;
 	}
 
 	/**
-	 * <p>Getter for the field <code>artifactId</code>.</p>
+	 * <p>
+	 * Getter for the field <code>artifactId</code>.
+	 * </p>
 	 *
 	 * @return a {@link java.lang.String} object.
 	 */
-	public String getArtifactId()
-	{
+	public String getArtifactId() {
 		return artifactId;
 	}
 
 	/**
-	 * <p>Setter for the field <code>artifactId</code>.</p>
+	 * <p>
+	 * Setter for the field <code>artifactId</code>.
+	 * </p>
 	 *
 	 * @param artifactId a {@link java.lang.String} object.
 	 */
-	public void setArtifactId( String artifactId )
-	{
+	public void setArtifactId(String artifactId) {
 		this.artifactId = artifactId;
 	}
 
 	/**
-	 * <p>Getter for the field <code>classifier</code>.</p>
+	 * <p>
+	 * Getter for the field <code>classifier</code>.
+	 * </p>
 	 *
 	 * @return a {@link java.lang.String} object.
 	 */
-	public String getClassifier()
-	{
+	public String getClassifier() {
 		return classifier;
 	}
 
 	/**
-	 * <p>Setter for the field <code>classifier</code>.</p>
+	 * <p>
+	 * Setter for the field <code>classifier</code>.
+	 * </p>
 	 *
 	 * @param classifier a {@link java.lang.String} object.
 	 */
-	public void setClassifier( String classifier )
-	{
+	public void setClassifier(String classifier) {
 		this.classifier = classifier;
 	}
 
 	/**
-	 * <p>Getter for the field <code>type</code>.</p>
+	 * <p>
+	 * Getter for the field <code>type</code>.
+	 * </p>
 	 *
 	 * @return a {@link java.lang.String} object.
 	 */
-	public String getType()
-	{
+	public String getType() {
 		return type;
 	}
 
 	/**
-	 * <p>Setter for the field <code>type</code>.</p>
+	 * <p>
+	 * Setter for the field <code>type</code>.
+	 * </p>
 	 *
 	 * @param type a {@link java.lang.String} object.
 	 */
-	public void setType( String type )
-	{
+	public void setType(String type) {
 		this.type = type;
 	}
 
 	/**
-	 * <p>Getter for the field <code>ignoreClasses</code>.</p>
+	 * <p>
+	 * Getter for the field <code>ignoreClasses</code>.
+	 * </p>
 	 *
 	 * @return an array of {@link java.lang.String} objects.
 	 */
-	public String[] getIgnoreClasses()
-	{
+	public String[] getIgnoreClasses() {
 		return ignoreClasses;
 	}
 
 	/**
-	 * <p>Setter for the field <code>ignoreClasses</code>.</p>
+	 * <p>
+	 * Setter for the field <code>ignoreClasses</code>.
+	 * </p>
 	 *
 	 * @param ignoreClasses an array of {@link java.lang.String} objects.
 	 */
-	public void setIgnoreClasses( String[] ignoreClasses )
-	{
+	public void setIgnoreClasses(String[] ignoreClasses) {
 		this.ignoreClasses = ignoreClasses;
 	}
 
 	/** {@inheritDoc} */
 	@Override
-	public String toString()
-	{
+	public String toString() {
 		StringBuffer sb = new StringBuffer();
-		sb.append( groupId ).append( ':' ).append( artifactId ).append( ':' ).append( type );
-		if ( classifier != null )
-		{
-			sb.append( ':' ).append( classifier );
+		sb.append(groupId).append(':').append(artifactId).append(':').append(type);
+		if (classifier != null) {
+			sb.append(':').append(classifier);
 		}
 		return sb.toString();
 	}

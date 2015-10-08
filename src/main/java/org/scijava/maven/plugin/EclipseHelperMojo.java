@@ -49,7 +49,8 @@ import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 
 /**
- * Runs the annotation processor of the <tt>scijava-common</tt> artifact even inside Eclipse.
+ * Runs the annotation processor of the <tt>scijava-common</tt> artifact even
+ * inside Eclipse.
  * 
  * @author Johannes Schindelin
  */
@@ -61,7 +62,7 @@ public class EclipseHelperMojo extends AbstractMojo {
 	private static final String SCIJAVA_COMMON_ARTIFACTID = "scijava-common";
 	private static final String SCIJAVA_COMMON_GROUPID = "org.scijava";
 
-	@Parameter(defaultValue="${project}", required = true, readonly = true)
+	@Parameter(defaultValue = "${project}", required = true, readonly = true)
 	private MavenProject currentProject;
 
 	@Override
@@ -78,15 +79,18 @@ public class EclipseHelperMojo extends AbstractMojo {
 		getLog().info("Parsing SciJava annotations");
 		try {
 			@SuppressWarnings("unchecked")
-			final List<String> elements = currentProject.getCompileClasspathElements();
+			final List<String> elements =
+				currentProject.getCompileClasspathElements();
 			final URL[] classpath = new URL[elements.size() + 1];
 			classpath[0] = buildDirectory.toURI().toURL();
 			for (int i = 1; i < classpath.length; i++) {
 				classpath[i] = new URL("file:" + elements.get(i - 1));
 			}
-			getLog().debug("Using class path '" + classpath + "' to execute EclipseHelper");
+			getLog().debug(
+				"Using class path '" + classpath + "' to execute EclipseHelper");
 			final ClassLoader loader = new URLClassLoader(classpath);
-			final Class<?> helper = loader.loadClass("org.scijava.annotations.EclipseHelper");
+			final Class<?> helper =
+				loader.loadClass("org.scijava.annotations.EclipseHelper");
 			final Method main = helper.getMethod("main", String[].class);
 
 			final Thread thread = Thread.currentThread();
@@ -96,7 +100,8 @@ public class EclipseHelperMojo extends AbstractMojo {
 				main.invoke(null, (Object) new String[0]);
 			}
 			catch (Exception e) {
-				throw new MojoExecutionException("Could not execute EclipseHelper's main() method", e);
+				throw new MojoExecutionException(
+					"Could not execute EclipseHelper's main() method", e);
 			}
 			finally {
 				thread.setContextClassLoader(previousLoader);
@@ -106,16 +111,21 @@ public class EclipseHelperMojo extends AbstractMojo {
 			throw new MojoExecutionException("Could not get the class path", e);
 		}
 		catch (MalformedURLException e) {
-			throw new MojoExecutionException("Could not build class path for EclipseHelper", e);
+			throw new MojoExecutionException(
+				"Could not build class path for EclipseHelper", e);
 		}
 		catch (ClassNotFoundException e) {
-			throw new MojoExecutionException("Could not load EclipseHelper. If you are using Eclipse and have scijava-common open - close it.", e);
+			throw new MojoExecutionException(
+				"Could not load EclipseHelper. If you are using Eclipse and have scijava-common open - close it.",
+				e);
 		}
 		catch (NoSuchMethodException e) {
-			throw new MojoExecutionException("Could not find EclipseHelper's main() method", e);
+			throw new MojoExecutionException(
+				"Could not find EclipseHelper's main() method", e);
 		}
 		catch (SecurityException e) {
-			throw new MojoExecutionException("Could not access EclipseHelper's main() method", e);
+			throw new MojoExecutionException(
+				"Could not access EclipseHelper's main() method", e);
 		}
 	}
 

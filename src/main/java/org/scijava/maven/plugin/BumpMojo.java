@@ -88,24 +88,29 @@ public class BumpMojo extends AbstractMojo {
 	@Component
 	private ArtifactRepositoryFactory artifactRepositoryFactory;
 
-	@Parameter(defaultValue = "${project.remoteRepositories}", required = true, readonly = true)
+	@Parameter(defaultValue = "${project.remoteRepositories}", required = true,
+		readonly = true)
 	private List<RemoteRepository> remoteRepositories;
 
 	@Override
 	public void execute() throws MojoExecutionException, MojoFailureException {
 		try {
 			final File file = project.getFile();
-			final PomEditor editor = new PomEditor(new FileInputStream(file), getLog());
+			final PomEditor editor =
+				new PomEditor(new FileInputStream(file), getLog());
 			editor.visitVersions(new VersionVisitor() {
 
 				@Override
-				public String visit(String groupId, String artifactId, String version) throws MojoExecutionException {
+				public String visit(String groupId, String artifactId, String version)
+					throws MojoExecutionException
+				{
 					return latestVersion(groupId, artifactId);
 				}
 
 			});
 			editor.write(new OutputStreamWriter(new FileOutputStream(file), "UTF-8"));
-		} catch (final IOException e) {
+		}
+		catch (final IOException e) {
 			throw new MojoExecutionException("Could not read POM", e);
 		}
 		catch (ParserConfigurationException e) {
@@ -115,16 +120,20 @@ public class BumpMojo extends AbstractMojo {
 			throw new MojoExecutionException("Could not parse POM", e);
 		}
 		catch (XPathExpressionException e) {
-			throw new MojoExecutionException("Could not extract information from POM", e);
+			throw new MojoExecutionException(
+				"Could not extract information from POM", e);
 		}
 	}
 
 	@Component
 	private ProjectDependenciesResolver projectDependenciesResolver;
 
-	private String latestVersion(String groupId, String artifactId) throws MojoExecutionException {
+	private String latestVersion(String groupId, String artifactId)
+		throws MojoExecutionException
+	{
 		final VersionRangeRequest request = new VersionRangeRequest();
-		final Artifact artifact = new DefaultArtifact(groupId, artifactId, null, "[0,)");
+		final Artifact artifact =
+			new DefaultArtifact(groupId, artifactId, null, "[0,)");
 		request.setArtifact(artifact);
 		makeImageJRepositoryKnown();
 		List<RemoteRepository> repositories = new ArrayList<RemoteRepository>();
@@ -132,26 +141,28 @@ public class BumpMojo extends AbstractMojo {
 		request.setRepositories(repositories);
 		VersionRangeResult result;
 		try {
-			result = repositorySystem.resolveVersionRange(repositorySystemSession, request);
+			result =
+				repositorySystem.resolveVersionRange(repositorySystemSession, request);
 			final List<Version> list = result.getVersions();
 			for (int i = list.size() - 1; i >= 0; i--) {
 				final String version = list.get(i).toString();
 				if (version.endsWith("-SNAPSHOT")) continue;
 				return version;
 			}
-			getLog().warn("Found no candidates for " + groupId + ":" + artifactId + "; Skipping");
+			getLog().warn(
+				"Found no candidates for " + groupId + ":" + artifactId + "; Skipping");
 			return null;
 		}
 		catch (VersionRangeResolutionException e) {
-			throw new MojoExecutionException("Could not resolve version for " + groupId + ":" + artifactId, e);
+			throw new MojoExecutionException("Could not resolve version for " +
+				groupId + ":" + artifactId, e);
 		}
 	}
 
 	private final static String IMAGEJ_REPOSITORY_URL =
 		"http://maven.imagej.net/content/groups/public";
 
-	private void makeImageJRepositoryKnown() throws MojoExecutionException
-	{
+	private void makeImageJRepositoryKnown() throws MojoExecutionException {
 		for (final RemoteRepository repository : remoteRepositories) {
 			final String url = repository.getUrl();
 			if (IMAGEJ_REPOSITORY_URL.equals(url)) return;
@@ -159,14 +170,14 @@ public class BumpMojo extends AbstractMojo {
 
 		final ArtifactRepositoryLayout layout = repositoryLayouts.get("default");
 
-			if (layout == null) {
-				throw new MojoExecutionException("default", "Invalid repository layout",
-					"Invalid repository layout: default");
-			}
+		if (layout == null) {
+			throw new MojoExecutionException("default", "Invalid repository layout",
+				"Invalid repository layout: default");
+		}
 
-			final RemoteRepository imagej = new RemoteRepository("imagej.public",
-				"default", IMAGEJ_REPOSITORY_URL);
-			remoteRepositories.add(imagej);
+		final RemoteRepository imagej =
+			new RemoteRepository("imagej.public", "default", IMAGEJ_REPOSITORY_URL);
+		remoteRepositories.add(imagej);
 	}
 
 }

@@ -72,7 +72,9 @@ public class PomEditor {
 	 * @throws SAXException
 	 * @throws IOException
 	 */
-	public PomEditor(final InputStream inputStream, final Log log) throws ParserConfigurationException, SAXException, IOException {
+	public PomEditor(final InputStream inputStream, final Log log)
+		throws ParserConfigurationException, SAXException, IOException
+	{
 		this.log = log;
 		final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 		factory.setCoalescing(false);
@@ -99,13 +101,16 @@ public class PomEditor {
 	}
 
 	/**
-	 * Inspect all referenced groupId/artifactId/version triplets, allowing to re-set the version.
+	 * Inspect all referenced groupId/artifactId/version triplets, allowing to
+	 * re-set the version.
 	 * 
 	 * @return the number of modifications
 	 * @throws XPathExpressionException
 	 * @throws MojoExecutionException
 	 */
-	public int visitVersions(final VersionVisitor visitor) throws XPathExpressionException, MojoExecutionException {
+	public int visitVersions(final VersionVisitor visitor)
+		throws XPathExpressionException, MojoExecutionException
+	{
 		int modified = 0;
 
 		final String parentGroupId = cdata("//project/parent/groupId");
@@ -123,45 +128,55 @@ public class PomEditor {
 		for (int i = 0; i < properties.getLength(); i++) {
 			final Node node = properties.item(i);
 			switch (node.getNodeType()) {
-			case Node.COMMENT_NODE:
-				if (node.getTextContent().contains("BEGIN MANUALLY MANAGED VERSIONS")) {
-					break OUTER;
-				}
-				break;
-			case Node.ELEMENT_NODE:
-				final String propertyName = node.getNodeName();
-				if (propertyName == null || !propertyName.endsWith(".version")) break;
-				String artifactId = propertyName.substring(0,
-					propertyName.length() - ".version".length());
-				if ("imagej1".equals(artifactId)) artifactId = "ij";
-				final String search = "[artifactId[.='" + artifactId + "']]/groupId";
-				NodeList groupIdNodes = xpath("//project/dependencyManagement/dependencies/dependency" + search);
-				if (groupIdNodes == null || groupIdNodes.getLength() == 0) {
-					groupIdNodes = xpath("//project/dependencies/dependency" + search);
+				case Node.COMMENT_NODE:
+					if (node.getTextContent().contains("BEGIN MANUALLY MANAGED VERSIONS"))
+					{
+						break OUTER;
+					}
+					break;
+				case Node.ELEMENT_NODE:
+					final String propertyName = node.getNodeName();
+					if (propertyName == null || !propertyName.endsWith(".version")) break;
+					String artifactId =
+						propertyName.substring(0, propertyName.length() -
+							".version".length());
+					if ("imagej1".equals(artifactId)) artifactId = "ij";
+					final String search = "[artifactId[.='" + artifactId + "']]/groupId";
+					NodeList groupIdNodes =
+						xpath("//project/dependencyManagement/dependencies/dependency" +
+							search);
 					if (groupIdNodes == null || groupIdNodes.getLength() == 0) {
-						groupIdNodes = xpath("//project/build/pluginManagement/plugins/plugin" + search);
+						groupIdNodes = xpath("//project/dependencies/dependency" + search);
 						if (groupIdNodes == null || groupIdNodes.getLength() == 0) {
-							groupIdNodes = xpath("//project/build/plugins/plugin" + search);
+							groupIdNodes =
+								xpath("//project/build/pluginManagement/plugins/plugin" +
+									search);
+							if (groupIdNodes == null || groupIdNodes.getLength() == 0) {
+								groupIdNodes = xpath("//project/build/plugins/plugin" + search);
+							}
 						}
 					}
-				}
-				if (groupIdNodes == null || groupIdNodes.getLength() == 0) {
-					log.warn("Could not determine groupId for artifactId '" + artifactId + "'; Skipping");
-					continue;
-				}
-				if (visitVersion(groupIdNodes.item(0).getTextContent(), artifactId, node, visitor)) modified++;
-				break;
+					if (groupIdNodes == null || groupIdNodes.getLength() == 0) {
+						log.warn("Could not determine groupId for artifactId '" +
+							artifactId + "'; Skipping");
+						continue;
+					}
+					if (visitVersion(groupIdNodes.item(0).getTextContent(), artifactId,
+						node, visitor)) modified++;
+					break;
 			}
 		}
 
-		final NodeList importScopes = xpath("//project/dependencyManagement/dependencies/dependency[type[.='pom']][scope[.='import']]");
+		final NodeList importScopes =
+			xpath("//project/dependencyManagement/dependencies/dependency[type[.='pom']][scope[.='import']]");
 		for (int i = 0; i < importScopes.getLength(); i++) {
 			final Node node = importScopes.item(i);
 			final String groupId = cdata("./groupId", node);
 			final String artifactId = cdata("./artifactId", node);
 			final NodeList versions = xpath("./version", node);
 			if (versions == null || versions.getLength() != 1) {
-				throw new MojoExecutionException("Could not find version for " + groupId + ":" + artifactId);
+				throw new MojoExecutionException("Could not find version for " +
+					groupId + ":" + artifactId);
 			}
 			if (visitVersion(groupId, artifactId, versions.item(0), visitor)) modified++;
 		}
@@ -170,7 +185,8 @@ public class PomEditor {
 	}
 
 	private boolean visitVersion(final String groupId, final String artifactId,
-		final Node node, final VersionVisitor visitor) throws MojoExecutionException
+		final Node node, final VersionVisitor visitor)
+		throws MojoExecutionException
 	{
 		final String version = node.getTextContent();
 		final String newVersion = visitor.visit(groupId, artifactId, version);
@@ -180,11 +196,14 @@ public class PomEditor {
 		return true;
 	}
 
-	private String cdata(final String expression) throws XPathExpressionException {
+	private String cdata(final String expression) throws XPathExpressionException
+	{
 		return cdata(expression, doc);
 	}
 
-	private String cdata(final String expression, final Node node) throws XPathExpressionException {
+	private String cdata(final String expression, final Node node)
+		throws XPathExpressionException
+	{
 		final NodeList nodes = xpath(expression, node);
 		if (nodes == null || nodes.getLength() == 0) return null;
 
@@ -198,12 +217,17 @@ public class PomEditor {
 		return null;
 	}
 
-	private NodeList xpath(final String expression) throws XPathExpressionException {
+	private NodeList xpath(final String expression)
+		throws XPathExpressionException
+	{
 		return xpath(expression, doc);
 	}
 
-	private NodeList xpath(final String expression, final Node node) throws XPathExpressionException {
-		return (NodeList) xpath().evaluate(expression, node, XPathConstants.NODESET);
+	private NodeList xpath(final String expression, final Node node)
+		throws XPathExpressionException
+	{
+		return (NodeList) xpath()
+			.evaluate(expression, node, XPathConstants.NODESET);
 	}
 
 	private synchronized XPath xpath() {
@@ -232,14 +256,16 @@ public class PomEditor {
 		@Override
 		public int read(byte[] buffer) throws IOException {
 			int result = super.read(buffer);
-			for (int i = 0; i < result; i++) handle(buffer[i]);
+			for (int i = 0; i < result; i++)
+				handle(buffer[i]);
 			return result;
 		}
 
 		@Override
 		public int read(byte[] buffer, int offset, int length) throws IOException {
 			int result = super.read(buffer, offset, length);
-			for (int i = 0; i < result; i++) handle(buffer[offset + i]);
+			for (int i = 0; i < result; i++)
+				handle(buffer[offset + i]);
 			return result;
 		}
 
@@ -253,11 +279,13 @@ public class PomEditor {
 			if (counter < magic.length) {
 				if (ch == magic[counter]) {
 					counter++;
-				} else {
+				}
+				else {
 					// reset
 					counter = 0;
 				}
-			} else if (ch == '>') {
+			}
+			else if (ch == '>') {
 				// stop extracting
 				counter = -1;
 			}
@@ -265,23 +293,29 @@ public class PomEditor {
 		}
 	}
 
-	private void write(final Writer writer, final Node node) throws DOMException, IOException {
+	private void write(final Writer writer, final Node node) throws DOMException,
+		IOException
+	{
 		if (node.getNodeType() == Node.TEXT_NODE) {
 			writer.write(node.getTextContent());
-		} else if (node.getNodeType() == Node.COMMENT_NODE) {
+		}
+		else if (node.getNodeType() == Node.COMMENT_NODE) {
 			writer.write("<!--" + node.getTextContent() + "-->");
-		} else if (node.hasChildNodes()) {
+		}
+		else if (node.hasChildNodes()) {
 			final String name = node.getNodeName();
 			if ("project".equals(name)) writer.write(projectTag);
 			else writer.write("<" + name + ">");
-			for (Node child = node.getFirstChild(); child != null; child = child.getNextSibling()) {
+			for (Node child = node.getFirstChild(); child != null; child =
+				child.getNextSibling())
+			{
 				write(writer, child);
 			}
 			writer.write("</" + name + ">");
-		} else {
+		}
+		else {
 			writer.write("<" + node.getNodeName() + " />");
 		}
 	}
-
 
 }

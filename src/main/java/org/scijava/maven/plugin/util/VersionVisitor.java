@@ -46,8 +46,9 @@ public interface VersionVisitor {
 	 * @param artifactId the artifactId
 	 * @param version the (possibly obsolete) version
 	 * @return the new version
-	 * @throws MojoExecutionException 
+	 * @throws MojoExecutionException
 	 */
-	String visit(String groupId, String artifactId, String version) throws MojoExecutionException;
+	String visit(String groupId, String artifactId, String version)
+		throws MojoExecutionException;
 
 }

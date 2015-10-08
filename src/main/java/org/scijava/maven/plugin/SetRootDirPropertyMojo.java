@@ -41,8 +41,8 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 
 /**
- * Sets the <tt>project.rootdir</tt> property to the top-level directory of
- * the current Maven project structure.
+ * Sets the <tt>project.rootdir</tt> property to the top-level directory of the
+ * current Maven project structure.
  * 
  * @author Johannes Schindelin
  */
@@ -53,7 +53,8 @@ public class SetRootDirPropertyMojo extends AbstractMojo {
 	 * You can rename the rootdir property name to another property name if
 	 * desired.
 	 */
-	@Parameter(defaultValue = "rootdir", property = "setRootdir.rootdirPropertyName")
+	@Parameter(defaultValue = "rootdir",
+		property = "setRootdir.rootdirPropertyName")
 	private String rootdirPropertyName;
 
 	@Parameter(defaultValue = "${project}", required = true, readonly = true)
@@ -62,7 +63,7 @@ public class SetRootDirPropertyMojo extends AbstractMojo {
 	/**
 	 * Contains the full list of projects in the reactor.
 	 */
-	@Parameter(defaultValue="${reactorProjects}", readonly = true)
+	@Parameter(defaultValue = "${reactorProjects}", readonly = true)
 	private List<MavenProject> reactorProjects;
 
 	@Override
@@ -73,14 +74,12 @@ public class SetRootDirPropertyMojo extends AbstractMojo {
 			return;
 		}
 
-		if (!isLocalProject(currentProject))
-			return;
+		if (!isLocalProject(currentProject)) return;
 
 		MavenProject project = currentProject;
 		for (;;) {
 			final MavenProject parent = project.getParent();
-			if (parent == null || !isLocalProject(parent))
-				break;
+			if (parent == null || !isLocalProject(parent)) break;
 			project = parent;
 		}
 

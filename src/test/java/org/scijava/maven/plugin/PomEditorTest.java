@@ -51,52 +51,52 @@ public class PomEditorTest {
 
 	private static final Log log = new SystemStreamLog();
 
-	private final static String example =
-			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-			"<project xmlns=\"http://maven.apache.org/POM/4.0.0\" " +
-			"xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" " +
-			"xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 " +
-			"http://maven.apache.org/xsd/maven-4.0.0.xsd\">\n" +
-			"\t<modelVersion>4.0.0</modelVersion>\n" +
-			"\n" +
-			"\t<parent>" +
-			"\t\t<groupId>org.scijava</groupId>\n" +
-			"\t\t<artifactId>pom-scijava</artifactId>\n" +
-			"\t\t<version>2.22</version>\n" +
-			"\t\t<relativePath />\n" +
-			"\t</parent>\n" +
-			"\n" +
-			"\t<properties>\n" +
-			"\t\t<scijava-common.version>2.33.4</scijava-common.version>\n" +
-			"\t</properties>\n" +
-			"\n" +
-			"\t<dependencyManagement>\n" +
-			"\t\t<dependencies>\n" +
-			"\t\t\t<dependency>\n" +
-			"\t\t\t\t<groupId>io.scif</groupId>\n" +
-			"\t\t\t\t<artifactId>pom-scifio</artifactId>\n" +
-			"\t\t\t\t<version>1.11</version>\n" +
-			"\t\t\t\t<type>pom</type>\n" +
-			"\t\t\t\t<scope>import</scope>\n" +
-			"\t\t\t</dependency>\n" +
-			"\n" +
-			"\t\t\t<dependency>\n" +
-			"\t\t\t\t<groupId>org.scijava</groupId>\n" +
-			"\t\t\t\t<artifactId>scijava-common</artifactId>\n" +
-			"\t\t\t\t<version>${scijava-common.version}</version>\n" +
-			"\t\t\t</dependency>\n" +
-			"\t\t</dependencies>\n" +
-			"\t</dependencyManagement>\n" +
-			"\n" +
-			"\t<dependencies>\n" +
-			"\t\t<dependency>\n" +
-			"<!-- Intentionally funny order and formatting -->\n" +
-			"\t\t\t<version>4.12</version>\n" +
-			"\t\t\t<artifactId>junit</artifactId>\n" +
-			"\t\t\t <groupId>org.junit</groupId>\n" +
-			"\t\t</dependency>\n" +
-			"\t</dependencies>\n" +
-			"</project>\n";
+	private final static String example = "" + //
+		"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + //
+		"<project xmlns=\"http://maven.apache.org/POM/4.0.0\" " + //
+		"xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" " + //
+		"xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 " + //
+		"http://maven.apache.org/xsd/maven-4.0.0.xsd\">\n" + //
+		"\t<modelVersion>4.0.0</modelVersion>\n" + //
+		"\n" + //
+		"\t<parent>" + //
+		"\t\t<groupId>org.scijava</groupId>\n" + //
+		"\t\t<artifactId>pom-scijava</artifactId>\n" + //
+		"\t\t<version>2.22</version>\n" + //
+		"\t\t<relativePath />\n" + //
+		"\t</parent>\n" + //
+		"\n" + //
+		"\t<properties>\n" + //
+		"\t\t<scijava-common.version>2.33.4</scijava-common.version>\n" + //
+		"\t</properties>\n" + //
+		"\n" + //
+		"\t<dependencyManagement>\n" + //
+		"\t\t<dependencies>\n" + //
+		"\t\t\t<dependency>\n" + //
+		"\t\t\t\t<groupId>io.scif</groupId>\n" + //
+		"\t\t\t\t<artifactId>pom-scifio</artifactId>\n" + //
+		"\t\t\t\t<version>1.11</version>\n" + //
+		"\t\t\t\t<type>pom</type>\n" + //
+		"\t\t\t\t<scope>import</scope>\n" + //
+		"\t\t\t</dependency>\n" + //
+		"\n" + //
+		"\t\t\t<dependency>\n" + //
+		"\t\t\t\t<groupId>org.scijava</groupId>\n" + //
+		"\t\t\t\t<artifactId>scijava-common</artifactId>\n" + //
+		"\t\t\t\t<version>${scijava-common.version}</version>\n" + //
+		"\t\t\t</dependency>\n" + //
+		"\t\t</dependencies>\n" + //
+		"\t</dependencyManagement>\n" + //
+		"\n" + //
+		"\t<dependencies>\n" + //
+		"\t\t<dependency>\n" + //
+		"<!-- Intentionally funny order and formatting -->\n" + //
+		"\t\t\t<version>4.12</version>\n" + //
+		"\t\t\t<artifactId>junit</artifactId>\n" + //
+		"\t\t\t <groupId>org.junit</groupId>\n" + //
+		"\t\t</dependency>\n" + //
+		"\t</dependencies>\n" + //
+		"</project>\n";
 
 	@Test
 	public void retainWhitespace() throws Exception {
@@ -109,11 +109,11 @@ public class PomEditorTest {
 
 	@Test
 	public void visitVersions() throws Exception {
-		final String[] gavs = {
-			"org.scijava:pom-scijava:2.22",
-			"org.scijava:scijava-common:2.33.4",
-			"io.scif:pom-scifio:1.11"
-		};
+		final String[] gavs = { //
+			"org.scijava:pom-scijava:2.22", //
+				"org.scijava:scijava-common:2.33.4", //
+				"io.scif:pom-scifio:1.11" //
+			};
 		final int[] counter = { 0 };
 		final InputStream in = new ByteArrayInputStream(example.getBytes());
 		final PomEditor editor = new PomEditor(in, log);
@@ -121,8 +121,10 @@ public class PomEditorTest {
 
 			@Override
 			public String visit(String groupId, String artifactId, String version) {
-				assertEquals(gavs[counter[0]++], groupId + ":" + artifactId + ":" + version);
-				return version.replace("11", "13").replace("22", "23").replace("33", "67");
+				assertEquals(gavs[counter[0]++], groupId + ":" + artifactId + ":" +
+					version);
+				return version.replace("11", "13").replace("22", "23").replace("33",
+					"67");
 			}
 
 		});
@@ -131,7 +133,8 @@ public class PomEditorTest {
 
 		final StringWriter writer = new StringWriter();
 		editor.write(writer);
-		assertEquals(example.replace("11", "13").replace("22", "23").replace("33", "67"), writer.toString());
+		assertEquals(example.replace("11", "13").replace("22", "23").replace("33",
+			"67"), writer.toString());
 	}
 
 }

@@ -103,15 +103,14 @@ public class VerifyNoSnapshotsMojo extends AbstractMojo {
 	@Override
 	public void execute() throws MojoExecutionException, MojoFailureException {
 
-
 		try {
 			reactorModules =
 				DependencyUtils.findEffectiveReactor(reactorModules, mavenSession,
 					mavenProject, projectBuilder, localRepository);
 		}
 		catch (ProjectBuildingException exc) {
-			getLog()
-				.warn("Error during project construction:\n" + exc.getMessage(), exc);
+			getLog().warn("Error during project construction:\n" + exc.getMessage(),
+				exc);
 		}
 
 		// Enter recursive project checking
