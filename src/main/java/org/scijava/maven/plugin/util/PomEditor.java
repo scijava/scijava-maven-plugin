@@ -64,9 +64,10 @@ public class PomEditor {
 	private XPath xpath;
 
 	/**
-	 * Parses the specified <tt>pom.xml</tt> file.
+	 * Parses the specified <tt>pom.xml</tt> stream.
 	 * 
-	 * @param file the <tt>pom.xml</tt> file
+	 * @param inputStream the <tt>pom.xml</tt> data
+	 * @param log object to use for logging messages
 	 * @throws ParserConfigurationException
 	 * @throws SAXException
 	 * @throws IOException
@@ -87,7 +88,7 @@ public class PomEditor {
 	/**
 	 * Writes out the modified <tt>pom.xml</tt>
 	 * 
-	 * @param file the <tt>pom.xml</tt> file
+	 * @param writer object for writing the <tt>pom.xml</tt> file
 	 * @throws DOMException
 	 * @throws IOException
 	 */

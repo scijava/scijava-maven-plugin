@@ -156,8 +156,7 @@ public class BumpMojo extends AbstractMojo {
 			if (IMAGEJ_REPOSITORY_URL.equals(url)) return;
 		}
 
-		final ArtifactRepositoryLayout layout =
-				(ArtifactRepositoryLayout) repositoryLayouts.get("default");
+		final ArtifactRepositoryLayout layout = repositoryLayouts.get("default");
 
 			if (layout == null) {
 				throw new MojoExecutionException("default", "Invalid repository layout",

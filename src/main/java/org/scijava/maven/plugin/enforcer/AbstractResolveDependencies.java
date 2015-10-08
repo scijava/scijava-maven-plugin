@@ -58,11 +58,13 @@ public abstract class AbstractResolveDependencies implements EnforcerRule
     
     private transient List<ArtifactRepository> remoteRepositories;
     
-    private transient EnforcerRuleHelper helper;
+    private transient EnforcerRuleHelper ruleHelper;
+
+    @Override
     public void execute( EnforcerRuleHelper helper )
         throws EnforcerRuleException
     {
-        this.helper = helper;
+        ruleHelper = helper;
 
         // Get components
         try
@@ -84,7 +86,9 @@ public abstract class AbstractResolveDependencies implements EnforcerRule
             
             localRepository = (ArtifactRepository) helper.evaluate( "${localRepository}" );
             
-            remoteRepositories = (List<ArtifactRepository>) helper.evaluate( "${project.remoteArtifactRepositories}" );
+            @SuppressWarnings("unchecked")
+            final List<ArtifactRepository> result = (List<ArtifactRepository>) helper.evaluate( "${project.remoteArtifactRepositories}" );
+            remoteRepositories = result;
         }
         catch ( ExpressionEvaluationException e )
         {
@@ -103,12 +107,12 @@ public abstract class AbstractResolveDependencies implements EnforcerRule
         return true;
     }
         
-    private Set<Artifact> getDependenciesToCheck( MavenProject project, ArtifactRepository localRepository )
+    private Set<Artifact> getDependenciesToCheck( MavenProject project, ArtifactRepository repository )
     {
         Set<Artifact> dependencies = null;
         try
         {
-            DependencyNode node = treeBuilder.buildDependencyTree( project, localRepository, null );
+            DependencyNode node = treeBuilder.buildDependencyTree( project, repository, null );
             
             if( isSearchTransitive() )
             {
@@ -171,28 +175,22 @@ public abstract class AbstractResolveDependencies implements EnforcerRule
 
     protected Log getLog()
     {
-        return helper.getLog();
+        return ruleHelper.getLog();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    @Override
     public boolean isCacheable()
     {
         return false;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    @Override
     public boolean isResultValid( EnforcerRule enforcerRule )
     {
         return false;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    @Override
     public String getCacheId()
     {
         return "Does not matter as not cacheable";
@@ -232,6 +230,8 @@ public abstract class AbstractResolveDependencies implements EnforcerRule
                 case '|':
                 case '}':
                     result.append( "\\" );
+                    result.append( character );
+                    break;
                 default:
                     result.append( character );
                     break;
@@ -251,7 +251,7 @@ public abstract class AbstractResolveDependencies implements EnforcerRule
         public Pattern artifactId;
         public Pattern classifier;
         public Pattern type;
-        public List<Pattern> ignores = new ArrayList<Pattern>();
+        public List<Pattern> ignorePatterns = new ArrayList<Pattern>();
 
         public IgnorableDependency applyIgnoreClasses( String[] ignores, boolean indent )
         {
@@ -262,7 +262,7 @@ public abstract class AbstractResolveDependencies implements EnforcerRule
                 ignore = ignore.replace( '.', '/' );
                 String pattern = asRegex( ignore );
                 getLog().debug( prefix + "Ignore: " + ignore + " maps to regex " + pattern );
-                this.ignores.add( Pattern.compile( pattern ) );
+                ignorePatterns.add( Pattern.compile( pattern ) );
             }
             return this;
         }
@@ -277,7 +277,7 @@ public abstract class AbstractResolveDependencies implements EnforcerRule
 
         public boolean matches(String className)
         {
-            for ( Pattern p : ignores )
+            for ( Pattern p : ignorePatterns )
             {
                 if ( p.matcher( className ).matches() )
                 {
