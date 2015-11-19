@@ -16,6 +16,12 @@
 	<name>SciJava plugin for Maven</name>
 	<description>A plugin for managing SciJava-based projects.</description>
 	<inceptionYear>2014</inceptionYear>
+	<licenses>
+		<license>
+			<name>Simplified BSD License</name>
+			<distribution>repo</distribution>
+		</license>
+	</licenses>
 
 	<developers>
 		<developer>
