@@ -17,13 +17,6 @@
 	<description>A plugin for managing SciJava-based projects.</description>
 	<inceptionYear>2014</inceptionYear>
 
-	<properties>
-		<enforcer.version>1.3.1</enforcer.version>
-		<maven.version>3.0</maven.version>
-		<maven2.version>2.2.1</maven2.version>
-		<maven-tree.version>2.2</maven-tree.version>
-	</properties>
-
 	<developers>
 		<developer>
 			<id>dscho</id>
@@ -52,6 +45,20 @@
 			<timezone>-6</timezone>
 		</developer>
 	</developers>
+
+	<scm>
+		<connection>scm:git:git://github.com/scijava/scijava-maven-plugin</connection>
+		<developerConnection>scm:git:git@github.com:scijava/scijava-maven-plugin</developerConnection>
+		<tag>HEAD</tag>
+		<url>https://github.com/scijava/scijava-maven-plugin</url>
+	</scm>
+
+	<properties>
+		<enforcer.version>1.3.1</enforcer.version>
+		<maven.version>3.0</maven.version>
+		<maven2.version>2.2.1</maven2.version>
+		<maven-tree.version>2.2</maven-tree.version>
+	</properties>
 
 	<dependencies>
 		<dependency>
@@ -250,13 +257,6 @@ Wisconsin-Madison.</organizationName>
 			</plugin>
 		</plugins>
 	</build>
-
-	<scm>
-		<connection>scm:git:git://github.com/scijava/scijava-maven-plugin</connection>
-		<developerConnection>scm:git:git@github.com:scijava/scijava-maven-plugin</developerConnection>
-		<tag>HEAD</tag>
-		<url>https://github.com/scijava/scijava-maven-plugin</url>
-	</scm>
 
 	<profiles>
 		<profile>
