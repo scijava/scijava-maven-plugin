@@ -24,16 +24,6 @@
 		<maven-tree.version>2.2</maven-tree.version>
 	</properties>
 
-	<mailingLists>
-		<mailingList>
-			<name>SciJava</name>
-			<subscribe>https://groups.google.com/group/scijava</subscribe>
-			<unsubscribe>https://groups.google.com/group/scijava</unsubscribe>
-			<post>scijava@googlegroups.com</post>
-			<archive>https://groups.google.com/group/scijava</archive>
-		</mailingList>
-	</mailingLists>
-
 	<developers>
 		<developer>
 			<id>dscho</id>
