@@ -28,7 +28,7 @@
  * #L%
  */
 
-package org.scijava.maven.plugin;
+package org.scijava.maven.plugin.enforcer;
 
 import java.util.HashSet;
 import java.util.List;
@@ -46,6 +46,9 @@ import org.apache.maven.project.ProjectBuildingException;
 import org.apache.maven.shared.dependency.tree.DependencyTreeBuilder;
 import org.codehaus.plexus.component.configurator.expression.ExpressionEvaluationException;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
+import org.scijava.maven.plugin.DependencyUtils;
+import org.scijava.maven.plugin.SciJavaDependencyException;
+import org.scijava.maven.plugin.SnapshotFinder;
 
 /**
  * A {@link EnforcerRule} wrapper for the {@link SnapshotFinder}.
