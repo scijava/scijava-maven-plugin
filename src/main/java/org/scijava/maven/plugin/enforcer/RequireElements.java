@@ -90,7 +90,7 @@ public class RequireElements implements EnforcerRule {
 			fail("no elements were specified");
 		}
 		for (final String element : elements) {
-			if (element.matches("[^A-Za-z0-9_]")) {
+			if (element.matches("[^A-Za-z0-9_/]")) {
 				fail("invalid character in element name '" + element + "'");
 			}
 		}
