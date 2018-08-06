@@ -51,5 +51,15 @@
 				</execute>
 			</action>
 		</pluginExecution>
+    <pluginExecution>
+      <pluginExecutionFilter>
+        <goals>
+          <goal>copy-jars</goal>
+        </goals>
+      </pluginExecutionFilter>
+      <action>
+        <ignore />
+      </action>
+    </pluginExecution>
 	</pluginExecutions>
 </lifecycleMappingMetadata>
