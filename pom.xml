@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.scijava</groupId>
 		<artifactId>pom-scijava</artifactId>
-		<version>9.0.0</version>
+		<version>17.1.1</version>
 		<relativePath />
 	</parent>
 
@@ -15,7 +15,12 @@
 
 	<name>SciJava plugin for Maven</name>
 	<description>A plugin for managing SciJava-based projects.</description>
+	<url>https://github.com/scijava/scijava-maven-plugin</url>
 	<inceptionYear>2014</inceptionYear>
+	<organization>
+		<name>SciJava</name>
+		<url>http://www.scijava.org/</url>
+	</organization>
 	<licenses>
 		<license>
 			<name>Simplified BSD License</name>
@@ -30,6 +35,18 @@
 			<url>http://imagej.net/User:Rueden</url>
 			<roles>
 				<role>lead</role>
+				<role>developer</role>
+				<role>debugger</role>
+				<role>reviewer</role>
+				<role>support</role>
+				<role>maintainer</role>
+			</roles>
+		</developer>
+		<developer>
+			<id>stelfrich</id>
+			<name>Stefan Helfrich</name>
+			<url>http://imagej.net/User:Stelfrich</url>
+			<roles>
 				<role>developer</role>
 				<role>debugger</role>
 				<role>reviewer</role>
@@ -52,18 +69,43 @@
 		</contributor>
 	</contributors>
 
+	<mailingLists>
+		<mailingList>
+			<name>ImageJ Forum</name>
+			<archive>http://forum.imagej.net/</archive>
+		</mailingList>
+	</mailingLists>
+
 	<scm>
 		<connection>scm:git:git://github.com/scijava/scijava-maven-plugin</connection>
 		<developerConnection>scm:git:git@github.com:scijava/scijava-maven-plugin</developerConnection>
 		<tag>HEAD</tag>
 		<url>https://github.com/scijava/scijava-maven-plugin</url>
 	</scm>
+	<issueManagement>
+		<system>GitHub Issues</system>
+		<url>https://github.com/scijava/scijava-maven-plugin/issues</url>
+	</issueManagement>
+	<ciManagement>
+		<system>Travis CI</system>
+		<url>https://travis-ci.org/scijava/scijava-maven-plugin</url>
+	</ciManagement>
 
 	<properties>
 		<enforcer.version>1.3.1</enforcer.version>
+		<license.licenseName>bsd_2</license.licenseName>
+		<license.copyrightOwners>Board of Regents of the University of
+Wisconsin-Madison, Broad Institute of MIT and Harvard, Max Planck
+Institute of Molecular Cell Biology and Genetics, University of
+Konstanz, and KNIME GmbH.</license.copyrightOwners>
+		<license.projectName>SciJava Common shared library for SciJava software.</license.projectName>
+		<maven.compiler.source>1.8</maven.compiler.source>
+    	<maven.compiler.target>1.6</maven.compiler.target>
 		<maven.version>3.0</maven.version>
 		<maven2.version>2.2.1</maven2.version>
 		<maven-tree.version>2.2</maven-tree.version>
+		<package-name>org.scijava.maven</package-name>
+		<scijava-common.version>2.66.0</scijava-common.version>
 	</properties>
 
 	<dependencies>
@@ -87,48 +129,6 @@
 				<exclusion>
 					<groupId>org.codehaus.plexus</groupId>
 					<artifactId>plexus-container-default</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.maven</groupId>
-			<artifactId>maven-artifact</artifactId>
-			<version>${maven2.version}</version>
-			<exclusions>
-				<exclusion>
-					<groupId>org.codehaus.plexus</groupId>
-					<artifactId>plexus-utils</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.maven</groupId>
-			<artifactId>maven-project</artifactId>
-			<version>${maven2.version}</version>
-			<exclusions>
-				<exclusion>
-					<groupId>org.codehaus.plexus</groupId>
-					<artifactId>plexus-interpolation</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.codehaus.plexus</groupId>
-					<artifactId>plexus-utils</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.apache.maven</groupId>
-					<artifactId>maven-artifact-manager</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.apache.maven</groupId>
-					<artifactId>maven-model</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.apache.maven</groupId>
-					<artifactId>maven-settings</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>classworlds</groupId>
-					<artifactId>classworlds</artifactId>
 				</exclusion>
 			</exclusions>
 		</dependency>
@@ -166,12 +166,56 @@
 		<dependency>
 			<groupId>org.apache.maven.plugin-tools</groupId>
 			<artifactId>maven-plugin-annotations</artifactId>
-			<version>3.3</version>
+			<version>3.5</version>
 		</dependency>
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
 			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.maven</groupId>
+			<artifactId>maven-artifact</artifactId>
+			<version>${maven.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.maven</groupId>
+			<artifactId>maven-compat</artifactId>
+			<version>${maven.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.maven</groupId>
+			<artifactId>maven-model</artifactId>
+			<version>${maven.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.maven.shared</groupId>
+			<artifactId>maven-artifact-transfer</artifactId>
+			<version>0.9.1</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.maven.shared</groupId>
+			<artifactId>maven-common-artifact-filters</artifactId>
+			<version>3.0.1</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.codehaus.plexus</groupId>
+			<artifactId>plexus-interpolation</artifactId>
+			<version>1.24</version>
+		</dependency>
+		<dependency>
+			<groupId>org.codehaus.plexus</groupId>
+			<artifactId>plexus-utils</artifactId>
+			<version>3.1.0</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.scijava</groupId>
+			<artifactId>scijava-common</artifactId>
+			<version>${scijava-common.version}</version>
 		</dependency>
 	</dependencies>
 
@@ -205,6 +249,18 @@
 						</lifecycleMappingMetadata>
 					</configuration>
 				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-enforcer-plugin</artifactId>
+					<version>1.0</version>
+					<dependencies>
+						<dependency>
+							<groupId>org.codehaus.mojo</groupId>
+							<artifactId>extra-enforcer-rules</artifactId>
+							<version>1.0-beta-9</version>
+						</dependency>
+					</dependencies>
+				</plugin>
 			</plugins>
 		</pluginManagement>
 		<plugins>
@@ -212,26 +268,19 @@
 				<artifactId>maven-enforcer-plugin</artifactId>
 				<configuration>
 					<rules>
-						<banClasses>
+						<banDuplicateClasses>
 							<!--
 							NB: maven-artifact and maven-project are 2.0 artifacts
 							that clash with maven-core 3.0.
 							-->
-							<dependencies>
-								<dependency>
-									<artifactId>maven-artifact</artifactId>
-									<ignoreClasses>
-										<ignoreClass>org/apache/maven/artifact/*</ignoreClass>
-									</ignoreClasses>
-								</dependency>
-								<dependency>
-									<artifactId>maven-project</artifactId>
-									<ignoreClasses>
-										<ignoreClass>org/apache/maven/project/*</ignoreClass>
-									</ignoreClasses>
-								</dependency>
-							</dependencies>
-						</banClasses>
+							<ignoreClasses>
+								<ignoreClass>org/apache/maven/artifact/*</ignoreClass>
+
+								<ignoreClass>org/apache/maven/project/*</ignoreClass>
+							</ignoreClasses>
+							<findAllDuplicates>true</findAllDuplicates>
+							<ignoreWhenIdentical>true</ignoreWhenIdentical>
+						</banDuplicateClasses>
 					</rules>
 				</configuration>
 			</plugin>
@@ -253,13 +302,40 @@
 				</executions>
 			</plugin>
 			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>license-maven-plugin</artifactId>
+				<artifactId>maven-invoker-plugin</artifactId>
+				<version>1.8</version>
 				<configuration>
-					<licenseName>bsd_2</licenseName>
-					<organizationName>Board of Regents of the University of
-Wisconsin-Madison.</organizationName>
+					<!-- <debug>true</debug> -->
+					<showErrors>true</showErrors>
+					<streamLogs>true</streamLogs>
+					<properties>
+						<scijava-maven.version>${project.version}</scijava-maven.version>
+					</properties>
+					<projectsDirectory>src/it</projectsDirectory>
+					<cloneProjectsTo>${project.build.directory}/it</cloneProjectsTo>
+					<pomIncludes>
+						<pomInclude>*/pom.xml</pomInclude>
+					</pomIncludes>
+					<settingsFile>src/it/settings.xml</settingsFile>
+					<localRepositoryPath>${project.build.directory}/local-repo</localRepositoryPath>
+					<preBuildHookScript>setup.bsh</preBuildHookScript>
+					<postBuildHookScript>verify.bsh</postBuildHookScript>
+					<goals>
+						<goal>install</goal>
+					</goals>
 				</configuration>
+				<executions>
+					<execution>
+						<id>integration-test</id>
+						<goals>
+							<goal>install</goal>
+							<goal>run</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<artifactId>maven-release-plugin</artifactId>
 			</plugin>
 		</plugins>
 	</build>
