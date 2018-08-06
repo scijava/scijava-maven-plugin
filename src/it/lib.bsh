@@ -1,0 +1,73 @@
+/*
+ * #%L
+ * ImageJ software for multidimensional image processing and analysis.
+ * %%
+ * Copyright (C) 2012 - 2016 Board of Regents of the University of
+ * Wisconsin-Madison, Broad Institute of MIT and Harvard, and Max Planck
+ * Institute of Molecular Cell Biology and Genetics.
+ * %%
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ * 
+ * 1. Redistributions of source code must retain the above copyright notice,
+ *    this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright notice,
+ *    this list of conditions and the following disclaimer in the documentation
+ *    and/or other materials provided with the distribution.
+ * 
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDERS OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
+ * #L%
+ */
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+
+assertTrue(message, condition) {
+	if (!condition) {
+		System.err.println(message);
+		throw new RuntimeException("Failure!");
+	}
+}
+
+assertLogContains(needle) {
+	buildLog = readFile(new File(basedir, "build.log"));
+	assertTrue("Should contain '" + needle + "':\n" + buildLog,
+		buildLog.contains(needle));
+}
+
+readFile(file) {
+	builder = new StringBuilder();
+	reader = new BufferedReader(new FileReader(file));
+	for (;;) {
+		line = reader.readLine();
+		if (line == null) break;
+		builder.append("> ").append(line).append("\n");
+	}
+	return builder.toString();
+}
+
+touchFile(file) {
+	if (file.exists()) {
+		file.setLastModified(System.currentTimeMillis());
+	} else {
+		new FileWriter(file).close();
+	}
+}
+
+target = new File(basedir, "target");
+ijDir = new File(target, "ImageJ.app");
+plugins = new File(ijDir, "plugins");
+plugin = new File(plugins, "Example_PlugIn-1.0.0-SNAPSHOT.jar");
+
+//assertTrue("Is a directory: " + target, target.isDirectory());
