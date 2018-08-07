@@ -39,6 +39,8 @@ import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
+import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectBuilder;
 import org.apache.maven.project.ProjectBuildingException;
@@ -57,10 +59,8 @@ import org.apache.maven.shared.dependency.tree.DependencyTreeBuilder;
  * are specified.</li>
  * </ul>
  * </p>
- *
- * @goal verify-no-snapshots
- * @phase validate
  */
+@Mojo(name = "verify-no-snapshots", defaultPhase = LifecyclePhase.VALIDATE)
 public class VerifyNoSnapshotsMojo extends AbstractMojo {
 
 	// -- Parameters --
