@@ -133,7 +133,7 @@ public class CopyJarsMojo extends AbstractCopyJarsMojo {
 	 * </p>
 	 */
 	@Deprecated
-	@Parameter(property = imagejDeleteOtherVersionsPolicyProperty, defaultValue = "older")
+	@Parameter(property = imagejDeleteOtherVersionsPolicyProperty)
 	private OtherVersions imagejDeleteOtherVersionsPolicy;
 
 	/**
@@ -198,8 +198,14 @@ public class CopyJarsMojo extends AbstractCopyJarsMojo {
 		// Keep backwards compatibility to imagej.app.directory
 		try {
 			Object evaluate = evaluator.evaluate("${"+imagejDirectoryProperty+"}");
-			if (evaluate != null) {
-				getLog().warn("Property '" + imagejDirectoryProperty + "' is deprecated. Use '"+ appDirectoryProperty +"' instead");
+
+			// Use imagejDirectory if it is set (directly or via imagej.app.directory)
+			if (imagejDirectory != null) {
+				if (evaluate == null) {
+					getLog().warn("Configuration property 'imagejDirectory' is deprecated. Use 'appDirectory' instead");
+				} else {
+					getLog().warn("Property '" + imagejDirectoryProperty + "' is deprecated. Use '"+ appDirectoryProperty +"' instead");
+				}
 
 				// TODO How do we want to handle cases where both are provided. Which
 				// property should take precedence?
@@ -213,8 +219,14 @@ public class CopyJarsMojo extends AbstractCopyJarsMojo {
 		// Keep backwards compatibility to imagej.app.subdirectory
 		try {
 			Object evaluate = evaluator.evaluate("${"+imagejSubdirectoryProperty+"}");
-			if (evaluate != null) {
-				getLog().warn("Property '" + imagejSubdirectoryProperty + "' is deprecated. Use '"+ appSubdirectoryProperty +"' instead");
+			
+			// Use imagejSubdirectory if it is set (directly or via imagej.app.subdirectory)
+			if (imagejSubdirectory != null) {
+				if (evaluate == null) {
+					getLog().warn("Configuration property 'imagejSubdirectory' is deprecated. Use 'appSubdirectory' instead");
+				} else {
+					getLog().warn("Property '" + imagejSubdirectoryProperty + "' is deprecated. Use '"+ appSubdirectoryProperty +"' instead");
+				}
 
 				// TODO How do we want to handle cases where both are provided. Which
 				// property should take precedence?
@@ -228,8 +240,14 @@ public class CopyJarsMojo extends AbstractCopyJarsMojo {
 		// Keep backwards compatibility to imagej.deleteOtherVersions
 		try {
 			Object evaluate = evaluator.evaluate("${"+imagejDeleteOtherVersionsPolicyProperty+"}");
-			if (evaluate != null) {
-				getLog().warn("Property '" + imagejDeleteOtherVersionsPolicyProperty + "' is deprecated. Use '"+ deleteOtherVersionsPolicyProperty +"' instead");
+
+			// Use imagejDeleteOtherVersionsPolicy if it is set (directly or via imagej.deleteOtherVersions)
+			if (imagejDeleteOtherVersionsPolicy != null) {
+				if (evaluate == null) {
+					getLog().warn("Configuration property 'imagejDeleteOtherVersionsPolicy' is deprecated. Use 'deleteOtherVersionsPolicy' instead");
+				} else {
+					getLog().warn("Property '" + imagejDeleteOtherVersionsPolicyProperty + "' is deprecated. Use '"+ deleteOtherVersionsPolicyProperty +"' instead");
+				}
 
 				// TODO How do we want to handle cases where both are provided. Which
 				// property should take precedence?

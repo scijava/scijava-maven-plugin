@@ -70,6 +70,7 @@ import org.apache.maven.shared.dependencies.resolve.DependencyResolverException;
 import org.codehaus.plexus.component.configurator.expression.ExpressionEvaluationException;
 import org.codehaus.plexus.component.configurator.expression.ExpressionEvaluator;
 import org.codehaus.plexus.util.StringUtils;
+import org.scijava.maven.plugin.install.AbstractCopyJarsMojo.OtherVersions;
 
 /**
  * Downloads .jar artifacts and their dependencies into a SciJava application
@@ -90,24 +91,45 @@ import org.codehaus.plexus.util.StringUtils;
 public class InstallArtifactMojo extends AbstractCopyJarsMojo {
 
 	/**
-	 * Path to the ImageJ.app/ directory to which artifacts are installed.
+	 * Path to the ImageJ.app/ directory to which artifacts are copied.
 	 * <p>
 	 * If it is not a directory, no .jar files are copied.
 	 * </p>
 	 */
-	@Parameter(property = imagejDirectoryProperty)
+	@Deprecated
+	@Parameter(property = imagejDirectoryProperty, required = false)
 	private String imagejDirectory;
 
 	/**
+	 * Path to a SciJava application directory (e.g. ImageJ.app) to which
+	 * artifacts are copied.
+	 * <p>
+	 * If it is not a directory, no .jar files are copied.
+	 * </p>
+	 */
+	@Parameter(property = appDirectoryProperty, required = false)
+	private String appDirectory;
+
+	/**
 	 * The name of the property pointing to the subdirectory (beneath e.g.
-	 * {@code jars/} or {@code plugins/}) to which the artifact should be
-	 * copied.
+	 * {@code jars/} or {@code plugins/}) to which the artifact should be copied.
 	 * <p>
 	 * If no property of that name exists, no subdirectory will be used.
 	 * </p>
 	 */
-	@Parameter( property = imagejSubdirectoryProperty, required = false )
+	@Deprecated
+	@Parameter(property = imagejSubdirectoryProperty, required = false)
 	private String imagejSubdirectory;
+
+	/**
+	 * The name of the property pointing to the subdirectory (beneath e.g.
+	 * {@code jars/} or {@code plugins/}) to which the artifact should be copied.
+	 * <p>
+	 * If no property of that name exists, no subdirectory will be used.
+	 * </p>
+	 */
+	@Parameter(property = appSubdirectoryProperty, required = false)
+	private String appSubdirectory;
 
 	/**
 	 * Whether to delete other versions when copying the files.
@@ -129,7 +151,19 @@ public class InstallArtifactMojo extends AbstractCopyJarsMojo {
 	 * other versions.
 	 * </p>
 	 */
-	@Parameter(property = imagejDeleteOtherVersionsPolicyProperty, defaultValue = "older")
+	@Deprecated
+	@Parameter(property = imagejDeleteOtherVersionsPolicyProperty)
+	private OtherVersions imagejDeleteOtherVersionsPolicy;
+
+	/**
+	 * Whether to delete other versions when copying the files.
+	 * <p>
+	 * When copying a file and its dependencies to a SciJava application directory
+	 * and there are other versions of the same file, we can warn or delete those
+	 * other versions.
+	 * </p>
+	 */
+	@Parameter(property = deleteOtherVersionsPolicyProperty, defaultValue = "older")
 	private OtherVersions deleteOtherVersionsPolicy;
 
 	/**
@@ -239,12 +273,13 @@ public class InstallArtifactMojo extends AbstractCopyJarsMojo {
 
 	@Override
 	public void execute() throws MojoExecutionException, MojoFailureException {
-		// Keep backwards compatibility to delete.other.versions
 		ExpressionEvaluator evaluator = new PluginParameterExpressionEvaluator(session, mojoExecution);
+
+		// Keep backwards compatibility to delete.other.versions
 		try {
 			Object evaluate = evaluator.evaluate("${"+deleteOtherVersionsProperty+"}");
 			if (evaluate != null) {
-				getLog().warn("Property '" + deleteOtherVersionsProperty + "' is deprecated. Use '"+ imagejDeleteOtherVersionsPolicyProperty +"' instead");
+				getLog().warn("Property '" + deleteOtherVersionsProperty + "' is deprecated. Use '"+ deleteOtherVersionsPolicyProperty +"' instead");
 				deleteOtherVersionsPolicy = deleteOtherVersions ? OtherVersions.older : OtherVersions.never;
 			}
 		}
@@ -252,19 +287,82 @@ public class InstallArtifactMojo extends AbstractCopyJarsMojo {
 			getLog().warn(e);
 		}
 
-		if (imagejDirectory == null) {
-			throw new MojoExecutionException(
-				"The '"+imagejDirectoryProperty+"' property is unset!");
+		// Keep backwards compatibility to imagej.app.directory
+		try {
+			Object evaluate = evaluator.evaluate("${"+imagejDirectoryProperty+"}");
+
+			// Use imagejDirectory if it is set (directly or via imagej.app.directory)
+			if (imagejDirectory != null) {
+				if (evaluate == null) {
+					getLog().warn("Configuration property 'imagejDirectory' is deprecated. Use 'appDirectory' instead");
+				} else {
+					getLog().warn("Property '" + imagejDirectoryProperty + "' is deprecated. Use '"+ appDirectoryProperty +"' instead");
+				}
+
+				// TODO How do we want to handle cases where both are provided. Which
+				// property should take precedence?
+				appDirectory = imagejDirectory;
+			}
 		}
-		File imagejDir = new File(imagejDirectory);
+		catch (ExpressionEvaluationException e) {
+			getLog().warn(e);
+		}
+
+		// Keep backwards compatibility to imagej.app.subdirectory
+		try {
+			Object evaluate = evaluator.evaluate("${"+imagejSubdirectoryProperty+"}");
+			
+			// Use imagejSubdirectory if it is set (directly or via imagej.app.subdirectory)
+			if (imagejSubdirectory != null) {
+				if (evaluate == null) {
+					getLog().warn("Configuration property 'imagejSubdirectory' is deprecated. Use 'appSubdirectory' instead");
+				} else {
+					getLog().warn("Property '" + imagejSubdirectoryProperty + "' is deprecated. Use '"+ appSubdirectoryProperty +"' instead");
+				}
+
+				// TODO How do we want to handle cases where both are provided. Which
+				// property should take precedence?
+				appSubdirectory = imagejSubdirectory;
+			}
+		}
+		catch (ExpressionEvaluationException e) {
+			getLog().warn(e);
+		}
+
+		// Keep backwards compatibility to imagej.deleteOtherVersions
+		try {
+			Object evaluate = evaluator.evaluate("${"+imagejDeleteOtherVersionsPolicyProperty+"}");
+
+			// Use imagejDeleteOtherVersionsPolicy if it is set (directly or via imagej.deleteOtherVersions)
+			if (imagejDeleteOtherVersionsPolicy != null) {
+				if (evaluate == null) {
+					getLog().warn("Configuration property 'imagejDeleteOtherVersionsPolicy' is deprecated. Use 'deleteOtherVersionsPolicy' instead");
+				} else {
+					getLog().warn("Property '" + imagejDeleteOtherVersionsPolicyProperty + "' is deprecated. Use '"+ deleteOtherVersionsPolicyProperty +"' instead");
+				}
+
+				// TODO How do we want to handle cases where both are provided. Which
+				// property should take precedence?
+				deleteOtherVersionsPolicy = imagejDeleteOtherVersionsPolicy;
+			}
+		}
+		catch (ExpressionEvaluationException e) {
+			getLog().warn(e);
+		}
+
+		if (appDirectory == null) {
+			throw new MojoExecutionException(
+				"The '"+appDirectoryProperty+"' property is unset!");
+		}
+		File imagejDir = new File(appDirectory);
 		if (!imagejDir.isDirectory() && !imagejDir.mkdirs()) {
 			throw new MojoFailureException("Could not make directory: " +
 				imagejDir);
 		}
 
-		if ( imagejSubdirectory == null )
+		if ( appSubdirectory == null )
 		{
-			getLog().info( "No property name for the " + imagejSubdirectoryProperty +
+			getLog().info( "No property name for the " + appDirectoryProperty +
 					" directory location was specified; Installing in default location" );
 		}
 
@@ -326,7 +424,7 @@ public class InstallArtifactMojo extends AbstractCopyJarsMojo {
 				try {
 					if ( isSameGAV(coordinate, result.getArtifact()) )
 					{
-						installArtifact( result.getArtifact(), imagejDir, imagejSubdirectory, false, deleteOtherVersionsPolicy );
+						installArtifact( result.getArtifact(), imagejDir, appSubdirectory, false, deleteOtherVersionsPolicy );
 						continue;
 					}
 					if (!ignoreDependencies)
