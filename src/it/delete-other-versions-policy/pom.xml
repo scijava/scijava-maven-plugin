@@ -39,9 +39,9 @@
 	<name>An example ImageJ 1.x plugin to test scijava-maven-plugin's CopyJarsMojo</name>
 
 	<properties>
-		<imagej.app.directory>${project.basedir}/target/ImageJ.app/</imagej.app.directory>
+		<scijava.app.directory>${project.basedir}/target/ImageJ.app/</scijava.app.directory>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<imagej.deleteOtherVersions>always</imagej.deleteOtherVersions>
+		<scijava.deleteOtherVersions>always</scijava.deleteOtherVersions>
 	</properties>
 
 	<build>
@@ -65,7 +65,7 @@
 							<goal>install-artifact</goal>
 						</goals>
 						<configuration>
-							<imagejDirectory>${project.basedir}/target/Other.app/</imagejDirectory>
+							<appDirectory>${project.basedir}/target/Other.app/</appDirectory>
 							<artifact>${project.groupId}:${project.artifactId}:${project.version}</artifact>
 							<deleteOtherVersionsPolicy>older</deleteOtherVersionsPolicy>
 						</configuration>

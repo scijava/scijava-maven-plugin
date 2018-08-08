@@ -39,7 +39,7 @@
 	<name>An example ImageJ 1.x plugin to test if LWJGL natives-* files are kept</name>
 
 	<properties>
-		<imagej.app.directory>${project.basedir}/target/ImageJ.app/</imagej.app.directory>
+		<scijava.app.directory>${project.basedir}/target/ImageJ.app/</scijava.app.directory>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
 

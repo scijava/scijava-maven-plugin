@@ -47,8 +47,8 @@
 	</dependencies>
 
 	<properties>
-		<imagej.app.directory>${project.basedir}/target/ImageJ.app/</imagej.app.directory>
-		<imagej.app.subdirectory>plugins/Test/Directory/</imagej.app.subdirectory>
+		<scijava.app.directory>${project.basedir}/target/ImageJ.app/</scijava.app.directory>
+		<scijava.app.subdirectory>plugins/Test/Directory/</scijava.app.subdirectory>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
 
@@ -73,8 +73,8 @@
 							<goal>install-artifact</goal>
 						</goals>
 						<configuration>
-							<imagejDirectory>${project.basedir}/target/Other.app/</imagejDirectory>
-							<imagejSubdirectory>jars/Subdirectory/</imagejSubdirectory>
+							<appDirectory>${project.basedir}/target/Other.app/</appDirectory>
+							<appSubdirectory>jars/Subdirectory/</appSubdirectory>
 							<artifact>${project.groupId}:${project.artifactId}:${project.version}</artifact>
 						</configuration>
 					</execution>

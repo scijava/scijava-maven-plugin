@@ -40,7 +40,7 @@
 	<name>An example artifact to test support for &lt;exclusions&gt;</name>
 
 	<properties>
-		<imagej.app.directory>${project.basedir}/../target/ImageJ.app/</imagej.app.directory>
+		<scijava.app.directory>${project.basedir}/../target/ImageJ.app/</scijava.app.directory>
 	</properties>
 
 	<dependencies>

@@ -40,8 +40,8 @@
 	<name>An example artifact to test support for missing version numbers</name>
 
 	<properties>
-		<imagej.app.directory>${project.basedir}/target/ImageJ.app/</imagej.app.directory>
-		<imagej.deleteOtherVersions>older</imagej.deleteOtherVersions>
+		<scijava.app.directory>${project.basedir}/target/ImageJ.app/</scijava.app.directory>
+		<scijava.deleteOtherVersions>older</scijava.deleteOtherVersions>
 	</properties>
 
 	<build>
