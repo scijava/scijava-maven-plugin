@@ -34,10 +34,7 @@ package org.scijava.maven.plugin.install;
 import java.io.File;
 import java.io.IOException;
 
-import org.apache.maven.execution.MavenSession;
-import org.apache.maven.plugin.MojoExecution;
 import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugin.PluginParameterExpressionEvaluator;
 import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -50,8 +47,6 @@ import org.apache.maven.shared.artifact.resolve.ArtifactResult;
 import org.apache.maven.shared.dependencies.DefaultDependableCoordinate;
 import org.apache.maven.shared.dependencies.resolve.DependencyResolver;
 import org.apache.maven.shared.dependencies.resolve.DependencyResolverException;
-import org.codehaus.plexus.component.configurator.expression.ExpressionEvaluationException;
-import org.codehaus.plexus.component.configurator.expression.ExpressionEvaluator;
 
 /**
  * Copies .jar artifacts and their dependencies into a SciJava application
@@ -72,99 +67,10 @@ import org.codehaus.plexus.component.configurator.expression.ExpressionEvaluator
 public class CopyJarsMojo extends AbstractCopyJarsMojo {
 
 	/**
-	 * Path to the ImageJ.app/ directory to which artifacts are copied.
-	 * <p>
-	 * If it is not a directory, no .jar files are copied.
-	 * </p>
-	 */
-	@Deprecated
-	@Parameter(property = imagejDirectoryProperty, required = false)
-	private String imagejDirectory;
-
-	/**
-	 * Path to a SciJava application directory (e.g. ImageJ.app) to which
-	 * artifacts are copied.
-	 * <p>
-	 * If it is not a directory, no .jar files are copied.
-	 * </p>
-	 */
-	@Parameter(property = appDirectoryProperty, required = false)
-	private String appDirectory;
-
-	/**
-	 * The name of the property pointing to the subdirectory (beneath e.g.
-	 * {@code jars/} or {@code plugins/}) to which the artifact should be copied.
-	 * <p>
-	 * If no property of that name exists, no subdirectory will be used.
-	 * </p>
-	 */
-	@Deprecated
-	@Parameter(property = imagejSubdirectoryProperty, required = false)
-	private String imagejSubdirectory;
-
-	/**
-	 * The name of the property pointing to the subdirectory (beneath e.g.
-	 * {@code jars/} or {@code plugins/}) to which the artifact should be copied.
-	 * <p>
-	 * If no property of that name exists, no subdirectory will be used.
-	 * </p>
-	 */
-	@Parameter(property = appSubdirectoryProperty, required = false)
-	private String appSubdirectory;
-
-	/**
-	 * Whether to delete other versions when copying the files.
-	 * <p>
-	 * When copying a file and its dependencies to an ImageJ.app/ directory and
-	 * there are other versions of the same file, we can warn or delete those
-	 * other versions.
-	 * </p>
-	 */
-	@Deprecated
-	@Parameter(property = deleteOtherVersionsProperty)
-	private boolean deleteOtherVersions;
-
-	/**
-	 * Whether to delete other versions when copying the files.
-	 * <p>
-	 * When copying a file and its dependencies to an ImageJ.app/ directory and
-	 * there are other versions of the same file, we can warn or delete those
-	 * other versions.
-	 * </p>
-	 */
-	@Deprecated
-	@Parameter(property = imagejDeleteOtherVersionsPolicyProperty)
-	private OtherVersions imagejDeleteOtherVersionsPolicy;
-
-	/**
-	 * Whether to delete other versions when copying the files.
-	 * <p>
-	 * When copying a file and its dependencies to a SciJava application directory
-	 * and there are other versions of the same file, we can warn or delete those
-	 * other versions.
-	 * </p>
-	 */
-	@Parameter(property = deleteOtherVersionsPolicyProperty, defaultValue = "older")
-	private OtherVersions deleteOtherVersionsPolicy;
-
-	/**
-	 * If this option is set to <code>true</code>, only the artifact will be
-	 * copied - without its dependencies.
-	 */
-	@Parameter(property = ignoreDependenciesProperty, defaultValue = "false")
-	private boolean ignoreDependencies;
-
-	/**
 	 * Project
 	 */
 	@Parameter(defaultValue = "${project}", required=true, readonly = true)
 	private MavenProject project;
-
-	/**
-	 * Session
-	 */
-	@Parameter(defaultValue = "${session}")
-	private MavenSession session;
 
 	/**
 	 * The dependency resolver to.
@@ -176,13 +82,10 @@ public class CopyJarsMojo extends AbstractCopyJarsMojo {
 
 	private File appDir;
 
-	@Parameter( defaultValue = "${mojoExecution}", readonly = true )
-	MojoExecution mojoExecution;
-
 	@Override
 	public void execute() throws MojoExecutionException {
-		// Keep backwards compatibility
-		handleBackwardsCompatibility();
+		// Keep backward compatibility
+		handleBackwardCompatibility();
 
 		if (appDirectory == null) {
 			if (hasIJ1Dependency(project)) getLog().info(
@@ -239,64 +142,6 @@ public class CopyJarsMojo extends AbstractCopyJarsMojo {
 		catch (DependencyResolverException e) {
 			throw new MojoExecutionException(
 				"Couldn't resolve dependencies for artifact: " + e.getMessage(), e);
-		}
-	}
-
-	/**
-	 * TODO Javadoc
-	 */
-	private void handleBackwardsCompatibility() {
-		ExpressionEvaluator evaluator = new PluginParameterExpressionEvaluator(session, mojoExecution);
-
-		try {
-			// If at least one scijava.* property is set, ignore imagej.* properties
-			if (evaluator.evaluate("${" + appDirectoryProperty + "}") == null &&
-				evaluator.evaluate("${" + appSubdirectoryProperty + "}") == null &&
-				evaluator.evaluate("${" + deleteOtherVersionsPolicyProperty + "}") == null)
-			{
-
-				// Keep backwards compatibility to delete.other.versions
-				if (evaluator.evaluate("${"+deleteOtherVersionsProperty+"}") != null) {
-					getLog().warn("Property '" + deleteOtherVersionsProperty + "' is deprecated. Use '"+ deleteOtherVersionsPolicyProperty +"' instead");
-					deleteOtherVersionsPolicy = deleteOtherVersions ? OtherVersions.older : OtherVersions.never;
-				}
-
-				// Keep backwards compatibility to imagej.app.directory
-				// Use imagejDirectory if it is set (directly or via imagej.app.directory)
-				if (imagejDirectory != null) {
-					if (evaluator.evaluate("${"+imagejDirectoryProperty+"}") == null) {
-						getLog().warn("Configuration property 'imagejDirectory' is deprecated. Use 'appDirectory' instead");
-					} else {
-						getLog().warn("Property '" + imagejDirectoryProperty + "' is deprecated. Use '"+ appDirectoryProperty +"' instead");
-					}
-					appDirectory = imagejDirectory;
-				}
-
-				// Keep backwards compatibility to imagej.app.subdirectory
-				// Use imagejSubdirectory if it is set (directly or via imagej.app.subdirectory)
-				if (imagejSubdirectory != null) {
-					if (evaluator.evaluate("${"+imagejSubdirectoryProperty+"}") == null) {
-						getLog().warn("Configuration property 'imagejSubdirectory' is deprecated. Use 'appSubdirectory' instead");
-					} else {
-						getLog().warn("Property '" + imagejSubdirectoryProperty + "' is deprecated. Use '"+ appSubdirectoryProperty +"' instead");
-					}
-					appSubdirectory = imagejSubdirectory;
-				}
-
-				// Keep backwards compatibility to imagej.deleteOtherVersions
-				// Use imagejDeleteOtherVersionsPolicy if it is set (directly or via imagej.deleteOtherVersions)
-				if (imagejDeleteOtherVersionsPolicy != null) {
-					if (evaluator.evaluate("${"+imagejDeleteOtherVersionsPolicyProperty+"}") == null) {
-						getLog().warn("Configuration property 'imagejDeleteOtherVersionsPolicy' is deprecated. Use 'deleteOtherVersionsPolicy' instead");
-					} else {
-						getLog().warn("Property '" + imagejDeleteOtherVersionsPolicyProperty + "' is deprecated. Use '"+ deleteOtherVersionsPolicyProperty +"' instead");
-					}
-					deleteOtherVersionsPolicy = imagejDeleteOtherVersionsPolicy;
-				}
-			}
-		}
-		catch (ExpressionEvaluationException e) {
-			getLog().warn(e);
 		}
 	}
 }
