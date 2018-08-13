@@ -230,6 +230,8 @@ public abstract class AbstractCopyJarsMojo extends AbstractMojo {
 					}
 					deleteOtherVersionsPolicy = imagejDeleteOtherVersionsPolicy;
 				}
+			} else {
+				getLog().info("At least one scijava.* property is set. Ignoring imagej.* properties");
 			}
 		}
 		catch (ExpressionEvaluationException e) {
