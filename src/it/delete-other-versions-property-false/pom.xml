@@ -39,7 +39,7 @@
 	<name>An example ImageJ 1.x plugin to test scijava-maven-plugin's CopyJarsMojo</name>
 
 	<properties>
-		<scijava.app.directory>${project.basedir}/target/ImageJ.app/</scijava.app.directory>
+		<imagej.app.directory>${project.basedir}/target/ImageJ.app/</imagej.app.directory>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<delete.other.versions>false</delete.other.versions>
 	</properties>

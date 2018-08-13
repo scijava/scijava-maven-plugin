@@ -273,82 +273,8 @@ public class InstallArtifactMojo extends AbstractCopyJarsMojo {
 
 	@Override
 	public void execute() throws MojoExecutionException, MojoFailureException {
-		ExpressionEvaluator evaluator = new PluginParameterExpressionEvaluator(session, mojoExecution);
-
-		// Keep backwards compatibility to delete.other.versions
-		try {
-			Object evaluate = evaluator.evaluate("${"+deleteOtherVersionsProperty+"}");
-			if (evaluate != null) {
-				getLog().warn("Property '" + deleteOtherVersionsProperty + "' is deprecated. Use '"+ deleteOtherVersionsPolicyProperty +"' instead");
-				deleteOtherVersionsPolicy = deleteOtherVersions ? OtherVersions.older : OtherVersions.never;
-			}
-		}
-		catch (ExpressionEvaluationException e) {
-			getLog().warn(e);
-		}
-
-		// Keep backwards compatibility to imagej.app.directory
-		try {
-			Object evaluate = evaluator.evaluate("${"+imagejDirectoryProperty+"}");
-
-			// Use imagejDirectory if it is set (directly or via imagej.app.directory)
-			if (imagejDirectory != null) {
-				if (evaluate == null) {
-					getLog().warn("Configuration property 'imagejDirectory' is deprecated. Use 'appDirectory' instead");
-				} else {
-					getLog().warn("Property '" + imagejDirectoryProperty + "' is deprecated. Use '"+ appDirectoryProperty +"' instead");
-				}
-
-				// TODO How do we want to handle cases where both are provided. Which
-				// property should take precedence?
-				appDirectory = imagejDirectory;
-			}
-		}
-		catch (ExpressionEvaluationException e) {
-			getLog().warn(e);
-		}
-
-		// Keep backwards compatibility to imagej.app.subdirectory
-		try {
-			Object evaluate = evaluator.evaluate("${"+imagejSubdirectoryProperty+"}");
-			
-			// Use imagejSubdirectory if it is set (directly or via imagej.app.subdirectory)
-			if (imagejSubdirectory != null) {
-				if (evaluate == null) {
-					getLog().warn("Configuration property 'imagejSubdirectory' is deprecated. Use 'appSubdirectory' instead");
-				} else {
-					getLog().warn("Property '" + imagejSubdirectoryProperty + "' is deprecated. Use '"+ appSubdirectoryProperty +"' instead");
-				}
-
-				// TODO How do we want to handle cases where both are provided. Which
-				// property should take precedence?
-				appSubdirectory = imagejSubdirectory;
-			}
-		}
-		catch (ExpressionEvaluationException e) {
-			getLog().warn(e);
-		}
-
-		// Keep backwards compatibility to imagej.deleteOtherVersions
-		try {
-			Object evaluate = evaluator.evaluate("${"+imagejDeleteOtherVersionsPolicyProperty+"}");
-
-			// Use imagejDeleteOtherVersionsPolicy if it is set (directly or via imagej.deleteOtherVersions)
-			if (imagejDeleteOtherVersionsPolicy != null) {
-				if (evaluate == null) {
-					getLog().warn("Configuration property 'imagejDeleteOtherVersionsPolicy' is deprecated. Use 'deleteOtherVersionsPolicy' instead");
-				} else {
-					getLog().warn("Property '" + imagejDeleteOtherVersionsPolicyProperty + "' is deprecated. Use '"+ deleteOtherVersionsPolicyProperty +"' instead");
-				}
-
-				// TODO How do we want to handle cases where both are provided. Which
-				// property should take precedence?
-				deleteOtherVersionsPolicy = imagejDeleteOtherVersionsPolicy;
-			}
-		}
-		catch (ExpressionEvaluationException e) {
-			getLog().warn(e);
-		}
+		// Keep backwards compatibility
+		handleBackwardsCompatibility();
 
 		if (appDirectory == null) {
 			throw new MojoExecutionException(
@@ -440,6 +366,64 @@ public class InstallArtifactMojo extends AbstractCopyJarsMojo {
 		catch (DependencyResolverException e) {
 			throw new MojoExecutionException(
 				"Couldn't resolve dependencies for artifact: " + e.getMessage(), e);
+		}
+	}
+
+	/**
+	 * TODO Javadoc
+	 */
+	private void handleBackwardsCompatibility() {
+		ExpressionEvaluator evaluator = new PluginParameterExpressionEvaluator(session, mojoExecution);
+
+		try {
+			// If at least one scijava.* property is set, ignore imagej.* properties
+			if (evaluator.evaluate("${" + appDirectoryProperty + "}") == null &&
+				evaluator.evaluate("${" + appSubdirectoryProperty + "}") == null &&
+				evaluator.evaluate("${" + deleteOtherVersionsPolicyProperty + "}") == null)
+			{
+
+				// Keep backwards compatibility to delete.other.versions
+				if (evaluator.evaluate("${"+deleteOtherVersionsProperty+"}") != null) {
+					getLog().warn("Property '" + deleteOtherVersionsProperty + "' is deprecated. Use '"+ deleteOtherVersionsPolicyProperty +"' instead");
+					deleteOtherVersionsPolicy = deleteOtherVersions ? OtherVersions.older : OtherVersions.never;
+				}
+
+				// Keep backwards compatibility to imagej.app.directory
+				// Use imagejDirectory if it is set (directly or via imagej.app.directory)
+				if (imagejDirectory != null) {
+					if (evaluator.evaluate("${"+imagejDirectoryProperty+"}") == null) {
+						getLog().warn("Configuration property 'imagejDirectory' is deprecated. Use 'appDirectory' instead");
+					} else {
+						getLog().warn("Property '" + imagejDirectoryProperty + "' is deprecated. Use '"+ appDirectoryProperty +"' instead");
+					}
+					appDirectory = imagejDirectory;
+				}
+
+				// Keep backwards compatibility to imagej.app.subdirectory
+				// Use imagejSubdirectory if it is set (directly or via imagej.app.subdirectory)
+				if (imagejSubdirectory != null) {
+					if (evaluator.evaluate("${"+imagejSubdirectoryProperty+"}") == null) {
+						getLog().warn("Configuration property 'imagejSubdirectory' is deprecated. Use 'appSubdirectory' instead");
+					} else {
+						getLog().warn("Property '" + imagejSubdirectoryProperty + "' is deprecated. Use '"+ appSubdirectoryProperty +"' instead");
+					}
+					appSubdirectory = imagejSubdirectory;
+				}
+
+				// Keep backwards compatibility to imagej.deleteOtherVersions
+				// Use imagejDeleteOtherVersionsPolicy if it is set (directly or via imagej.deleteOtherVersions)
+				if (imagejDeleteOtherVersionsPolicy != null) {
+					if (evaluator.evaluate("${"+imagejDeleteOtherVersionsPolicyProperty+"}") == null) {
+						getLog().warn("Configuration property 'imagejDeleteOtherVersionsPolicy' is deprecated. Use 'deleteOtherVersionsPolicy' instead");
+					} else {
+						getLog().warn("Property '" + imagejDeleteOtherVersionsPolicyProperty + "' is deprecated. Use '"+ deleteOtherVersionsPolicyProperty +"' instead");
+					}
+					deleteOtherVersionsPolicy = imagejDeleteOtherVersionsPolicy;
+				}
+			}
+		}
+		catch (ExpressionEvaluationException e) {
+			getLog().warn(e);
 		}
 	}
 
