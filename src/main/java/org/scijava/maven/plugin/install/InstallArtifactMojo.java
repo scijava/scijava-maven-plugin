@@ -182,10 +182,10 @@ public class InstallArtifactMojo extends AbstractCopyJarsMojo {
 			throw new MojoExecutionException(
 				"The '"+appDirectoryProperty+"' property is unset!");
 		}
-		File imagejDir = new File(appDirectory);
-		if (!imagejDir.isDirectory() && !imagejDir.mkdirs()) {
+		File appDir = new File(appDirectory);
+		if (!appDir.isDirectory() && !appDir.mkdirs()) {
 			throw new MojoFailureException("Could not make directory: " +
-				imagejDir);
+				appDir);
 		}
 
 		if ( appSubdirectory == null )
@@ -252,11 +252,11 @@ public class InstallArtifactMojo extends AbstractCopyJarsMojo {
 				try {
 					if ( isSameGAV(coordinate, result.getArtifact()) )
 					{
-						installArtifact( result.getArtifact(), imagejDir, appSubdirectory, false, deleteOtherVersionsPolicy );
+						installArtifact( result.getArtifact(), appDir, appSubdirectory, false, deleteOtherVersionsPolicy );
 						continue;
 					}
 					if (!ignoreDependencies)
-						installArtifact(result.getArtifact(), imagejDir, false,
+						installArtifact(result.getArtifact(), appDir, false,
 							deleteOtherVersionsPolicy);
 				}
 				catch (IOException e) {

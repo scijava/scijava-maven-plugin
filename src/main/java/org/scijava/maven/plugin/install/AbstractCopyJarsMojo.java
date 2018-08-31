@@ -183,55 +183,87 @@ public abstract class AbstractCopyJarsMojo extends AbstractMojo {
 	 * imagej-maven-plugin.
 	 */
 	void handleBackwardCompatibility() {
-		ExpressionEvaluator evaluator = new PluginParameterExpressionEvaluator(session, mojoExecution);
+		ExpressionEvaluator evaluator = new PluginParameterExpressionEvaluator(
+			session, mojoExecution);
 
 		try {
 			// If at least one scijava.* property is set, ignore imagej.* properties
 			if (evaluator.evaluate("${" + appDirectoryProperty + "}") == null &&
 				evaluator.evaluate("${" + appSubdirectoryProperty + "}") == null &&
-				evaluator.evaluate("${" + deleteOtherVersionsPolicyProperty + "}") == null)
+				evaluator.evaluate("${" + deleteOtherVersionsPolicyProperty +
+					"}") == null)
 			{
 
 				// Keep backwards compatibility to delete.other.versions
-				if (evaluator.evaluate("${"+deleteOtherVersionsProperty+"}") != null) {
-					getLog().warn("Property '" + deleteOtherVersionsProperty + "' is deprecated. Use '"+ deleteOtherVersionsPolicyProperty +"' instead");
-					deleteOtherVersionsPolicy = deleteOtherVersions ? OtherVersions.older : OtherVersions.never;
+				if (evaluator.evaluate("${" + deleteOtherVersionsProperty +
+					"}") != null)
+				{
+					getLog().warn("Property '" + deleteOtherVersionsProperty +
+						"' is deprecated. Use '" + deleteOtherVersionsPolicyProperty +
+						"' instead");
+					deleteOtherVersionsPolicy = deleteOtherVersions ? OtherVersions.older
+						: OtherVersions.never;
 				}
 
 				// Keep backwards compatibility to imagej.app.directory
-				// Use imagejDirectory if it is set (directly or via imagej.app.directory)
+				// Use imagejDirectory if it is set (directly or via
+				// imagej.app.directory)
 				if (imagejDirectory != null) {
-					if (evaluator.evaluate("${"+imagejDirectoryProperty+"}") == null) {
-						getLog().warn("Configuration property 'imagejDirectory' is deprecated. Use 'appDirectory' instead");
-					} else {
-						getLog().warn("Property '" + imagejDirectoryProperty + "' is deprecated. Use '"+ appDirectoryProperty +"' instead");
+					if (evaluator.evaluate("${" + imagejDirectoryProperty +
+						"}") == null)
+					{
+						getLog().warn(
+							"Configuration property 'imagejDirectory' is deprecated." +
+								"Use 'appDirectory' instead");
+					}
+					else {
+						getLog().warn("Property '" + imagejDirectoryProperty +
+							"' is deprecated. Use '" + appDirectoryProperty + "' instead");
 					}
 					appDirectory = imagejDirectory;
 				}
 
 				// Keep backwards compatibility to imagej.app.subdirectory
-				// Use imagejSubdirectory if it is set (directly or via imagej.app.subdirectory)
+				// Use imagejSubdirectory if it is set (directly or via
+				// imagej.app.subdirectory)
 				if (imagejSubdirectory != null) {
-					if (evaluator.evaluate("${"+imagejSubdirectoryProperty+"}") == null) {
-						getLog().warn("Configuration property 'imagejSubdirectory' is deprecated. Use 'appSubdirectory' instead");
-					} else {
-						getLog().warn("Property '" + imagejSubdirectoryProperty + "' is deprecated. Use '"+ appSubdirectoryProperty +"' instead");
+					if (evaluator.evaluate("${" + imagejSubdirectoryProperty +
+						"}") == null)
+					{
+						getLog().warn(
+							"Configuration property 'imagejSubdirectory' is deprecated." +
+								"Use 'appSubdirectory' instead");
+					}
+					else {
+						getLog().warn("Property '" + imagejSubdirectoryProperty +
+							"' is deprecated. Use '" + appSubdirectoryProperty + "' instead");
 					}
 					appSubdirectory = imagejSubdirectory;
 				}
 
 				// Keep backwards compatibility to imagej.deleteOtherVersions
-				// Use imagejDeleteOtherVersionsPolicy if it is set (directly or via imagej.deleteOtherVersions)
+				// Use imagejDeleteOtherVersionsPolicy if it is set (directly or via
+				// imagej.deleteOtherVersions)
 				if (imagejDeleteOtherVersionsPolicy != null) {
-					if (evaluator.evaluate("${"+imagejDeleteOtherVersionsPolicyProperty+"}") == null) {
-						getLog().warn("Configuration property 'imagejDeleteOtherVersionsPolicy' is deprecated. Use 'deleteOtherVersionsPolicy' instead");
-					} else {
-						getLog().warn("Property '" + imagejDeleteOtherVersionsPolicyProperty + "' is deprecated. Use '"+ deleteOtherVersionsPolicyProperty +"' instead");
+					if (evaluator.evaluate("${" +
+						imagejDeleteOtherVersionsPolicyProperty + "}") == null)
+					{
+						getLog().warn(
+							"Configuration property 'imagejDeleteOtherVersionsPolicy' is deprecated." +
+								"Use 'deleteOtherVersionsPolicy' instead");
+					}
+					else {
+						getLog().warn("Property '" +
+							imagejDeleteOtherVersionsPolicyProperty +
+							"' is deprecated. Use '" + deleteOtherVersionsPolicyProperty +
+							"' instead");
 					}
 					deleteOtherVersionsPolicy = imagejDeleteOtherVersionsPolicy;
 				}
-			} else {
-				getLog().info("At least one scijava.* property is set. Ignoring imagej.* properties");
+			}
+			else {
+				getLog().info(
+					"At least one scijava.* property is set. Ignoring imagej.* properties");
 			}
 		}
 		catch (ExpressionEvaluationException e) {
@@ -292,14 +324,14 @@ public abstract class AbstractCopyJarsMojo extends AbstractMojo {
 	}
 
 	protected void installArtifact(final Artifact artifact,
-		final File imagejDirectory, final boolean force,
+		final File appDirectory, final boolean force,
 		final OtherVersions otherVersionsPolicy) throws IOException
 	{
-		installArtifact(artifact, imagejDirectory, "", force, otherVersionsPolicy);
+		installArtifact(artifact, appDirectory, "", force, otherVersionsPolicy);
 	}
 
 	protected void installArtifact(final Artifact artifact,
-		final File imagejDirectory, final String subdirectory, final boolean force,
+		final File appDirectory, final String appSubdirectory, final boolean force,
 		final OtherVersions otherVersionsPolicy) throws IOException
 	{
 		if (!"jar".equals(artifact.getType())) return;
@@ -307,26 +339,26 @@ public abstract class AbstractCopyJarsMojo extends AbstractMojo {
 		final File source = artifact.getFile();
 		final File targetDirectory;
 
-		if (subdirectory != null && !subdirectory.equals("")) {
-			targetDirectory = new File(imagejDirectory, subdirectory);
+		if (appSubdirectory != null && !appSubdirectory.equals("")) {
+			targetDirectory = new File(appDirectory, appSubdirectory);
 		} else if (isIJ1Plugin(source)) {
-			targetDirectory = new File(imagejDirectory, "plugins");
+			targetDirectory = new File(appDirectory, "plugins");
 		}
 		else if ("ome".equals(artifact.getGroupId()) ||
 			("loci".equals(artifact.getGroupId()) && (source.getName().startsWith(
 				"scifio-4.4.") || source.getName().startsWith("jai_imageio-4.4."))))
 		{
-			targetDirectory = new File(imagejDirectory, "jars/bio-formats");
+			targetDirectory = new File(appDirectory, "jars/bio-formats");
 		}
 		else {
-			targetDirectory = new File(imagejDirectory, "jars");
+			targetDirectory = new File(appDirectory, "jars");
 		}
 		final String fileName = "Fiji_Updater".equals(artifact.getArtifactId())
 			? artifact.getArtifactId() + ".jar" : source.getName();
 		final File target = new File(targetDirectory, fileName);
 
 		boolean newerVersion = false;
-		final Path directoryPath = Paths.get(imagejDirectory.toURI());
+		final Path directoryPath = Paths.get(appDirectory.toURI());
 		final Path targetPath = Paths.get(target.toURI());
 		final Collection<Path> otherVersions = //
 			getEncroachingVersions(directoryPath, targetPath);
@@ -422,8 +454,8 @@ public abstract class AbstractCopyJarsMojo extends AbstractMojo {
 	 */
 	private String majorVersion( String v )
 	{
-	final int dot = v.indexOf('.');
-	return dot < 0 ? v : v.substring(0, dot);
+		final int dot = v.indexOf('.');
+		return dot < 0 ? v : v.substring(0, dot);
 	}
 
 	/**
