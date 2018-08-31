@@ -1,10 +1,10 @@
 /*
  * #%L
- * ImageJ software for multidimensional image processing and analysis.
+ * A plugin for managing SciJava-based projects.
  * %%
- * Copyright (C) 2012 - 2016 Board of Regents of the University of
- * Wisconsin-Madison, Broad Institute of MIT and Harvard, and Max Planck
- * Institute of Molecular Cell Biology and Genetics.
+ * Copyright (C) 2014 - 2018 Board of Regents of the University of
+ * Wisconsin-Madison, Broad Institute of MIT and Harvard, Max Planck
+ * Institute of Molecular Cell Biology and Genetics, and KNIME GmbH.
  * %%
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:

@@ -96,11 +96,10 @@
 		<license.licenseName>bsd_2</license.licenseName>
 		<license.copyrightOwners>Board of Regents of the University of
 Wisconsin-Madison, Broad Institute of MIT and Harvard, Max Planck
-Institute of Molecular Cell Biology and Genetics, University of
-Konstanz, and KNIME GmbH.</license.copyrightOwners>
-		<license.projectName>SciJava Common shared library for SciJava software.</license.projectName>
+Institute of Molecular Cell Biology and Genetics, and KNIME GmbH.</license.copyrightOwners>
+		<license.projectName>A plugin for managing SciJava-based projects.</license.projectName>
 		<maven.compiler.source>1.8</maven.compiler.source>
-    	<maven.compiler.target>1.6</maven.compiler.target>
+		<maven.compiler.target>1.6</maven.compiler.target>
 		<maven.version>3.0</maven.version>
 		<maven2.version>2.2.1</maven2.version>
 		<maven-tree.version>2.2</maven-tree.version>
