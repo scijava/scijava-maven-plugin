@@ -88,7 +88,7 @@
 	</issueManagement>
 	<ciManagement>
 		<system>Travis CI</system>
-		<url>https://travis-ci.org/scijava/scijava-maven-plugin</url>
+		<url>https://travis-ci.com/scijava/scijava-maven-plugin</url>
 	</ciManagement>
 
 	<properties>
