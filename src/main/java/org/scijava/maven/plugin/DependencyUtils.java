@@ -57,14 +57,12 @@ import org.codehaus.plexus.PlexusContainer;
 
 /**
  * Utility class for initiating Maven-based dependency checks.
- * <p>
  * <ul>
  * <li>The {@link #checkDependencies} methods can be used to initiate one or
  * more {@link SciJavaDependencyChecker}s in visiting a Maven dependency tree.
  * Uses {@link DependencyTreeBuilder} instead of {@link DependencyGraphBuilder}
  * to get the more verbose Maven 2 dependency tree.</li>
  * </ul>
- * </p>
  *
  * @author Mark Hiner
  */

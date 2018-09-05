@@ -49,13 +49,13 @@ import org.apache.maven.shared.dependency.tree.DependencyNode;
  * a SNAPSHOT dependency or parent.
  * <p>
  * Options:
+ * </p>
  * <ul>
  * <li>verbose - prints full inheritance paths to all failures (default: false)</li>
  * <li>failEarly - end execution after first failure (default: false)</li>
  * <li>groupIds - an inclusive list of groupIds. Errors will only be reported
  * for projects whose groupIds are contained this list.</li>
- * <ul>
- * </p>
+ * </ul>
  *
  * @author Mark Hiner
  */

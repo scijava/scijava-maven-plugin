@@ -55,6 +55,7 @@ import org.scijava.maven.plugin.SnapshotFinder;
  * A {@link EnforcerRule} wrapper for the {@link SnapshotFinder}.
  * <p>
  * Parameters:
+ * </p>
  * <ul>
  * <li>failFast - end execution after first failure (default: false)</li>
  * <li>groupIds - an inclusive comma-separated list of groupIds. Errors will
@@ -63,7 +64,6 @@ import org.scijava.maven.plugin.SnapshotFinder;
  * <li>groupId - Singular groupIds option. Will be appended to groupIds if both
  * are specified. (default: null)</li>
  * </ul>
- * </p>
  *
  * @author Mark Hiner
  */

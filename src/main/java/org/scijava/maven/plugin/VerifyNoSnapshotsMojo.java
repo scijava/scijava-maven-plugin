@@ -51,6 +51,7 @@ import org.apache.maven.shared.dependency.tree.DependencyTreeBuilder;
  * Mojo wrapper for the {@link SnapshotFinder}.
  * <p>
  * Parameters:
+ * </p>
  * <ul>
  * <li>failFast - end execution after first failure (default: false)</li>
  * <li>groupIds - an inclusive list of groupIds. Errors will only be reported
@@ -59,7 +60,6 @@ import org.apache.maven.shared.dependency.tree.DependencyTreeBuilder;
  * <li>groupId - Singular groupIds option. Will be appended to groupIds if both
  * are specified.</li>
  * </ul>
- * </p>
  */
 @Mojo(name = "verify-no-snapshots", defaultPhase = LifecyclePhase.VALIDATE)
 public class VerifyNoSnapshotsMojo extends AbstractMojo {
