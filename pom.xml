@@ -92,26 +92,26 @@
 	</ciManagement>
 
 	<properties>
-		<enforcer.version>1.3.1</enforcer.version>
+		<package-name>org.scijava.maven</package-name>
+
 		<license.licenseName>bsd_2</license.licenseName>
 		<license.copyrightOwners>Board of Regents of the University of
 Wisconsin-Madison, Broad Institute of MIT and Harvard, Max Planck
 Institute of Molecular Cell Biology and Genetics, and KNIME GmbH.</license.copyrightOwners>
 		<license.projectName>A plugin for managing SciJava-based projects.</license.projectName>
+
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<maven.compiler.target>1.6</maven.compiler.target>
 		<maven.version>3.0</maven.version>
 		<maven2.version>2.2.1</maven2.version>
 		<maven-tree.version>2.2</maven-tree.version>
-		<package-name>org.scijava.maven</package-name>
-		<scijava-common.version>2.66.0</scijava-common.version>
 	</properties>
 
 	<dependencies>
 		<dependency>
 			<groupId>org.apache.maven.enforcer</groupId>
 			<artifactId>enforcer-api</artifactId>
-			<version>${enforcer.version}</version>
+			<version>${maven-enforcer-plugin.version}</version>
 			<exclusions>
 				<exclusion>
 					<groupId>classworlds</groupId>
