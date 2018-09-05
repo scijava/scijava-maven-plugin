@@ -2,8 +2,9 @@
  * #%L
  * A plugin for managing SciJava-based projects.
  * %%
- * Copyright (C) 2014 - 2016 Board of Regents of the University of
- * Wisconsin-Madison.
+ * Copyright (C) 2014 - 2018 Board of Regents of the University of
+ * Wisconsin-Madison, Broad Institute of MIT and Harvard, Max Planck
+ * Institute of Molecular Cell Biology and Genetics, and KNIME GmbH.
  * %%
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -39,6 +40,8 @@ import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
+import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectBuilder;
 import org.apache.maven.project.ProjectBuildingException;
@@ -57,10 +60,8 @@ import org.apache.maven.shared.dependency.tree.DependencyTreeBuilder;
  * are specified.</li>
  * </ul>
  * </p>
- *
- * @goal verify-no-snapshots
- * @phase validate
  */
+@Mojo(name = "verify-no-snapshots", defaultPhase = LifecyclePhase.VALIDATE)
 public class VerifyNoSnapshotsMojo extends AbstractMojo {
 
 	// -- Parameters --
