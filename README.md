@@ -12,7 +12,7 @@ Goals
 
 ```shell
 $ mvn scijava:help
-[INFO] SciJava plugin for Maven 0.5.0
+[INFO] SciJava plugin for Maven 1.1.0
   A plugin for managing SciJava-based projects.
 
 This plugin has 7 goals:
