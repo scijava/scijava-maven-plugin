@@ -214,7 +214,7 @@ public class InstallArtifactMojo extends AbstractCopyJarsMojo {
 		}
 
 		// Add ImageJ remote repository
-		repoList.add(parseRepository("http://maven.imagej.net/content/groups/public", always));
+		repoList.add(parseRepository("https://maven.scijava.org/content/groups/public", always));
 
 		/*
 		 * Determine GAV to download

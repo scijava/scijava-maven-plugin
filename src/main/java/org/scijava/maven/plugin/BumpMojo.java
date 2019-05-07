@@ -162,7 +162,7 @@ public class BumpMojo extends AbstractMojo {
 	}
 
 	private final static String IMAGEJ_REPOSITORY_URL =
-		"http://maven.imagej.net/content/groups/public";
+		"https://maven.scijava.org/content/groups/public";
 
 	private void makeImageJRepositoryKnown() throws MojoExecutionException {
 		for (final RemoteRepository repository : remoteRepositories) {
