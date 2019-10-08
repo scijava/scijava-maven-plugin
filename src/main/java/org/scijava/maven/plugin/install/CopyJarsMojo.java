@@ -33,6 +33,7 @@ package org.scijava.maven.plugin.install;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Properties;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Component;
@@ -40,7 +41,10 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.DefaultProjectBuildingRequest;
 import org.apache.maven.project.MavenProject;
+import org.apache.maven.project.ProjectBuilder;
+import org.apache.maven.project.ProjectBuildingException;
 import org.apache.maven.project.ProjectBuildingRequest;
+import org.apache.maven.project.ProjectBuildingResult;
 import org.apache.maven.shared.artifact.filter.resolve.ScopeFilter;
 import org.apache.maven.shared.artifact.filter.resolve.TransformableFilter;
 import org.apache.maven.shared.artifact.resolve.ArtifactResult;
@@ -81,6 +85,9 @@ public class CopyJarsMojo extends AbstractCopyJarsMojo {
 	private DefaultDependableCoordinate coordinate = new DefaultDependableCoordinate();
 
 	private File appDir;
+
+	@Component
+	private ProjectBuilder mavenProjectBuilder;
 
 	@Override
 	public void execute() throws MojoExecutionException {
@@ -130,12 +137,22 @@ public class CopyJarsMojo extends AbstractCopyJarsMojo {
 							continue;
 						}
 						// Resolution of the subdirectory for dependencies is handled in installArtifact
-						if (!ignoreDependencies)
-							installArtifact(result.getArtifact(), appDir, false, deleteOtherVersionsPolicy);
+						if (!ignoreDependencies) {
+							ProjectBuildingResult build = mavenProjectBuilder.build(result.getArtifact(), session.getProjectBuildingRequest());
+							Properties properties = build.getProject().getProperties();
+							String subdir = (String) properties.get( appSubdirectoryProperty );
+
+							installArtifact(result.getArtifact(), appDir, subdir, false, deleteOtherVersionsPolicy);
+						}
 					}
 					catch (IOException e) {
 						throw new MojoExecutionException("Couldn't download artifact " +
 							result.getArtifact() + ": " + e.getMessage(), e);
+					}
+					catch ( ProjectBuildingException e )
+					{
+						throw new MojoExecutionException( "Couldn't determine " +
+							appSubdirectoryProperty + " for " + result.getArtifact(), e );
 					}
 				}
 		}
