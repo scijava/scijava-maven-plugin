@@ -31,5 +31,15 @@
 source(new File(basedir, "../../../src/it/lib.bsh").getPath());
 
 assertTrue("Should exist: " + plugin, plugin.exists());
-natives = new File(plugins, "Example_PlugIn-0.9.0-natives-linux.jar");
-assertTrue("Should exist: " + natives, natives.exists());
+assertTrue("Should exist: " + new File(plugins, "Example_PlugIn-0.9.0-natives-linux.jar"), new File(plugins, "Example_PlugIn-0.9.0-natives-linux.jar").exists());
+assertTrue("Should exist: " + new File(plugins, "Example_PlugIn-0.9.0-android-arm.jar"), new File(plugins, "Example_PlugIn-0.9.0-android-arm.jar").exists());
+assertTrue("Should exist: " + new File(plugins, "Example_PlugIn-0.9.0-android-arm64.jar"), new File(plugins, "Example_PlugIn-0.9.0-android-arm64.jar").exists());
+assertTrue("Should exist: " + new File(plugins, "Example_PlugIn-0.9.0-android-x86.jar"), new File(plugins, "Example_PlugIn-0.9.0-android-x86.jar").exists());
+assertTrue("Should exist: " + new File(plugins, "Example_PlugIn-0.9.0-android-x86_64.jar"), new File(plugins, "Example_PlugIn-0.9.0-android-x86_64.jar").exists());
+assertTrue("Should exist: " + new File(plugins, "Example_PlugIn-0.9.0-linux-x86.jar"), new File(plugins, "Example_PlugIn-0.9.0-linux-x86.jar").exists());
+assertTrue("Should exist: " + new File(plugins, "Example_PlugIn-0.9.0-linux-x86_64.jar"), new File(plugins, "Example_PlugIn-0.9.0-linux-x86_64.jar").exists());
+assertTrue("Should exist: " + new File(plugins, "Example_PlugIn-0.9.0-linux-armhf.jar"), new File(plugins, "Example_PlugIn-0.9.0-linux-armhf.jar").exists());
+assertTrue("Should exist: " + new File(plugins, "Example_PlugIn-0.9.0-linux-ppc64le.jar"), new File(plugins, "Example_PlugIn-0.9.0-linux-ppc64le.jar").exists());
+assertTrue("Should exist: " + new File(plugins, "Example_PlugIn-0.9.0-macosx-x86_64.jar"), new File(plugins, "Example_PlugIn-0.9.0-macosx-x86_64.jar").exists());
+assertTrue("Should exist: " + new File(plugins, "Example_PlugIn-0.9.0-windows-x86.jar"), new File(plugins, "Example_PlugIn-0.9.0-windows-x86.jar").exists());
+assertTrue("Should exist: " + new File(plugins, "Example_PlugIn-0.9.0-windows-x86_64.jar"), new File(plugins, "Example_PlugIn-0.9.0-windows-x86_64.jar").exists());

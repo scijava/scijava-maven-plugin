@@ -32,3 +32,14 @@ source(new File(basedir, "../../../src/it/lib.bsh").getPath());
 
 if (!plugins.exists()) plugins.mkdirs();
 touchFile(new File(plugins, "Example_PlugIn-0.9.0-natives-linux.jar"));
+touchFile(new File(plugins, "Example_PlugIn-0.9.0-android-arm.jar"));
+touchFile(new File(plugins, "Example_PlugIn-0.9.0-android-arm64.jar"));
+touchFile(new File(plugins, "Example_PlugIn-0.9.0-android-x86.jar"));
+touchFile(new File(plugins, "Example_PlugIn-0.9.0-android-x86_64.jar"));
+touchFile(new File(plugins, "Example_PlugIn-0.9.0-linux-x86.jar"));
+touchFile(new File(plugins, "Example_PlugIn-0.9.0-linux-x86_64.jar"));
+touchFile(new File(plugins, "Example_PlugIn-0.9.0-linux-armhf.jar"));
+touchFile(new File(plugins, "Example_PlugIn-0.9.0-linux-ppc64le.jar"));
+touchFile(new File(plugins, "Example_PlugIn-0.9.0-macosx-x86_64.jar"));
+touchFile(new File(plugins, "Example_PlugIn-0.9.0-windows-x86.jar"));
+touchFile(new File(plugins, "Example_PlugIn-0.9.0-windows-x86_64.jar"));
