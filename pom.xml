@@ -201,6 +201,12 @@ Institute of Molecular Cell Biology and Genetics, and KNIME GmbH.</license.copyr
 		</dependency>
 
 		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-compress</artifactId>
+			<version>${commons-compress.version}</version>
+		</dependency>
+
+		<dependency>
 			<groupId>org.codehaus.plexus</groupId>
 			<artifactId>plexus-interpolation</artifactId>
 			<version>1.24</version>

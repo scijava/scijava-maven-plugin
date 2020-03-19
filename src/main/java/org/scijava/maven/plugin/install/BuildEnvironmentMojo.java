@@ -74,7 +74,7 @@ public class BuildEnvironmentMojo extends AbstractCopyJarsMojo {
 
 		if (appDirectory == null) {
 			if (hasIJ1Dependency(project)) getLog().info(
-				"Property '" + appDirectoryProperty + "' unset; Skipping copy-jars");
+				"Property '" + appDirectoryProperty + "' unset; Skipping build-environment");
 			return;
 		}
 		final String interpolated = interpolate(appDirectory, project, session);
@@ -89,7 +89,7 @@ public class BuildEnvironmentMojo extends AbstractCopyJarsMojo {
 			getLog().warn(
 				"'" + appDirectory + "'" +
 					(interpolated.equals(appDirectory) ? "" : " (" + appDirectory + ")") +
-					" is not an SciJava application directory; Skipping copy-jars");
+					" is not an SciJava application directory; Skipping build-environment");
 			return;
 		}
 
@@ -127,6 +127,11 @@ public class BuildEnvironmentMojo extends AbstractCopyJarsMojo {
 		catch (DependencyResolverException e) {
 			throw new MojoExecutionException(
 				"Couldn't resolve dependencies for artifact: " + e.getMessage(), e);
+		}
+		try {
+			JavaDownloader.downloadJava(appDir);
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 	}
 }
