@@ -437,7 +437,7 @@ public abstract class AbstractCopyJarsMojo extends AbstractMojo {
 		return false;
 	}
 
-	private final static Pattern versionPattern = Pattern.compile("(.+?)"
+	final static Pattern versionPattern = Pattern.compile("(.+?)"
 		+ "(-\\d+(\\.\\d+|\\d{7})+[a-z]?\\d?(-[A-Za-z0-9.]+?|\\.GA)*?)?"
 		+ "((-(swing|swt|sources|javadoc|native|linux-x86|linux-x86_64|linux-armhf|linux-ppc64le|macosx-x86_64|windows-x86|windows-x86_64|android-x86|android-x86_64|android-arm|android-arm64|ios-x86_64|ios-arm64|natives-windows|natives-macos|natives-linux))?(\\.jar(-[a-z]*)?))");
 	private final static int PREFIX_INDEX = 1;
