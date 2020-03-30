@@ -247,18 +247,6 @@ Institute of Molecular Cell Biology and Genetics, and KNIME GmbH.</license.copyr
 						</lifecycleMappingMetadata>
 					</configuration>
 				</plugin>
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-enforcer-plugin</artifactId>
-					<version>1.0</version>
-					<dependencies>
-						<dependency>
-							<groupId>org.codehaus.mojo</groupId>
-							<artifactId>extra-enforcer-rules</artifactId>
-							<version>1.0-beta-9</version>
-						</dependency>
-					</dependencies>
-				</plugin>
 			</plugins>
 		</pluginManagement>
 		<plugins>
