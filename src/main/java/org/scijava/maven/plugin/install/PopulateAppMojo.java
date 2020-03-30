@@ -62,13 +62,13 @@ import org.apache.maven.shared.dependencies.resolve.DependencyResolverException;
  * property to a specific subdirectory. It expects the location of the SciJava
  * application directory to be specified in the scijava.app.directory property
  * (which can be set on the Maven command-line). If said property is not set,
- * the copy-jars goal is skipped.
+ * the populate-app goal is skipped.
  * 
  * @author Johannes Schindelin
  * @author Stefan Helfrich
  */
-@Mojo(name = "copy-jars", requiresProject = true, requiresOnline = true)
-public class CopyJarsMojo extends AbstractCopyJarsMojo {
+@Mojo(name = "populate-app", requiresProject = true, requiresOnline = true)
+public class PopulateAppMojo extends AbstractInstallMojo {
 
 	/**
 	 * Project
@@ -96,7 +96,7 @@ public class CopyJarsMojo extends AbstractCopyJarsMojo {
 
 		if (appDirectory == null) {
 			if (hasIJ1Dependency(project)) getLog().info(
-				"Property '" + APP_DIRECTORY_PROPERTY + "' unset; Skipping copy-jars");
+				"Property '" + APP_DIRECTORY_PROPERTY + "' unset; Skipping populate-app");
 			return;
 		}
 		final String interpolated = interpolate(appDirectory, project);
@@ -111,7 +111,7 @@ public class CopyJarsMojo extends AbstractCopyJarsMojo {
 			getLog().warn(
 				"'" + appDirectory + "'" +
 					(interpolated.equals(appDirectory) ? "" : " (" + appDirectory + ")") +
-					" is not an SciJava application directory; Skipping copy-jars");
+					" is not an SciJava application directory; Skipping populate-app");
 			return;
 		}
 

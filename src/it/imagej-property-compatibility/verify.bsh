@@ -30,7 +30,7 @@
  */
 source(new File(basedir, "../../../src/it/lib.bsh").getPath());
 
-// copy-jars
+// populate-app
 newer = new File(plugins, "example-artifact-1.1.0.jar");
 assertTrue("Should exist: " + newer, newer.exists());
 

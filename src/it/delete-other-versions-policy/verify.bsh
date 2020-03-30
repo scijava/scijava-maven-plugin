@@ -30,7 +30,7 @@
  */
 source(new File(basedir, "../../../src/it/lib.bsh").getPath());
 
-// copy-jars
+// populate-app
 assertTrue("Should exist: " + plugin, plugin.exists());
 newer = new File(plugins, "Example_PlugIn-1.1.0.jar");
 assertTrue("Should not exist: " + newer, !newer.exists());

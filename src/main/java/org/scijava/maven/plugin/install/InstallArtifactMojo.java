@@ -86,7 +86,7 @@ import org.codehaus.plexus.util.StringUtils;
  * @author Stefan Helfrich
  */
 @Mojo(name = "install-artifact", requiresProject=false)
-public class InstallArtifactMojo extends AbstractCopyJarsMojo {
+public class InstallArtifactMojo extends AbstractInstallMojo {
 
 	/**
 	 * Used to look up Artifacts in the remote repository.

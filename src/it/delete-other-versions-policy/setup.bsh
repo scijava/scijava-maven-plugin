@@ -30,7 +30,7 @@
  */
 source(new File(basedir, "../../../src/it/lib.bsh").getPath());
 
-// copy-jars
+// populate-app
 if (!plugins.exists()) plugins.mkdirs();
 touchFile(new File(plugins, "Example_PlugIn-1.1.0.jar"));
 

@@ -30,7 +30,7 @@
  */
 source(new File(basedir, "../../../src/it/lib.bsh").getPath());
 
-// copy-jars
+// populate-app
 jars = new File(ijDir, "jars");
 assertTrue("Should have to-copy.jar", new File(jars, "to-copy-1.0.0-SNAPSHOT.jar").exists());
 assertTrue("Should have only-local.jar", new File(jars, "only-local-1.0.0-SNAPSHOT.jar").exists());

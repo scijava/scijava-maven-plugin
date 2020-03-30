@@ -20,7 +20,7 @@ This plugin has 7 goals:
 scijava:bump
   Bumps dependency and parent versions in SciJava projects.
 
-scijava:copy-jars
+scijava:populate-app
   Copies .jar artifacts and their dependencies into a SciJava application
   directory structure. ImageJ 1.x plugins (identified by containing a
   plugins.config file) get copied to the plugins/ subdirectory and all other
@@ -28,7 +28,7 @@ scijava:copy-jars
   scijava.app.subdirectory property to a specific subdirectory. It expects the
   location of the SciJava application directory to be specified in the
   scijava.app.directory property (which can be set on the Maven command-line).
-  If said property is not set, the copy-jars goal is skipped.
+  If said property is not set, the populate-app goal is skipped.
 
 scijava:eclipse-helper
   Runs the annotation processor of the scijava-common artifact even inside
@@ -68,7 +68,7 @@ scijava:verify-no-snapshots
 Usage
 -----
 
-It is recommended to enable the _set-rootdir_ as well as the _copy-jars_
+It is recommended to enable the _set-rootdir_ as well as the _populate-app_
 goal by making the [SciJava POM](http://github.com/scijava/pom-scijava)
 the parent project:
 
@@ -101,10 +101,10 @@ Alternatively, you can include the plugin explicitly in the life cycle:
         </goals>
       </execution>
       <execution>
-        <id>copy-jars</id>
+        <id>populate-app</id>
         <phase>install</phase>
         <goals>
-          <goal>copy-jars</goal>
+          <goal>populate-app</goal>
         </goals>
       </execution>
     </executions>

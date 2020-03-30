@@ -73,7 +73,7 @@ import org.scijava.util.VersionUtils;
  * 
  * @author Johannes Schindelin
  */
-public abstract class AbstractCopyJarsMojo extends AbstractMojo {
+public abstract class AbstractInstallMojo extends AbstractMojo {
 
 	/**
 	 * Path to the ImageJ.app/ directory to which artifacts are copied.

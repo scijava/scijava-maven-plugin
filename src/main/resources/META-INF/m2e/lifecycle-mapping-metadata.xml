@@ -55,7 +55,7 @@
     <pluginExecution>
       <pluginExecutionFilter>
         <goals>
-          <goal>copy-jars</goal>
+          <goal>populate-app</goal>
         </goals>
       </pluginExecutionFilter>
       <action>

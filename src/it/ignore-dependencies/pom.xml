@@ -60,10 +60,10 @@
 				<version>${scijava-maven.version}</version>
 				<executions>
 					<execution>
-						<id>copy-jars</id>
+						<id>populate-app</id>
 						<phase>install</phase>
 						<goals>
-							<goal>copy-jars</goal>
+							<goal>populate-app</goal>
 						</goals>
 					</execution>
 					<execution>
