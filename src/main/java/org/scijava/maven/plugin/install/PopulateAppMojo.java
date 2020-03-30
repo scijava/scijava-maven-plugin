@@ -35,6 +35,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Properties;
 
+import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Mojo;
@@ -128,35 +129,43 @@ public class PopulateAppMojo extends AbstractInstallMojo {
 			Iterable<ArtifactResult> resolveDependencies = dependencyResolver
 					.resolveDependencies(buildingRequest, coordinate, scopeFilter);
 				for (ArtifactResult result : resolveDependencies) {
+					Artifact artifact = result.getArtifact();
 					try {
-						if (project.getArtifact().equals(result.getArtifact())) {
-							installArtifact(result.getArtifact(), appDir, appSubdirectory, false,
+						if (project.getArtifact().equals(artifact)) {
+							installArtifact(artifact, appDir, appSubdirectory, false,
 								deleteOtherVersionsPolicy);
 							continue;
 						}
 						// Resolution of the subdirectory for dependencies is handled in installArtifact
 						if (!ignoreDependencies) {
-							ProjectBuildingResult build = mavenProjectBuilder.build(result.getArtifact(), session.getProjectBuildingRequest());
-							Properties properties = build.getProject().getProperties();
-							String subdir = (String) properties.get( APP_SUBDIRECTORY_PROPERTY );
+							String subdir = getAppSubDirectoryProperty(artifact);
 
-							installArtifact(result.getArtifact(), appDir, subdir, false, deleteOtherVersionsPolicy);
+							installArtifact(artifact, appDir, subdir, false, deleteOtherVersionsPolicy);
 						}
 					}
 					catch (IOException e) {
 						throw new MojoExecutionException("Couldn't download artifact " +
 							result.getArtifact() + ": " + e.getMessage(), e);
 					}
-					catch ( ProjectBuildingException e )
-					{
-						throw new MojoExecutionException( "Couldn't determine " +
-							APP_SUBDIRECTORY_PROPERTY + " for " + result.getArtifact(), e );
-					}
 				}
 		}
 		catch (DependencyResolverException e) {
 			throw new MojoExecutionException(
 				"Couldn't resolve dependencies for artifact: " + e.getMessage(), e);
+		}
+	}
+
+	private String getAppSubDirectoryProperty(Artifact artifact) {
+		try {
+			ProjectBuildingResult build = mavenProjectBuilder.build(artifact, //
+				session.getProjectBuildingRequest());
+			Properties properties = build.getProject().getProperties();
+			String subdir = (String) properties.get(APP_SUBDIRECTORY_PROPERTY);
+			return subdir;
+		}
+		catch (ProjectBuildingException e) {
+			// TODO: log.debug( "Couldn't determine " + APP_SUBDIRECTORY_PROPERTY + " for " + artifact, e );
+			return null;
 		}
 	}
 }
