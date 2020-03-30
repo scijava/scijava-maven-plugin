@@ -82,7 +82,7 @@ public abstract class AbstractCopyJarsMojo extends AbstractMojo {
 	 * </p>
 	 */
 	@Deprecated
-	@Parameter(property = imagejDirectoryProperty, required = false)
+	@Parameter(property = IMAGEJ_DIRECTORY_PROPERTY, required = false)
 	String imagejDirectory;
 
 	/**
@@ -92,7 +92,7 @@ public abstract class AbstractCopyJarsMojo extends AbstractMojo {
 	 * If it is not a directory, no .jar files are copied.
 	 * </p>
 	 */
-	@Parameter(property = appDirectoryProperty, required = false)
+	@Parameter(property = APP_DIRECTORY_PROPERTY, required = false)
 	String appDirectory;
 
 	/**
@@ -103,7 +103,7 @@ public abstract class AbstractCopyJarsMojo extends AbstractMojo {
 	 * </p>
 	 */
 	@Deprecated
-	@Parameter(property = imagejSubdirectoryProperty, required = false)
+	@Parameter(property = IMAGEJ_SUBDIRECTORY_PROPERTY, required = false)
 	String imagejSubdirectory;
 
 	/**
@@ -113,7 +113,7 @@ public abstract class AbstractCopyJarsMojo extends AbstractMojo {
 	 * If no property of that name exists, no subdirectory will be used.
 	 * </p>
 	 */
-	@Parameter(property = appSubdirectoryProperty, required = false)
+	@Parameter(property = APP_SUBDIRECTORY_PROPERTY, required = false)
 	String appSubdirectory;
 
 	/**
@@ -125,7 +125,7 @@ public abstract class AbstractCopyJarsMojo extends AbstractMojo {
 	 * </p>
 	 */
 	@Deprecated
-	@Parameter(property = deleteOtherVersionsProperty)
+	@Parameter(property = DELETE_OTHER_VERSIONS_PROPERTY)
 	boolean deleteOtherVersions;
 
 	/**
@@ -137,7 +137,7 @@ public abstract class AbstractCopyJarsMojo extends AbstractMojo {
 	 * </p>
 	 */
 	@Deprecated
-	@Parameter(property = imagejDeleteOtherVersionsPolicyProperty)
+	@Parameter(property = IMAGEJ_DELETE_OTHER_VERSIONS_POLICY_PROPERTY)
 	OtherVersions imagejDeleteOtherVersionsPolicy;
 
 	/**
@@ -148,14 +148,14 @@ public abstract class AbstractCopyJarsMojo extends AbstractMojo {
 	 * other versions.
 	 * </p>
 	 */
-	@Parameter(property = deleteOtherVersionsPolicyProperty, defaultValue = "older")
+	@Parameter(property = DELETE_OTHER_VERSIONS_POLICY_PROPERTY, defaultValue = "older")
 	OtherVersions deleteOtherVersionsPolicy;
 
 	/**
 	 * If this option is set to <code>true</code>, only the artifact will be
 	 * copied - without its dependencies.
 	 */
-	@Parameter(property = ignoreDependenciesProperty, defaultValue = "false")
+	@Parameter(property = IGNORE_DEPENDENCIES_PROPERTY, defaultValue = "false")
 	boolean ignoreDependencies;
 
 	@Parameter(defaultValue = "${session}")
@@ -164,15 +164,15 @@ public abstract class AbstractCopyJarsMojo extends AbstractMojo {
 	@Parameter( defaultValue = "${mojoExecution}", readonly = true )
 	MojoExecution mojoExecution;
 
-	public static final String imagejDirectoryProperty = "imagej.app.directory";
-	public static final String imagejSubdirectoryProperty = "imagej.app.subdirectory";
-	public static final String deleteOtherVersionsProperty = "delete.other.versions";
-	public static final String imagejDeleteOtherVersionsPolicyProperty = "imagej.deleteOtherVersions";
+	protected static final String IMAGEJ_DIRECTORY_PROPERTY = "imagej.app.directory";
+	protected static final String IMAGEJ_SUBDIRECTORY_PROPERTY = "imagej.app.subdirectory";
+	protected static final String DELETE_OTHER_VERSIONS_PROPERTY = "delete.other.versions";
+	protected static final String IMAGEJ_DELETE_OTHER_VERSIONS_POLICY_PROPERTY = "imagej.deleteOtherVersions";
 
-	public static final String appDirectoryProperty = "scijava.app.directory";
-	public static final String appSubdirectoryProperty = "scijava.app.subdirectory";
-	public static final String deleteOtherVersionsPolicyProperty = "scijava.deleteOtherVersions";
-	public static final String ignoreDependenciesProperty = "scijava.ignoreDependencies";
+	protected static final String APP_DIRECTORY_PROPERTY = "scijava.app.directory";
+	protected static final String APP_SUBDIRECTORY_PROPERTY = "scijava.app.subdirectory";
+	protected static final String DELETE_OTHER_VERSIONS_POLICY_PROPERTY = "scijava.deleteOtherVersions";
+	protected static final String IGNORE_DEPENDENCIES_PROPERTY = "scijava.ignoreDependencies";
 
 	public enum OtherVersions {
 			always, older, never
@@ -188,18 +188,18 @@ public abstract class AbstractCopyJarsMojo extends AbstractMojo {
 
 		try {
 			// If at least one scijava.* property is set, ignore imagej.* properties
-			if (evaluator.evaluate("${" + appDirectoryProperty + "}") == null &&
-				evaluator.evaluate("${" + appSubdirectoryProperty + "}") == null &&
-				evaluator.evaluate("${" + deleteOtherVersionsPolicyProperty +
+			if (evaluator.evaluate("${" + APP_DIRECTORY_PROPERTY + "}") == null &&
+				evaluator.evaluate("${" + APP_SUBDIRECTORY_PROPERTY + "}") == null &&
+				evaluator.evaluate("${" + DELETE_OTHER_VERSIONS_POLICY_PROPERTY +
 					"}") == null)
 			{
 
 				// Keep backwards compatibility to delete.other.versions
-				if (evaluator.evaluate("${" + deleteOtherVersionsProperty +
+				if (evaluator.evaluate("${" + DELETE_OTHER_VERSIONS_PROPERTY +
 					"}") != null)
 				{
-					getLog().warn("Property '" + deleteOtherVersionsProperty +
-						"' is deprecated. Use '" + deleteOtherVersionsPolicyProperty +
+					getLog().warn("Property '" + DELETE_OTHER_VERSIONS_PROPERTY +
+						"' is deprecated. Use '" + DELETE_OTHER_VERSIONS_POLICY_PROPERTY +
 						"' instead");
 					deleteOtherVersionsPolicy = deleteOtherVersions ? OtherVersions.older
 						: OtherVersions.never;
@@ -209,7 +209,7 @@ public abstract class AbstractCopyJarsMojo extends AbstractMojo {
 				// Use imagejDirectory if it is set (directly or via
 				// imagej.app.directory)
 				if (imagejDirectory != null) {
-					if (evaluator.evaluate("${" + imagejDirectoryProperty +
+					if (evaluator.evaluate("${" + IMAGEJ_DIRECTORY_PROPERTY +
 						"}") == null)
 					{
 						getLog().warn(
@@ -217,8 +217,8 @@ public abstract class AbstractCopyJarsMojo extends AbstractMojo {
 								"Use 'appDirectory' instead");
 					}
 					else {
-						getLog().warn("Property '" + imagejDirectoryProperty +
-							"' is deprecated. Use '" + appDirectoryProperty + "' instead");
+						getLog().warn("Property '" + IMAGEJ_DIRECTORY_PROPERTY +
+							"' is deprecated. Use '" + APP_DIRECTORY_PROPERTY + "' instead");
 					}
 					appDirectory = imagejDirectory;
 				}
@@ -227,7 +227,7 @@ public abstract class AbstractCopyJarsMojo extends AbstractMojo {
 				// Use imagejSubdirectory if it is set (directly or via
 				// imagej.app.subdirectory)
 				if (imagejSubdirectory != null) {
-					if (evaluator.evaluate("${" + imagejSubdirectoryProperty +
+					if (evaluator.evaluate("${" + IMAGEJ_SUBDIRECTORY_PROPERTY +
 						"}") == null)
 					{
 						getLog().warn(
@@ -235,8 +235,8 @@ public abstract class AbstractCopyJarsMojo extends AbstractMojo {
 								"Use 'appSubdirectory' instead");
 					}
 					else {
-						getLog().warn("Property '" + imagejSubdirectoryProperty +
-							"' is deprecated. Use '" + appSubdirectoryProperty + "' instead");
+						getLog().warn("Property '" + IMAGEJ_SUBDIRECTORY_PROPERTY +
+							"' is deprecated. Use '" + APP_SUBDIRECTORY_PROPERTY + "' instead");
 					}
 					appSubdirectory = imagejSubdirectory;
 				}
@@ -246,7 +246,7 @@ public abstract class AbstractCopyJarsMojo extends AbstractMojo {
 				// imagej.deleteOtherVersions)
 				if (imagejDeleteOtherVersionsPolicy != null) {
 					if (evaluator.evaluate("${" +
-						imagejDeleteOtherVersionsPolicyProperty + "}") == null)
+						IMAGEJ_DELETE_OTHER_VERSIONS_POLICY_PROPERTY + "}") == null)
 					{
 						getLog().warn(
 							"Configuration property 'imagejDeleteOtherVersionsPolicy' is deprecated." +
@@ -254,8 +254,8 @@ public abstract class AbstractCopyJarsMojo extends AbstractMojo {
 					}
 					else {
 						getLog().warn("Property '" +
-							imagejDeleteOtherVersionsPolicyProperty +
-							"' is deprecated. Use '" + deleteOtherVersionsPolicyProperty +
+							IMAGEJ_DELETE_OTHER_VERSIONS_POLICY_PROPERTY +
+							"' is deprecated. Use '" + DELETE_OTHER_VERSIONS_POLICY_PROPERTY +
 							"' instead");
 					}
 					deleteOtherVersionsPolicy = imagejDeleteOtherVersionsPolicy;

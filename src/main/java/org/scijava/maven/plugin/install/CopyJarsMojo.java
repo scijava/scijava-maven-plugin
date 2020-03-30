@@ -96,14 +96,14 @@ public class CopyJarsMojo extends AbstractCopyJarsMojo {
 
 		if (appDirectory == null) {
 			if (hasIJ1Dependency(project)) getLog().info(
-				"Property '" + appDirectoryProperty + "' unset; Skipping copy-jars");
+				"Property '" + APP_DIRECTORY_PROPERTY + "' unset; Skipping copy-jars");
 			return;
 		}
 		final String interpolated = interpolate(appDirectory, project, session);
 		appDir = new File(interpolated);
 
 		if (appSubdirectory == null) {
-			getLog().info("No property name for the " + appSubdirectoryProperty +
+			getLog().info("No property name for the " + APP_SUBDIRECTORY_PROPERTY +
 				" directory location was specified; Installing in default location");
 		}
 
@@ -140,7 +140,7 @@ public class CopyJarsMojo extends AbstractCopyJarsMojo {
 						if (!ignoreDependencies) {
 							ProjectBuildingResult build = mavenProjectBuilder.build(result.getArtifact(), session.getProjectBuildingRequest());
 							Properties properties = build.getProject().getProperties();
-							String subdir = (String) properties.get( appSubdirectoryProperty );
+							String subdir = (String) properties.get( APP_SUBDIRECTORY_PROPERTY );
 
 							installArtifact(result.getArtifact(), appDir, subdir, false, deleteOtherVersionsPolicy);
 						}
@@ -152,7 +152,7 @@ public class CopyJarsMojo extends AbstractCopyJarsMojo {
 					catch ( ProjectBuildingException e )
 					{
 						throw new MojoExecutionException( "Couldn't determine " +
-							appSubdirectoryProperty + " for " + result.getArtifact(), e );
+							APP_SUBDIRECTORY_PROPERTY + " for " + result.getArtifact(), e );
 					}
 				}
 		}

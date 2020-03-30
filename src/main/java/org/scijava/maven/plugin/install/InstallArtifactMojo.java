@@ -187,7 +187,7 @@ public class InstallArtifactMojo extends AbstractCopyJarsMojo {
 
 		if (appDirectory == null) {
 			throw new MojoExecutionException(
-				"The '"+appDirectoryProperty+"' property is unset!");
+				"The '"+APP_DIRECTORY_PROPERTY+"' property is unset!");
 		}
 		File appDir = new File(appDirectory);
 		if (!appDir.isDirectory() && !appDir.mkdirs()) {
@@ -197,7 +197,7 @@ public class InstallArtifactMojo extends AbstractCopyJarsMojo {
 
 		if ( appSubdirectory == null )
 		{
-			getLog().info( "No property name for the " + appDirectoryProperty +
+			getLog().info( "No property name for the " + APP_DIRECTORY_PROPERTY +
 					" directory location was specified; Installing in default location" );
 		}
 
@@ -265,7 +265,7 @@ public class InstallArtifactMojo extends AbstractCopyJarsMojo {
 					if (!ignoreDependencies) {
 						ProjectBuildingResult build = mavenProjectBuilder.build(result.getArtifact(), session.getProjectBuildingRequest());
 						Properties properties = build.getProject().getProperties();
-						String subdir = (String) properties.get( appSubdirectoryProperty );
+						String subdir = (String) properties.get( APP_SUBDIRECTORY_PROPERTY );
 
 						installArtifact(result.getArtifact(), appDir, subdir, false, deleteOtherVersionsPolicy);
 					}
@@ -277,7 +277,7 @@ public class InstallArtifactMojo extends AbstractCopyJarsMojo {
 				catch ( ProjectBuildingException e )
 				{
 					throw new MojoExecutionException( "Couldn't determine " +
-							appSubdirectoryProperty + " for " + result.getArtifact(), e );
+							APP_SUBDIRECTORY_PROPERTY + " for " + result.getArtifact(), e );
 				}
 			}
 		}
