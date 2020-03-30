@@ -105,6 +105,11 @@ Institute of Molecular Cell Biology and Genetics, and KNIME GmbH.</license.copyr
 		<maven.version>3.0</maven.version>
 		<maven2.version>2.2.1</maven2.version>
 		<maven-tree.version>2.2</maven-tree.version>
+		<maven-plugin-annotations.version>3.5</maven-plugin-annotations.version>
+		<maven-artifact-transfer.version>0.9.1</maven-artifact-transfer.version>
+		<maven-common-artifact-filters.version>3.0.1</maven-common-artifact-filters.version>
+		<plexus-interpolation.version>1.24</plexus-interpolation.version>
+		<plexus-utils.version>3.1.0</plexus-utils.version>
 	</properties>
 
 	<dependencies>
@@ -165,7 +170,7 @@ Institute of Molecular Cell Biology and Genetics, and KNIME GmbH.</license.copyr
 		<dependency>
 			<groupId>org.apache.maven.plugin-tools</groupId>
 			<artifactId>maven-plugin-annotations</artifactId>
-			<version>3.5</version>
+			<version>${maven-plugin-annotations.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>junit</groupId>
@@ -192,23 +197,23 @@ Institute of Molecular Cell Biology and Genetics, and KNIME GmbH.</license.copyr
 		<dependency>
 			<groupId>org.apache.maven.shared</groupId>
 			<artifactId>maven-artifact-transfer</artifactId>
-			<version>0.9.1</version>
+			<version>${maven-artifact-transfer.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.maven.shared</groupId>
 			<artifactId>maven-common-artifact-filters</artifactId>
-			<version>3.0.1</version>
+			<version>${maven-common-artifact-filters.version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.codehaus.plexus</groupId>
 			<artifactId>plexus-interpolation</artifactId>
-			<version>1.24</version>
+			<version>${plexus-interpolation.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.codehaus.plexus</groupId>
 			<artifactId>plexus-utils</artifactId>
-			<version>3.1.0</version>
+			<version>${plexus-utils.version}</version>
 		</dependency>
 
 		<dependency>
