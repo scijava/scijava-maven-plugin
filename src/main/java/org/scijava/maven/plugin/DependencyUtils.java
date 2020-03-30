@@ -157,15 +157,15 @@ public final class DependencyUtils {
 		final MavenProject baseProject, final MavenProjectBuilder projectBuilder,
 		final ArtifactRepository localRepository) throws ProjectBuildingException
 	{
-		final Set<MavenProject> reactor = new HashSet<MavenProject>();
-		final Set<MavenProject> visited = new HashSet<MavenProject>();
+		final Set<MavenProject> reactor = new HashSet<>();
+		final Set<MavenProject> visited = new HashSet<>();
 		final ProfileManager profileManager = getProfileManager(session);
 
 		findEffectiveReactor(reactor, visited, baseProject, baseProject,
 			projectBuilder, localRepository, profileManager);
 
 		if (reactor.size() <= 1 || !reactor.contains(baseProject)) return defaultReactor;
-		return new ArrayList<MavenProject>(reactor);
+		return new ArrayList<>(reactor);
 	}
 
 	// -- Helper methods --

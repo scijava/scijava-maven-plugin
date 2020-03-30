@@ -111,7 +111,7 @@ public class RequireReproducibleBuilds implements EnforcerRule {
 			}
 
 			// populate groupIds
-			final Set<String> ids = new HashSet<String>();
+			final Set<String> ids = new HashSet<>();
 			if (groupId != null) ids.add(groupId);
 			if (groupIds != null) {
 				for (final String id : groupIds.split(",")) {

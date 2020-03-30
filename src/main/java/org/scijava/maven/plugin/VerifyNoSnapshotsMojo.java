@@ -138,7 +138,7 @@ public class VerifyNoSnapshotsMojo extends AbstractMojo {
 	// -- Helper methods --
 
 	private Set<String> getGroupIds() {
-		final Set<String> ids = new HashSet<String>();
+		final Set<String> ids = new HashSet<>();
 		if (groupIds != null) {
 			for (final Object id : groupIds)
 				ids.add(id == null ? null : id.toString());

@@ -99,7 +99,7 @@ public class CopyJarsMojo extends AbstractCopyJarsMojo {
 				"Property '" + APP_DIRECTORY_PROPERTY + "' unset; Skipping copy-jars");
 			return;
 		}
-		final String interpolated = interpolate(appDirectory, project, session);
+		final String interpolated = interpolate(appDirectory, project);
 		appDir = new File(interpolated);
 
 		if (appSubdirectory == null) {

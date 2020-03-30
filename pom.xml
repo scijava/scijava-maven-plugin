@@ -214,7 +214,6 @@ Institute of Molecular Cell Biology and Genetics, and KNIME GmbH.</license.copyr
 		<dependency>
 			<groupId>org.scijava</groupId>
 			<artifactId>scijava-common</artifactId>
-			<version>${scijava-common.version}</version>
 		</dependency>
 	</dependencies>
 

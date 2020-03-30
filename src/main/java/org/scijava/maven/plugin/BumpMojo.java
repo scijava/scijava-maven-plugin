@@ -137,8 +137,7 @@ public class BumpMojo extends AbstractMojo {
 			new DefaultArtifact(groupId, artifactId, null, "[0,)");
 		request.setArtifact(artifact);
 		makeImageJRepositoryKnown();
-		final List<RemoteRepository> repositories =
-			new ArrayList<RemoteRepository>();
+		final List<RemoteRepository> repositories = new ArrayList<>();
 		repositories.addAll(remoteRepositories);
 		request.setRepositories(repositories);
 		VersionRangeResult result;

@@ -281,7 +281,7 @@ public abstract class AbstractCopyJarsMojo extends AbstractMojo {
 	}
 
 	protected String interpolate(final String original,
-		final MavenProject project, final MavenSession session)
+		final MavenProject project)
 		throws MojoExecutionException
 	{
 		if (original == null || original.indexOf("${") < 0) return original;
@@ -324,14 +324,14 @@ public abstract class AbstractCopyJarsMojo extends AbstractMojo {
 	}
 
 	protected void installArtifact(final Artifact artifact,
-		final File appDirectory, final boolean force,
+		final File appDir, final boolean force,
 		final OtherVersions otherVersionsPolicy) throws IOException
 	{
-		installArtifact(artifact, appDirectory, "", force, otherVersionsPolicy);
+		installArtifact(artifact, appDir, "", force, otherVersionsPolicy);
 	}
 
 	protected void installArtifact(final Artifact artifact,
-		final File appDirectory, final String appSubdirectory, final boolean force,
+		final File appDir, final String appSubdir, final boolean force,
 		final OtherVersions otherVersionsPolicy) throws IOException
 	{
 		if (!"jar".equals(artifact.getType())) return;
@@ -339,26 +339,26 @@ public abstract class AbstractCopyJarsMojo extends AbstractMojo {
 		final File source = artifact.getFile();
 		final File targetDirectory;
 
-		if (appSubdirectory != null && !appSubdirectory.equals("")) {
-			targetDirectory = new File(appDirectory, appSubdirectory);
+		if (appSubdir != null && !appSubdir.equals("")) {
+			targetDirectory = new File(appDir, appSubdir);
 		} else if (isIJ1Plugin(source)) {
-			targetDirectory = new File(appDirectory, "plugins");
+			targetDirectory = new File(appDir, "plugins");
 		}
 		else if ("ome".equals(artifact.getGroupId()) ||
 			("loci".equals(artifact.getGroupId()) && (source.getName().startsWith(
 				"scifio-4.4.") || source.getName().startsWith("jai_imageio-4.4."))))
 		{
-			targetDirectory = new File(appDirectory, "jars/bio-formats");
+			targetDirectory = new File(appDir, "jars/bio-formats");
 		}
 		else {
-			targetDirectory = new File(appDirectory, "jars");
+			targetDirectory = new File(appDir, "jars");
 		}
 		final String fileName = "Fiji_Updater".equals(artifact.getArtifactId())
 			? artifact.getArtifactId() + ".jar" : source.getName();
 		final File target = new File(targetDirectory, fileName);
 
 		boolean newerVersion = false;
-		final Path directoryPath = Paths.get(appDirectory.toURI());
+		final Path directoryPath = Paths.get(appDir.toURI());
 		final Path targetPath = Paths.get(target.toURI());
 		final Collection<Path> otherVersions = //
 			getEncroachingVersions(directoryPath, targetPath);

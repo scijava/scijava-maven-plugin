@@ -79,7 +79,6 @@ public class EclipseHelperMojo extends AbstractMojo {
 
 		getLog().info("Parsing SciJava annotations");
 		try {
-			@SuppressWarnings("unchecked")
 			final List<String> elements =
 				currentProject.getCompileClasspathElements();
 			final URL[] classpath = new URL[elements.size() + 1];
@@ -138,7 +137,6 @@ public class EclipseHelperMojo extends AbstractMojo {
 	 * @return true iff the project depends on <code>scijava-common</code>
 	 */
 	private boolean dependsOnScijavaCommon(final MavenProject project) {
-		@SuppressWarnings("unchecked")
 		final List<Dependency> dependencies = project.getCompileDependencies();
 		if (dependencies == null) return false;
 
