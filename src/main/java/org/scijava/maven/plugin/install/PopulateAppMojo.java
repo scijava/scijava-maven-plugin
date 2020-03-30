@@ -55,14 +55,15 @@ import org.apache.maven.shared.dependencies.resolve.DependencyResolverException;
 /**
  * Copies .jar artifacts and their dependencies into a SciJava application
  * directory structure.
- * 
+ * <p>
  * ImageJ 1.x plugins (identified by containing a plugins.config file) get
  * copied to the plugins/ subdirectory and all other .jar files to jars/.
- * However, you can override this decision by setting the scijava.app.subdirectory
- * property to a specific subdirectory. It expects the location of the SciJava
- * application directory to be specified in the scijava.app.directory property
- * (which can be set on the Maven command-line). If said property is not set,
- * the populate-app goal is skipped.
+ * However, you can override this decision by setting the
+ * scijava.app.subdirectory property to a specific subdirectory. It expects the
+ * location of the SciJava application directory to be specified in the
+ * scijava.app.directory property (which can be set on the Maven command-line).
+ * If said property is not set, the populate-app goal is skipped.
+ * </p>
  * 
  * @author Johannes Schindelin
  * @author Stefan Helfrich
