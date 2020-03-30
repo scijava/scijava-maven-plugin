@@ -58,6 +58,27 @@ public class BuildEnvironmentMojo extends AbstractCopyJarsMojo {
 	private MavenProject project;
 
 	/**
+	 * Use this parameter to build the environment for a specific platform
+	 * Possible values: "linux32", "linux64, "win32", "win64",
+	 */
+	@Parameter(property = "platform")
+	private String platform;
+
+	/**
+	 * To build the environment without adding a JRE, set this to false
+	 */
+	@Parameter(property = "downloadJRE")
+	private boolean downloadJRE = true;
+
+	/**
+	 * Use this paramter to add specific JRE version ot environment.
+	 * By default, the platform specific JRE on https://downloads.imagej.net/java/ will be used.
+	 * Possible values: any subfolder of https://downloads.imagej.net/java/ (e.g. "1.8.0_66", "1.8.0_172")
+	 */
+	@Parameter(property = "jreVersion")
+	private String jreVersion;
+
+	/**
 	 * The dependency resolver to.
 	 */
 	@Component
@@ -69,6 +90,9 @@ public class BuildEnvironmentMojo extends AbstractCopyJarsMojo {
 
 	@Override
 	public void execute() throws MojoExecutionException {
+
+		if(platform == null) platform = getPlatform();
+
 		// Keep backward compatibility
 		handleBackwardCompatibility();
 
@@ -128,10 +152,25 @@ public class BuildEnvironmentMojo extends AbstractCopyJarsMojo {
 			throw new MojoExecutionException(
 				"Couldn't resolve dependencies for artifact: " + e.getMessage(), e);
 		}
-		try {
-			JavaDownloader.downloadJava(appDir);
-		} catch (IOException e) {
-			e.printStackTrace();
+
+		if(downloadJRE) {
+			try {
+				JavaDownloader.downloadJava(appDir, platform, jreVersion);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
+
+	}
+
+	private static String getPlatform() {
+		final boolean is64bit =
+				System.getProperty("os.arch", "").contains("64");
+		final String osName = System.getProperty("os.name", "<unknown>");
+		if (osName.equals("Linux")) return "linux" + (is64bit ? "64" : "32");
+		if (osName.equals("Mac OS X")) return "macosx";
+		if (osName.startsWith("Windows")) return "win" + (is64bit ? "64" : "32");
+		// System.err.println("Unknown platform: " + osName);
+		return osName.toLowerCase();
 	}
 }

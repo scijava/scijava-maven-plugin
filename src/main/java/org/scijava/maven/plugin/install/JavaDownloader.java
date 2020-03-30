@@ -18,11 +18,11 @@ import java.nio.file.Paths;
 
 public class JavaDownloader {
 
-	public static void downloadJava(File destinationDir) throws IOException {
+	public static void downloadJava(File destinationDir, String platform, String jreVersion) throws IOException {
 		System.out.println("Downloading and unpacking JRE..");
 		File javaFolder = new File(destinationDir, "java");
 		javaFolder.mkdirs();
-		URL javaURL = getJavaDownloadURL();
+		URL javaURL = getJavaDownloadURL(platform, jreVersion);
 		decompress(javaURL.openStream(), javaFolder);
 		File[] files = javaFolder.listFiles();
 		if(files.length != 1) {
@@ -31,7 +31,7 @@ public class JavaDownloader {
 		}
 		File jre = files[0];
 		String jdkName = jre.getName().replace("jre", "jdk");
-		Path newJrePath = Paths.get(javaFolder.getAbsolutePath(), getJavaDownloadPlatform(), jdkName, "jre");
+		Path newJrePath = Paths.get(javaFolder.getAbsolutePath(), getJavaDownloadPlatform(platform), jdkName, "jre");
 		newJrePath.toFile().getParentFile().mkdirs();
 		Files.move(jre.toPath(), newJrePath);
 		System.out.println("JRE installed to " + newJrePath.toAbsolutePath());
@@ -55,17 +55,19 @@ public class JavaDownloader {
 		}
 	}
 
-	private static String getJavaDownloadPlatform() {
-		final boolean is64bit =
-				System.getProperty("os.arch", "").contains("64");
-		final String osName = System.getProperty("os.name", "<unknown>");
-		if (osName.equals("Linux")) return "linux" + (is64bit ? "-amd64" : "");
-		if (osName.equals("Mac OS X")) return "macosx";
-		if (osName.startsWith("Windows")) return "win" + (is64bit ? "64" : "32");
+	private static String getJavaDownloadPlatform(String platform) {
+		if(platform.equals("linux64")) return "linux-amd64";
+		if(platform.equals("linux32")) return "linux";
+		if(platform.equals("macosx")) return platform;
+		if(platform.equals("win64")) return platform;
+		if(platform.equals("win32")) return platform;
 		throw new RuntimeException("No JRE for platform exists");
 	}
 
-	private static URL getJavaDownloadURL() throws MalformedURLException {
-		return new URL("https://downloads.imagej.net/java/" + getJavaDownloadPlatform() + ".tar.gz");
+	private static URL getJavaDownloadURL(String platform, String jreVersion) throws MalformedURLException {
+		String baseUrl = "https://downloads.imagej.net/java/";
+		if(jreVersion != null)
+			baseUrl += "jre" + jreVersion + "/";
+		return new URL(baseUrl + getJavaDownloadPlatform(platform) + ".tar.gz");
 	}
 }
