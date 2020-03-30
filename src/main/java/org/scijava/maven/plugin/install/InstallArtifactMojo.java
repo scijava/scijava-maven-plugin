@@ -182,9 +182,6 @@ public class InstallArtifactMojo extends AbstractInstallMojo {
 
 	@Override
 	public void execute() throws MojoExecutionException, MojoFailureException {
-		// Keep backward compatibility
-		handleBackwardCompatibility();
-
 		if (appDirectory == null) {
 			throw new MojoExecutionException(
 				"The '"+APP_DIRECTORY_PROPERTY+"' property is unset!");

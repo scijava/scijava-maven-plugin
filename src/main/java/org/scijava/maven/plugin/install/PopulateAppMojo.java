@@ -91,9 +91,6 @@ public class PopulateAppMojo extends AbstractInstallMojo {
 
 	@Override
 	public void execute() throws MojoExecutionException {
-		// Keep backward compatibility
-		handleBackwardCompatibility();
-
 		if (appDirectory == null) {
 			if (hasIJ1Dependency(project)) getLog().info(
 				"Property '" + APP_DIRECTORY_PROPERTY + "' unset; Skipping populate-app");
