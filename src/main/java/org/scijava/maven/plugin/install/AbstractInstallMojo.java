@@ -195,13 +195,11 @@ public abstract class AbstractInstallMojo extends AbstractMojo {
 
 		if (appSubdir != null && !appSubdir.equals("")) {
 			targetDirectory = new File(appDir, appSubdir);
-		} else if (isIJ1Plugin(source)) {
+		}
+		else if (isIJ1Plugin(source)) {
 			targetDirectory = new File(appDir, "plugins");
 		}
-		else if ("ome".equals(artifact.getGroupId()) ||
-			("loci".equals(artifact.getGroupId()) && (source.getName().startsWith(
-				"scifio-4.4.") || source.getName().startsWith("jai_imageio-4.4."))))
-		{
+		else if (isBioFormatsArtifact(artifact)) {
 			targetDirectory = new File(appDir, "jars/bio-formats");
 		}
 		else {
@@ -267,6 +265,13 @@ public abstract class AbstractInstallMojo extends AbstractMojo {
 			getLog().info("Copying " + fileName + " to " + targetDirectory);
 			FileUtils.copyFile(source, target);
 		}
+	}
+
+	private static boolean isBioFormatsArtifact(final Artifact artifact) {
+		final String fileName = artifact.getFile().getName();
+		return "ome".equals(artifact.getGroupId()) ||
+			("loci".equals(artifact.getGroupId()) && (fileName.startsWith(
+				"scifio-4.4.") || fileName.startsWith("jai_imageio-4.4.")));
 	}
 
 	private static boolean isIJ1Plugin(final File file) {
