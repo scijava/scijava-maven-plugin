@@ -95,9 +95,7 @@
 		<package-name>org.scijava.maven</package-name>
 
 		<license.licenseName>bsd_2</license.licenseName>
-		<license.copyrightOwners>Board of Regents of the University of
-Wisconsin-Madison, Broad Institute of MIT and Harvard, Max Planck
-Institute of Molecular Cell Biology and Genetics, and KNIME GmbH.</license.copyrightOwners>
+		<license.copyrightOwners>SciJava developers.</license.copyrightOwners>
 		<license.projectName>A plugin for managing SciJava-based projects.</license.projectName>
 
 		<maven.compiler.source>1.8</maven.compiler.source>
