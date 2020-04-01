@@ -1,0 +1,107 @@
+<!--
+  #%L
+  A plugin for managing SciJava-based projects.
+  %%
+  Copyright (C) 2014 - 2020 SciJava developers.
+  %%
+  Redistribution and use in source and binary forms, with or without
+  modification, are permitted provided that the following conditions are met:
+  
+  1. Redistributions of source code must retain the above copyright notice,
+     this list of conditions and the following disclaimer.
+  2. Redistributions in binary form must reproduce the above copyright notice,
+     this list of conditions and the following disclaimer in the documentation
+     and/or other materials provided with the distribution.
+  
+  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+  ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDERS OR CONTRIBUTORS BE
+  LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+  CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+  SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+  INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+  CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+  POSSIBILITY OF SUCH DAMAGE.
+  #L%
+  -->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>org.apache.maven.plugin.my.unit</groupId>
+	<artifactId>custom-subdirectories</artifactId>
+	<version>1.0.0-SNAPSHOT</version>
+	<name>A project with dependencies sorted to custom subdirectories</name>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.lwjgl</groupId>
+			<artifactId>lwjgl</artifactId>
+			<version>${lwjgl.version}</version>
+			<classifier>natives-linux</classifier>
+		</dependency>
+		<dependency>
+			<groupId>org.lwjgl</groupId>
+			<artifactId>lwjgl</artifactId>
+			<version>${lwjgl.version}</version>
+			<classifier>natives-macos</classifier>
+		</dependency>
+		<dependency>
+			<groupId>org.lwjgl</groupId>
+			<artifactId>lwjgl</artifactId>
+			<version>${lwjgl.version}</version>
+			<classifier>natives-windows</classifier>
+		</dependency>
+		<dependency>
+			<groupId>org.lwjgl</groupId>
+			<artifactId>lwjgl</artifactId>
+			<version>${lwjgl.version}</version>
+			<classifier>natives-windows-x86</classifier>
+		</dependency>
+	</dependencies>
+
+	<properties>
+		<scijava.app.directory>${project.basedir}/target/ImageJ.app/</scijava.app.directory>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<lwjgl.version>3.2.3</lwjgl.version>
+	</properties>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.scijava</groupId>
+				<artifactId>scijava-maven-plugin</artifactId>
+				<version>${scijava-maven.version}</version>
+				<configuration>
+					<subdirectoryPatterns>
+						<subdirectoryPattern>
+							<name>open</name>
+							<classifiers>
+								<classifier>natives-linux</classifier>
+							</classifiers>
+						</subdirectoryPattern>
+						<subdirectoryPattern>
+							<name>closed</name>
+							<classifiers>
+								<classifier>natives-macos</classifier>
+								<classifier>natives-windows</classifier>
+								<classifier>natives-windows-x86</classifier>
+							</classifiers>
+						</subdirectoryPattern>
+					</subdirectoryPatterns>
+				</configuration>
+				<executions>
+					<execution>
+						<id>populate-app</id>
+						<phase>install</phase>
+						<goals>
+							<goal>populate-app</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+</project>

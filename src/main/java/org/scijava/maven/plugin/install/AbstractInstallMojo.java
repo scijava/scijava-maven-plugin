@@ -52,6 +52,7 @@ import org.apache.maven.model.Dependency;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecution;
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.interpolation.EnvarBasedValueSource;
@@ -69,6 +70,7 @@ import org.scijava.util.VersionUtils;
  * SciJava application directory structure.
  * 
  * @author Johannes Schindelin
+ * @author Curtis Rueden
  */
 public abstract class AbstractInstallMojo extends AbstractMojo {
 
@@ -103,6 +105,9 @@ public abstract class AbstractInstallMojo extends AbstractMojo {
 	@Parameter(property = DELETE_OTHER_VERSIONS_POLICY_PROPERTY, defaultValue = "older")
 	OtherVersions deleteOtherVersionsPolicy;
 
+	@Parameter(property = SUBDIRECTORY_PATTERNS_PROPERTY, required = false)
+	List<SubdirectoryPattern> subdirectoryPatterns;
+
 	/**
 	 * If this option is set to <code>true</code>, only the artifact will be
 	 * copied - without its dependencies.
@@ -119,6 +124,7 @@ public abstract class AbstractInstallMojo extends AbstractMojo {
 	protected static final String APP_DIRECTORY_PROPERTY = "scijava.app.directory";
 	protected static final String APP_SUBDIRECTORY_PROPERTY = "scijava.app.subdirectory";
 	protected static final String DELETE_OTHER_VERSIONS_POLICY_PROPERTY = "scijava.deleteOtherVersions";
+	protected static final String SUBDIRECTORY_PATTERNS_PROPERTY = "scijava.subdirectoryPatterns";
 	protected static final String IGNORE_DEPENDENCIES_PROPERTY = "scijava.ignoreDependencies";
 
 	public enum OtherVersions {
@@ -203,7 +209,9 @@ public abstract class AbstractInstallMojo extends AbstractMojo {
 			targetDirectory = new File(appDir, "jars/bio-formats");
 		}
 		else {
-			targetDirectory = new File(appDir, "jars");
+			final String subDir = subdirectory(artifact);
+			targetDirectory = subDir == null ? //
+				new File(appDir, "jars") : new File(appDir, subDir);
 		}
 		final String fileName = source.getName();
 		final File target = new File(targetDirectory, fileName);
@@ -293,6 +301,24 @@ public abstract class AbstractInstallMojo extends AbstractMojo {
 			// obviously not a plugin...
 		}
 		return false;
+	}
+
+	private String subdirectory(final Artifact artifact) {
+		if (subdirectoryPatterns == null || subdirectoryPatterns.isEmpty()) {
+			getLog().debug("Using default subdirectory patterns");
+			subdirectoryPatterns = SubdirectoryPattern.defaultPatterns();
+		}
+		getLog().debug("Checking artifact: " + artifact.getGroupId() +
+			":" + artifact.getArtifactId() + ":" + artifact.getVersion() + ":" +
+			artifact.getClassifier());
+		for (final SubdirectoryPattern pattern : subdirectoryPatterns) {
+			if (pattern.classifiers.contains(artifact.getClassifier())) {
+				getLog().debug("- Versus pattern " + pattern.name + "? MATCH");
+				return pattern.name;
+			}
+			getLog().debug("- Versus pattern " + pattern.name + "? NOPE");
+		}
+		return null;
 	}
 
 	private final static Pattern versionPattern = Pattern.compile("(.+?)"
