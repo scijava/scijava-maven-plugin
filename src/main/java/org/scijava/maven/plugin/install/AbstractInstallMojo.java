@@ -205,8 +205,7 @@ public abstract class AbstractInstallMojo extends AbstractMojo {
 		else {
 			targetDirectory = new File(appDir, "jars");
 		}
-		final String fileName = "Fiji_Updater".equals(artifact.getArtifactId())
-			? artifact.getArtifactId() + ".jar" : source.getName();
+		final String fileName = source.getName();
 		final File target = new File(targetDirectory, fileName);
 
 		boolean newerVersion = false;
