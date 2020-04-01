@@ -310,7 +310,7 @@ public abstract class AbstractInstallMojo extends AbstractMojo {
 	 *            SemVer version string
 	 * @return The major version (according to SemVer) as {@code String}.
 	 */
-	private String majorVersion( String v )
+	private static String majorVersion( String v )
 	{
 		final int dot = v.indexOf('.');
 		return dot < 0 ? v : v.substring(0, dot);
