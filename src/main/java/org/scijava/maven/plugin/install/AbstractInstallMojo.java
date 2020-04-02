@@ -35,6 +35,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -50,7 +51,6 @@ import org.apache.maven.model.Dependency;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecution;
 import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.interpolation.EnvarBasedValueSource;
@@ -228,7 +228,7 @@ public abstract class AbstractInstallMojo extends AbstractMojo {
 						break;
 					case older:
 						final String toInstall = artifact.getVersion();
-						final Matcher matcher = versionPattern.matcher(otherName.toString());
+						final Matcher matcher = VERSION_PATTERN.matcher(otherName.toString());
 						if (!matcher.matches()) break;
 						final String group = matcher.group(VERSION_INDEX);
 						if (group == null) {
@@ -319,9 +319,30 @@ public abstract class AbstractInstallMojo extends AbstractMojo {
 		return null;
 	}
 
-	private final static Pattern versionPattern = Pattern.compile("(.+?)"
-		+ "(-\\d+(\\.\\d+|\\d{7})+[a-z]?\\d?(-[A-Za-z0-9.]+?|\\.GA)*?)?"
-		+ "((-(swing|swt|sources|javadoc|native|linux-x86|linux-x86_64|linux-armhf|linux-ppc64le|macosx-x86_64|windows-x86|windows-x86_64|android-x86|android-x86_64|android-arm|android-arm64|ios-x86_64|ios-arm64|natives-windows|natives-macos|natives-linux))?(\\.jar(-[a-z]*)?))");
+	private final static Pattern VERSION_PATTERN = Pattern.compile(versionPattern());
+
+	private static String versionPattern() {
+		final String[] other = {
+			"javadoc", "native", "sources", "swing", "swt"
+		};
+		final List<String> classifiers = new ArrayList<>();
+		for (final String family : KnownPlatforms.FAMILIES) {
+			classifiers.add(family);
+			classifiers.add("native-" + family);
+			classifiers.add("natives-" + family);
+			for (final String arch : KnownPlatforms.ARCHES) {
+				final String slug = family + "-" + arch;
+				classifiers.add(slug);
+				classifiers.add("native-" + slug);
+				classifiers.add("natives-" + slug);
+			}
+		}
+		classifiers.addAll(Arrays.asList(other));
+		return "(.+?)"
+			+ "(-\\d+(\\.\\d+|\\d{7})+[a-z]?\\d?(-[A-Za-z0-9.]+?|\\.GA)*?)?"
+			+ "((-(" + String.join("|", classifiers) + "))?(\\.jar(-[a-z]*)?))";
+	}
+
 	private final static int PREFIX_INDEX = 1;
 	private final static int VERSION_INDEX = 2;
 	private final static int SUFFIX_INDEX = 5;
@@ -350,7 +371,7 @@ public abstract class AbstractInstallMojo extends AbstractMojo {
 	 * @return A collection of {@link Path}s to files of the same base name.
 	 */
 	private Collection<Path> getEncroachingVersions(final Path directory, final Path file) {
-		final Matcher matcher = versionPattern.matcher(file.getFileName().toString());
+		final Matcher matcher = VERSION_PATTERN.matcher(file.getFileName().toString());
 		if (!matcher.matches()) return null;
 
 		final String prefix = matcher.group(PREFIX_INDEX);
@@ -361,7 +382,7 @@ public abstract class AbstractInstallMojo extends AbstractMojo {
 			result = Files.walk(directory)
 			.filter(path -> path.getFileName().toString().startsWith(prefix))
 			.filter(path -> {
-				final Matcher matcherIterator = versionPattern.matcher(path.getFileName().toString());
+				final Matcher matcherIterator = VERSION_PATTERN.matcher(path.getFileName().toString());
 				return matcherIterator.matches() &&
 					prefix.equals(matcherIterator.group(PREFIX_INDEX)) &&
 					suffix.equals(matcherIterator.group(SUFFIX_INDEX));

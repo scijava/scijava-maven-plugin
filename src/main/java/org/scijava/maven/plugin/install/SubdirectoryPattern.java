@@ -29,8 +29,11 @@
 
 package org.scijava.maven.plugin.install;
 
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Data structure for mapping classifiers to subdirectories.
@@ -48,87 +51,45 @@ public class SubdirectoryPattern {
 	public List<String> classifiers;
 
 	public static List<SubdirectoryPattern> defaultPatterns() {
-		return Arrays.asList(
-			pattern("jars/win64",
-				"windows",
-				"windows-amd64",
-				"windows-x86_64",
-				"native-windows",
-				"native-windows-amd64",
-				"native-windows-x86_64",
-				"natives-windows",
-				"natives-windows-amd64",
-				"natives-windows-x64_64"),
-			pattern("jars/win32",
-				"windows-x86",
-				"windows-x86_32",
-				"native-windows-x86",
-				"native-windows-x86_32",
-				"natives-windows-x86",
-				"natives-windows-x86_32"),
-			pattern("jars/macosx",
-				"macos",
-				"macos-amd64",
-				"macos-universal",
-				"macos-x86_64",
-				"macosx",
-				"macosx-amd64",
-				"macosx-universal",
-				"macosx-x86_64",
-				"osx",
-				"osx-amd64",
-				"osx-universal",
-				"osx-x86_64",
-				"native-macos",
-				"native-macos-amd64",
-				"native-macos-universal",
-				"native-macos-x86_64",
-				"native-macosx",
-				"native-macosx-amd64",
-				"native-macosx-universal",
-				"native-macosx-x86_64",
-				"native-osx",
-				"native-osx-amd64",
-				"native-osx-universal",
-				"native-osx-x86_64",
-				"natives-macos",
-				"natives-macos-amd64",
-				"natives-macos-universal",
-				"natives-macos-x86_64",
-				"natives-macosx",
-				"natives-macosx-amd64",
-				"natives-macosx-universal",
-				"natives-macosx-x86_64",
-				"natives-osx",
-				"natives-osx-amd64",
-				"natives-osx-universal",
-				"natives-osx-x86_64"),
-			pattern("jars/linux64",
-				"linux",
-				"linux-amd64",
-				"linux-x86_64",
-				"native-linux",
-				"native-linux-amd64",
-				"native-linux-x86_64",
-				"natives-linux",
-				"natives-linux-amd64",
-				"natives-linux-x64_64"),
-			pattern("jars/linux32",
-				"linux-x86",
-				"linux-x86_32",
-				"native-linux-x86",
-				"native-linux-x86_32",
-				"natives-linux-x86",
-				"natives-linux-x86_32")
-		);
+		final Map<String, List<String>> patterns = new HashMap<>();
+
+		for (final String family : KnownPlatforms.FAMILIES) {
+			for (final String arch : KnownPlatforms.ARCHES) {
+				// NB: Convert family+arch to short name --
+				// e.g. win32, win64, macosx, linux32, linux64.
+				final String shortName = KnownPlatforms.shortName(family, arch);
+				if (shortName == null) continue;
+				addClassifier(patterns, "jars/" + shortName, family + "-" + arch);
+			}
+			// NB: Convert family alone (no arch) to short name --
+			// e.g. windows -> win64, osx -> macosx, linux -> linux64.
+			final String shortName = KnownPlatforms.shortName(family, null);
+			if (shortName == null) continue;
+			addClassifier(patterns, "jars/" + shortName, family);
+		}
+
+		return patterns.entrySet().stream() //
+			.map(entry -> pattern(entry.getKey(), entry.getValue())) //
+			.collect(Collectors.toList());
+	}
+
+	private static void addClassifier(final Map<String, List<String>> patterns,
+		final String name, final String classifier)
+	{
+		final String[] prefixes = { "", "native-", "natives-" };
+		final List<String> classifiers = //
+			patterns.computeIfAbsent(name, l -> new ArrayList<>());
+		for (final String prefix : prefixes) {
+			classifiers.add(prefix + classifier);
+		}
 	}
 
 	private static SubdirectoryPattern pattern(final String name,
-		final String... classifiers)
+		final List<String> classifiers)
 	{
 		final SubdirectoryPattern pattern = new SubdirectoryPattern();
 		pattern.name = name;
-		pattern.classifiers = Arrays.asList(classifiers);
+		pattern.classifiers = classifiers;
 		return pattern;
 	}
 }
