@@ -35,15 +35,14 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.execution.MavenSession;
@@ -215,48 +214,35 @@ public abstract class AbstractInstallMojo extends AbstractMojo {
 		final File target = new File(targetDirectory, fileName);
 
 		boolean newerVersion = false;
-		final Path directoryPath = Paths.get(appDir.toURI());
 		final Path targetPath = Paths.get(target.toURI());
-		final Collection<Path> otherVersions = //
-			getEncroachingVersions(directoryPath, targetPath);
-		if (otherVersions != null && !otherVersions.isEmpty()) {
-			for (final Path other : otherVersions) {
-				final Path otherName = other.getFileName();
-				switch (otherVersionsPolicy) {
-					case never:
-						getLog().warn("Possibly incompatible version exists: " + otherName);
-						break;
-					case older:
-						final String toInstall = artifact.getVersion();
-						final Matcher matcher = VERSION_PATTERN.matcher(otherName.toString());
-						if (!matcher.matches()) break;
-						final String group = matcher.group(VERSION_INDEX);
-						if (group == null) {
-							newerVersion = true;
-							getLog().warn("Impenetrable version suffix for file: " +
-								otherName);
-						}
-						else {
-							final String otherVersion = group.substring(1);
-							newerVersion = VersionUtils.compare(toInstall, otherVersion) < 0;
-							final String majorVersionToInstall = majorVersion(toInstall);
-							final String majorVersionOther = majorVersion(otherVersion);
-							if (!majorVersionToInstall.equals(majorVersionOther)) {
-								getLog().warn("Version " + otherVersion + " of " + artifact +
-									" is incompatible according to SemVer: " +
-									majorVersionToInstall + " != " + majorVersionOther);
-							}
-						}
-						if (newerVersion) break;
-						//$FALL-THROUGH$
-					case always:
-						if (Files.deleteIfExists(other)) {
-							getLog().info("Deleted overridden " + otherName);
-							newerVersion = false;
-						}
-						else getLog().warn("Could not delete overridden " + otherName);
-						break;
-				}
+		final Map<Path, String> otherVersions = //
+			getEncroachingVersions(targetPath.getParent(), artifact);
+		for (final Path other : otherVersions.keySet()) {
+			final Path otherName = other.getFileName();
+			switch (otherVersionsPolicy) {
+				case never:
+					getLog().warn("Possibly incompatible version exists: " + otherName);
+					break;
+				case older:
+					final String toInstall = artifact.getVersion();
+					final String otherVersion = otherVersions.get(other);
+					newerVersion = VersionUtils.compare(toInstall, otherVersion) < 0;
+					final String majorVersionToInstall = majorVersion(toInstall);
+					final String majorVersionOther = majorVersion(otherVersion);
+					if (!majorVersionToInstall.equals(majorVersionOther)) {
+						getLog().warn("Version " + otherVersion + " of " + artifact +
+							" is incompatible according to SemVer: " +
+							majorVersionToInstall + " != " + majorVersionOther);
+					}
+					if (newerVersion) break;
+					//$FALL-THROUGH$
+				case always:
+					if (Files.deleteIfExists(other)) {
+						getLog().info("Deleted overridden " + otherName);
+						newerVersion = false;
+					}
+					else getLog().warn("Could not delete overridden " + otherName);
+					break;
 			}
 		}
 
@@ -321,34 +307,6 @@ public abstract class AbstractInstallMojo extends AbstractMojo {
 		return null;
 	}
 
-	private final static Pattern VERSION_PATTERN = Pattern.compile(versionPattern());
-
-	private static String versionPattern() {
-		final String[] other = {
-			"javadoc", "native", "sources", "swing", "swt"
-		};
-		final List<String> classifiers = new ArrayList<>();
-		for (final String family : KnownPlatforms.FAMILIES) {
-			classifiers.add(family);
-			classifiers.add("native-" + family);
-			classifiers.add("natives-" + family);
-			for (final String arch : KnownPlatforms.ARCHES) {
-				final String slug = family + "-" + arch;
-				classifiers.add(slug);
-				classifiers.add("native-" + slug);
-				classifiers.add("natives-" + slug);
-			}
-		}
-		classifiers.addAll(Arrays.asList(other));
-		return "(.+?)"
-			+ "(-\\d+(\\.\\d+|\\d{7})+[a-z]?\\d?(-[A-Za-z0-9.]+?|\\.GA)*?)?"
-			+ "((-(" + String.join("|", classifiers) + "))?(\\.jar(-[a-z]*)?))";
-	}
-
-	private final static int PREFIX_INDEX = 1;
-	private final static int VERSION_INDEX = 2;
-	private final static int SUFFIX_INDEX = 5;
-
 	/**
 	 * Extracts the major version (according to SemVer) from a version string.
 	 * If no dot is found, the input is returned.
@@ -364,38 +322,44 @@ public abstract class AbstractInstallMojo extends AbstractMojo {
 	}
 
 	/**
-	 * Looks for files in {@code directory} with the same base name as
-	 * {@code file}.
+	 * Looks for existing versions of the given artifact in {@code directory}.
 	 *
 	 * @param directory The directory to walk to find possible duplicates.
-	 * @param file A {@link Path} to the target (from which the base name is
-	 *          derived).
-	 * @return A collection of {@link Path}s to files of the same base name.
+	 * @param artifact The target's Maven {@link Artifact}.
+	 * @return A table identifying other versions of the artifact. Each key is a
+	 *         file path to another version, and each value its version string.
 	 */
-	private Collection<Path> getEncroachingVersions(final Path directory, final Path file) {
-		final Matcher matcher = VERSION_PATTERN.matcher(file.getFileName().toString());
-		if (!matcher.matches()) return null;
+	private Map<Path, String> getEncroachingVersions(final Path directory,
+		final Artifact artifact)
+	{
+		final Map<Path, String> result = new LinkedHashMap<>();
+		if (!directory.toFile().exists()) return result;
+		if (!directory.toFile().isDirectory()) {
+			throw new IllegalArgumentException("Not a directory: " + directory);
+		}
 
-		final String prefix = matcher.group(PREFIX_INDEX);
-		final String suffix = matcher.group(SUFFIX_INDEX);
+		// Construct a regex for the artifact, of the form:
+		//
+		// artifactId-version-classifier.type
+		//
+		// with '-classifier' absent for the main classifier.
+		final String classifier = artifact.getClassifier();
+		final String patternString = artifact.getArtifactId() + "-?(.*)" +
+			(classifier != null && !classifier.isEmpty() ? "-" + classifier : "") +
+			"\\." + artifact.getType();
+		final Pattern pattern = Pattern.compile(patternString);
 
-		Collection<Path> result = new ArrayList<>();
 		try {
-			result = Files.walk(directory)
-			.filter(path -> path.getFileName().toString().startsWith(prefix))
-			.filter(path -> {
-				final Matcher matcherIterator = VERSION_PATTERN.matcher(path.getFileName().toString());
-				return matcherIterator.matches() &&
-					prefix.equals(matcherIterator.group(PREFIX_INDEX)) &&
-					suffix.equals(matcherIterator.group(SUFFIX_INDEX));
-			})
-			.filter(path -> !path.getFileName().toString().equals(file.getFileName().toString()))
-			.collect(Collectors.toCollection(ArrayList::new));
-			return result;
-		} catch (IOException e) {
+			Files.walk(directory, 1).forEach(path -> {
+				final Matcher m = pattern.matcher(path.getFileName().toString());
+				if (m.matches()) {
+					final String version = m.group(1);
+					result.put(path, version);
+				}
+			});
+		}
+		catch (IOException e) {
 			getLog().error(e);
-		} finally {
-			result = new ArrayList<>();
 		}
 
 		return result;

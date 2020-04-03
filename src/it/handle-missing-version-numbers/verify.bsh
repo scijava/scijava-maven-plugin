@@ -29,9 +29,7 @@
 source(new File(basedir, "../../../src/it/lib.bsh").getPath());
 
 jars = new File(ijDir, "jars");
-assertTrue("Has missing-version-number-1.0.0.jar",
-	!new File(jars, "missing-version-number-1.0.0.jar").exists());
-
-buildLog = readFile(new File(basedir, "build.log"));
-assertTrue("Should contain 'Impenetrable version suffix':\n" + buildLog,
-	buildLog.contains("Impenetrable version suffix"));
+assertTrue("Unexpectedly absent: missing-version-number-1.0.0.jar",
+	new File(jars, "missing-version-number-1.0.0.jar").exists());
+assertTrue("Unexpectedly present: missing-version-number.jar",
+	!new File(jars, "missing-version-number.jar").exists());
