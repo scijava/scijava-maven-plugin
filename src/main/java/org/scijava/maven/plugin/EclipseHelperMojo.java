@@ -135,7 +135,14 @@ public class EclipseHelperMojo extends AbstractMojo {
 	 * @return true iff the project depends on <code>scijava-common</code>
 	 */
 	private boolean dependsOnScijavaCommon(final MavenProject project) {
-		final List<Dependency> dependencies = project.getCompileDependencies();
+		final List<Dependency> dependencies;
+		try {
+			dependencies = project.getCompileDependencies();
+		}
+		catch (final Exception e) {
+			getLog().debug(e);
+			return false;
+		}
 		if (dependencies == null) return false;
 
 		for (final Dependency dependency : dependencies) {
