@@ -239,10 +239,12 @@ public abstract class AbstractInstallMojo extends AbstractMojo {
 						else {
 							final String otherVersion = group.substring(1);
 							newerVersion = VersionUtils.compare(toInstall, otherVersion) < 0;
-							if (majorVersion(toInstall) != majorVersion(otherVersion)) {
-								getLog().warn(
-									"Found other version that is incompatible according to SemVer: " +
-										otherVersion);
+							final String majorVersionToInstall = majorVersion(toInstall);
+							final String majorVersionOther = majorVersion(otherVersion);
+							if (!majorVersionToInstall.equals(majorVersionOther)) {
+								getLog().warn("Version " + otherVersion + " of " + artifact +
+									" is incompatible according to SemVer: " +
+									majorVersionToInstall + " != " + majorVersionOther);
 							}
 						}
 						if (newerVersion) break;

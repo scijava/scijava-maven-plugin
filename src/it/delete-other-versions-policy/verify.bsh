@@ -47,4 +47,4 @@ assertTrue("Should not exist: " + newer, !toInstall.exists());
 
 buildLog = readFile(new File(basedir, "build.log"));
 assertTrue("Found other version that is incompatible':\n" + buildLog,
-	buildLog.contains("Found other version that is incompatible"));
+	buildLog.contains("is incompatible according to SemVer"));
