@@ -292,17 +292,17 @@ public abstract class AbstractInstallMojo extends AbstractMojo {
 	private String subdirectory(final Artifact artifact) {
 		if (subdirectoryPatterns == null || subdirectoryPatterns.isEmpty()) {
 			getLog().debug("Using default subdirectory patterns");
-			subdirectoryPatterns = SubdirectoryPattern.defaultPatterns();
+			subdirectoryPatterns = KnownPlatforms.nativeClassifierPatterns();
 		}
 		getLog().debug("Checking artifact: " + artifact.getGroupId() +
 			":" + artifact.getArtifactId() + ":" + artifact.getVersion() + ":" +
 			artifact.getClassifier());
 		for (final SubdirectoryPattern pattern : subdirectoryPatterns) {
-			if (pattern.classifiers.contains(artifact.getClassifier())) {
-				getLog().debug("- Versus pattern " + pattern.name + "? MATCH");
-				return pattern.name;
+			if (pattern.matches(artifact)) {
+				getLog().debug("- Versus pattern " + pattern.subdirectory + "? MATCH");
+				return pattern.subdirectory;
 			}
-			getLog().debug("- Versus pattern " + pattern.name + "? NOPE");
+			getLog().debug("- Versus pattern " + pattern.subdirectory + "? NOPE");
 		}
 		return null;
 	}

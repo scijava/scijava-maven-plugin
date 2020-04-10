@@ -29,8 +29,12 @@
 
 package org.scijava.maven.plugin.install;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Data structure enumerating known platform strings.
@@ -72,6 +76,40 @@ public final class KnownPlatforms {
 		return null;
 	}
 
+	/**
+	 * Gets a list of {@link SubdirectoryPattern}s corresponding to known native
+	 * classifiers. E.g.:
+	 * <ul>
+	 * <li>win32 &rarr; windows-x86, natives-windows-i586, etc.</li>
+	 * <li>win64 &rarr; windows-x86_64, natives-windows-amd64, etc.</li>
+	 * <li>macosx &rarr; macosx-x86_64, natives-macosx-universal, etc.</li>
+	 * <li>linux32 &rarr; linux-x86, natives-linux-i586, etc.</li>
+	 * <li>linux64 &rarr; linux-x86_64, natives-linux-amd64, etc.</li>
+	 * </ul>
+	 */
+	public static List<SubdirectoryPattern> nativeClassifierPatterns() {
+		final Map<String, List<String>> patterns = new HashMap<>();
+
+		for (final String family : FAMILIES) {
+			for (final String arch : ARCHES) {
+				// NB: Convert family+arch to short name --
+				// e.g. win32, win64, macosx, linux32, linux64.
+				final String shortName = shortName(family, arch);
+				if (shortName == null) continue;
+				addClassifier(patterns, "jars/" + shortName, family + "-" + arch);
+			}
+			// NB: Convert family alone (no arch) to short name --
+			// e.g. windows -> win64, osx -> macosx, linux -> linux64.
+			final String shortName = shortName(family, null);
+			if (shortName == null) continue;
+			addClassifier(patterns, "jars/" + shortName, family);
+		}
+
+		return patterns.entrySet().stream() //
+			.map(entry -> pattern(entry.getKey(), entry.getValue())) //
+			.collect(Collectors.toList());
+	}
+
 	private static boolean isWindows(final String family) {
 		return "windows".equals(family);
 	}
@@ -87,5 +125,25 @@ public final class KnownPlatforms {
 	}
 	private static boolean isArch64(final String arch) {
 		return arch == null || "amd64".equals(arch) || "x86_64".equals(arch);
+	}
+
+	private static void addClassifier(final Map<String, List<String>> patterns,
+		final String subdirectory, final String classifier)
+	{
+		final String[] prefixes = { "", "native-", "natives-" };
+		final List<String> classifiers = //
+			patterns.computeIfAbsent(subdirectory, l -> new ArrayList<>());
+		for (final String prefix : prefixes) {
+			classifiers.add("*:*:*:" + prefix + classifier);
+		}
+	}
+
+	private static SubdirectoryPattern pattern(final String subdirectory,
+		final List<String> patterns)
+	{
+		final SubdirectoryPattern pattern = new SubdirectoryPattern();
+		pattern.subdirectory = subdirectory;
+		pattern.patterns = patterns;
+		return pattern;
 	}
 }

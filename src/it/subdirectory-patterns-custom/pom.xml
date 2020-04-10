@@ -77,18 +77,18 @@
 				<configuration>
 					<subdirectoryPatterns>
 						<subdirectoryPattern>
-							<name>open</name>
-							<classifiers>
-								<classifier>natives-linux</classifier>
-							</classifiers>
+							<subdirectory>open</subdirectory>
+							<patterns>
+								<pattern>natives-linux</pattern>
+							</patterns>
 						</subdirectoryPattern>
 						<subdirectoryPattern>
-							<name>closed</name>
-							<classifiers>
-								<classifier>natives-macos</classifier>
-								<classifier>natives-windows</classifier>
-								<classifier>natives-windows-x86</classifier>
-							</classifiers>
+							<subdirectory>closed</subdirectory>
+							<patterns>
+								<pattern>natives-macos</pattern>
+								<pattern>natives-windows</pattern>
+								<pattern>natives-windows-x86</pattern>
+							</patterns>
 						</subdirectoryPattern>
 					</subdirectoryPatterns>
 				</configuration>

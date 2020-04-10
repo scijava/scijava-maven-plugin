@@ -29,67 +29,21 @@
 
 package org.scijava.maven.plugin.install;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
+
+import org.apache.maven.artifact.Artifact;
 
 /**
- * Data structure for mapping classifiers to subdirectories.
- * <p>
- * The default use case is for handling installation of native classifier
- * artifacts to separate subdirectories. But this class makes the mappings
- * configurable downstream.
- * </p>
+ * Data structure for mapping GAV patterns to subdirectories.
  * 
  * @author Curtis Rueden
  */
 public class SubdirectoryPattern {
 
-	public String name;
-	public List<String> classifiers;
+	public String subdirectory;
+	public List<String> patterns;
 
-	public static List<SubdirectoryPattern> defaultPatterns() {
-		final Map<String, List<String>> patterns = new HashMap<>();
-
-		for (final String family : KnownPlatforms.FAMILIES) {
-			for (final String arch : KnownPlatforms.ARCHES) {
-				// NB: Convert family+arch to short name --
-				// e.g. win32, win64, macosx, linux32, linux64.
-				final String shortName = KnownPlatforms.shortName(family, arch);
-				if (shortName == null) continue;
-				addClassifier(patterns, "jars/" + shortName, family + "-" + arch);
-			}
-			// NB: Convert family alone (no arch) to short name --
-			// e.g. windows -> win64, osx -> macosx, linux -> linux64.
-			final String shortName = KnownPlatforms.shortName(family, null);
-			if (shortName == null) continue;
-			addClassifier(patterns, "jars/" + shortName, family);
-		}
-
-		return patterns.entrySet().stream() //
-			.map(entry -> pattern(entry.getKey(), entry.getValue())) //
-			.collect(Collectors.toList());
-	}
-
-	private static void addClassifier(final Map<String, List<String>> patterns,
-		final String name, final String classifier)
-	{
-		final String[] prefixes = { "", "native-", "natives-" };
-		final List<String> classifiers = //
-			patterns.computeIfAbsent(name, l -> new ArrayList<>());
-		for (final String prefix : prefixes) {
-			classifiers.add(prefix + classifier);
-		}
-	}
-
-	private static SubdirectoryPattern pattern(final String name,
-		final List<String> classifiers)
-	{
-		final SubdirectoryPattern pattern = new SubdirectoryPattern();
-		pattern.name = name;
-		pattern.classifiers = classifiers;
-		return pattern;
+	public boolean matches(final Artifact artifact) {
+		return patterns.contains(artifact.getClassifier());
 	}
 }
