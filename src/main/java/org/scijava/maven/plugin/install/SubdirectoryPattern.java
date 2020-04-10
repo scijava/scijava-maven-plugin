@@ -40,10 +40,78 @@ import org.apache.maven.artifact.Artifact;
  */
 public class SubdirectoryPattern {
 
+	/** The subdirectory into which matching artifacts should be installed. */
 	public String subdirectory;
+
+	/**
+	 * List of pattern strings. An artifact matching any of these patterns will be
+	 * installed into the affiliated subdirectory. Valid pattern syntaxes are:
+	 * <ol>
+	 * <li>classifier</li>
+	 * <li>groupId:artifactId</li>
+	 * <li>groupId:artifactId:version</li>
+	 * <li>groupId:artifactId:version:classifier</li>
+	 * <li>groupId:artifactId:version:classifier:packaging</li>
+	 * </ol>
+	 * <p>
+	 * Additionally, the wildcard character ({@code *}) is allowed and matches
+	 * anything. For example, the pattern {@code org.scijava:*:*:natives-*}
+	 * would match any artifact with groupId {@code org.scijava} and classifier
+	 * beginning with {@code natives-}.
+	 * </p>
+	 */
 	public List<String> patterns;
 
+	/** Returns true iff this pattern matches the given artifact. */
 	public boolean matches(final Artifact artifact) {
-		return patterns.contains(artifact.getClassifier());
+		return patterns.stream().anyMatch(pattern -> matches(artifact, pattern));
+	}
+
+	private static boolean matches(final Artifact artifact, final String pattern) {
+		final String[] tokens = pattern.split(":");
+		final String g, a, v, c, p;
+		if (tokens.length == 1) {
+			g = a = v = p = "*";
+			c = tokens[0];
+		}
+		else if (tokens.length == 2) {
+			g = tokens[0];
+			a = tokens[1];
+			v = c = p = "*";
+		}
+		else if (tokens.length == 3) {
+			g = tokens[0];
+			a = tokens[1];
+			v = tokens[2];
+			c = p = "*";
+		}
+		else if (tokens.length == 4) {
+			g = tokens[0];
+			a = tokens[1];
+			v = tokens[2];
+			c = tokens[3];
+			p = "*";
+		}
+		else if (tokens.length == 5) {
+			g = tokens[0];
+			a = tokens[1];
+			v = tokens[2];
+			c = tokens[3];
+			p = tokens[4];
+		}
+		else {
+			throw new IllegalArgumentException("Invalid subdirectory pattern: " + pattern);
+		}
+		return matches(artifact.getGroupId(), g) && //
+			matches(artifact.getArtifactId(), a) && //
+			matches(artifact.getVersion(), v) && //
+			matches(artifact.getClassifier(), c) && //
+			matches(artifact.getType(), p);
+	}
+
+	private static boolean matches(final String string, final String pattern) {
+		final String s = string == null ? "" : string;
+		final String regex = pattern.replaceAll("\\*", ".*");
+		return s.matches(regex);
 	}
 }
