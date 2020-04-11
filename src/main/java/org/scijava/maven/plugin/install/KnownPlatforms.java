@@ -78,6 +78,37 @@ public final class KnownPlatforms {
 
 	/**
 	 * Gets a list of {@link SubdirectoryPattern}s corresponding to known native
+	 * classifiers. This list includes the following patterns:
+	 * <ul>
+	 * <li>{@code <family>-<arch>}</li>
+	 * <li>{@code native-<family>-<arch>}</li>
+	 * <li>{@code natives-<family>-<arch>}</li>
+	 * <li>{@code <family>}</li>
+	 * <li>{@code native-<family>}</li>
+	 * <li>{@code natives-<family>}</li>
+	 * </ul>
+	 * <p>
+	 * For every {@code <family>} in {@link #FAMILIES} and every {@code <arch>} in
+	 * {@link #ARCHES}.
+	 * </p>
+	 */
+	public static List<String> nativeClassifiers() {
+		final List<String> classifiers = new ArrayList<>();
+		for (final String family : FAMILIES) {
+			for (final String arch : ARCHES) {
+				classifiers.add(family + "-" + arch);
+				classifiers.add("native-" + family + "-" + arch);
+				classifiers.add("natives-" + family + "-" + arch);
+			}
+			classifiers.add(family);
+			classifiers.add("native-" + family);
+			classifiers.add("natives-" + family);
+		}
+		return classifiers;
+	}
+
+	/**
+	 * Gets a list of {@link SubdirectoryPattern}s corresponding to known native
 	 * classifiers. E.g.:
 	 * <ul>
 	 * <li>win32 &rarr; windows-x86, natives-windows-i586, etc.</li>

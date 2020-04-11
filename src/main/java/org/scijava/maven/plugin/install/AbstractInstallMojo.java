@@ -230,9 +230,10 @@ public abstract class AbstractInstallMojo extends AbstractMojo {
 					final String majorVersionToInstall = majorVersion(toInstall);
 					final String majorVersionOther = majorVersion(otherVersion);
 					if (!majorVersionToInstall.equals(majorVersionOther)) {
-						getLog().warn("Version " + otherVersion + " of " + artifact +
-							" is incompatible according to SemVer: " +
-							majorVersionToInstall + " != " + majorVersionOther);
+						getLog().warn("Version " + versionToString(otherVersion) + //
+							" of " + artifact + " is incompatible according to SemVer: " +
+							majorVersionToInstall + " != " + //
+							versionToString(majorVersionOther));
 					}
 					if (newerVersion) break;
 					//$FALL-THROUGH$
@@ -258,6 +259,10 @@ public abstract class AbstractInstallMojo extends AbstractMojo {
 			getLog().info("Copying " + fileName + " to " + targetDirectory);
 			FileUtils.copyFile(source, target);
 		}
+	}
+
+	private static String versionToString(final String v) {
+		return v == null || v.isEmpty() ? "(none)" : v;
 	}
 
 	private static boolean isBioFormatsArtifact(final Artifact artifact) {
@@ -343,19 +348,40 @@ public abstract class AbstractInstallMojo extends AbstractMojo {
 		// artifactId-version-classifier.type
 		//
 		// with '-classifier' absent for the main classifier.
-		final String classifier = artifact.getClassifier();
-		final String patternString = artifact.getArtifactId() + "-?(.*)" +
-			(classifier != null && !classifier.isEmpty() ? "-" + classifier : "") +
-			"\\." + artifact.getType();
+
+		final String artifactPattern = Pattern.quote(artifact.getArtifactId());
+
+		final String normalVersion = "[0-9].*?"; // begin with a digit (non-greedy)
+		final String jitpackVersion = "[0-9a-f]{5}[0-9a-f]*"; // git hash
+		final String versionPattern = "(-" + normalVersion + "|-" + jitpackVersion + ")?";
+
+		// For the main artifact, matching is tricky, because we don't want to
+		// delete artifacts of other classifiers. For example, for lib-1.2.3.jar,
+		// we _do_ want to delete lib-1.2.3-beta-1.jar (i.e. v1.2.3-beta-1), but
+		// _not_ lib-1.2.3-natives-macosx.jar (i.e. classifier natives-macosx).
+		// Unfortunately, we cannot easily tell these cases apart. :-(
+		// So we hardcode known classifiers into the regex as a heuristic.
+		final String rawClassifier = artifact.getClassifier();
+		final String classifier = rawClassifier == null ? "" : rawClassifier;
+		final List<String> classifiers = new ArrayList<>();
+		classifiers.add(classifier);
+		classifiers.addAll(KnownPlatforms.nativeClassifiers());
+		final String[] quotedClassifiers = classifiers.stream() //
+			.map(c -> c.isEmpty() ? "" : "-" + Pattern.quote(c)) //
+			.toArray(String[]::new);
+		final String classifierPattern = //
+			"(" + String.join("|", quotedClassifiers) + ")?";
+
+		final String typePattern = Pattern.quote("." + artifact.getType());
+
+		final String patternString = artifactPattern + //
+			versionPattern + classifierPattern + typePattern;
 		final Pattern pattern = Pattern.compile(patternString);
 
 		try {
 			Files.walk(directory, 1).forEach(path -> {
-				final Matcher m = pattern.matcher(path.getFileName().toString());
-				if (m.matches()) {
-					final String version = m.group(1);
-					result.put(path, version);
-				}
+				final String version = getEncroachingVersion(path, pattern, classifier);
+				if (version != null) result.put(path, version);
 			});
 		}
 		catch (IOException e) {
@@ -363,5 +389,24 @@ public abstract class AbstractInstallMojo extends AbstractMojo {
 		}
 
 		return result;
+	}
+
+	private static String getEncroachingVersion(final Path path,
+		final Pattern pattern, final String expectedClassifier)
+	{
+		final Matcher m = pattern.matcher(path.getFileName().toString());
+		if (!m.matches()) return null; // not a candidate for a clash
+
+		final String classifier = trimLeadingDash(m.group(2));
+		if (!expectedClassifier.equals(classifier)) return null;
+
+		final String version = trimLeadingDash(m.group(1));
+		return version;
+	}
+
+	private static String trimLeadingDash(final String s) {
+		if (s == null) return "";
+		if (s.startsWith("-")) return s.substring(1);
+		return s;
 	}
 }
