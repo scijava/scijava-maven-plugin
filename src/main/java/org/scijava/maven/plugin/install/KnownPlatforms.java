@@ -87,7 +87,7 @@ public final class KnownPlatforms {
 	 * <li>linux64 &rarr; linux-x86_64, natives-linux-amd64, etc.</li>
 	 * </ul>
 	 */
-	public static List<SubdirectoryPattern> nativeClassifierPatterns() {
+	public static List<SubdirectoryPattern> nativeSubdirectoryPatterns() {
 		final Map<String, List<String>> patterns = new HashMap<>();
 
 		for (final String family : FAMILIES) {

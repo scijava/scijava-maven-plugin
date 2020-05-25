@@ -292,7 +292,7 @@ public abstract class AbstractInstallMojo extends AbstractMojo {
 	private String subdirectory(final Artifact artifact) {
 		if (subdirectoryPatterns == null || subdirectoryPatterns.isEmpty()) {
 			getLog().debug("Using default subdirectory patterns");
-			subdirectoryPatterns = KnownPlatforms.nativeClassifierPatterns();
+			subdirectoryPatterns = KnownPlatforms.nativeSubdirectoryPatterns();
 		}
 		getLog().debug("Checking artifact: " + artifact.getGroupId() +
 			":" + artifact.getArtifactId() + ":" + artifact.getVersion() + ":" +
