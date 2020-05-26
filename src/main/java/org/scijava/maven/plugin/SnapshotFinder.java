@@ -2,9 +2,7 @@
  * #%L
  * A plugin for managing SciJava-based projects.
  * %%
- * Copyright (C) 2014 - 2018 Board of Regents of the University of
- * Wisconsin-Madison, Broad Institute of MIT and Harvard, Max Planck
- * Institute of Molecular Cell Biology and Genetics, and KNIME GmbH.
+ * Copyright (C) 2014 - 2020 SciJava developers.
  * %%
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -63,23 +61,22 @@ public class SnapshotFinder extends AbstractSciJavaDependencyChecker {
 
 	// -- Parameters --
 
-	@SuppressWarnings("rawtypes")
-	private final List remoteRepositories;
+	private final List<ArtifactRepository> remoteRepositories;
 	private final MavenProjectBuilder projectBuilder;
 	private final ArtifactRepository localRepository;
 
 	// -- Fields --
 
 	private final Map<DependencyNode, Result> results =
-		new HashMap<DependencyNode, Result>();
+		new HashMap<>();
 
-	private Set<MavenProject> reactorModules = new HashSet<MavenProject>();
+	private Set<MavenProject> reactorModules = new HashSet<>();
 
 	// -- Constructor --
 
 	public SnapshotFinder(final MavenProjectBuilder projectBuilder,
 		final ArtifactRepository localRepository,
-		@SuppressWarnings("rawtypes") final List remoteRepositories)
+		final List<ArtifactRepository> remoteRepositories)
 	{
 		this.projectBuilder = projectBuilder;
 		this.localRepository = localRepository;
@@ -103,7 +100,7 @@ public class SnapshotFinder extends AbstractSciJavaDependencyChecker {
 	 *          reactor.
 	 */
 	public void setReactorModules(final List<MavenProject> modules) {
-		reactorModules = new HashSet<MavenProject>(modules);
+		reactorModules = new HashSet<>(modules);
 	}
 
 	@Override
@@ -117,7 +114,7 @@ public class SnapshotFinder extends AbstractSciJavaDependencyChecker {
 		// Because we are using the Maven 2 DependencyTree, artifacts can be listed
 		// multiple times if multiple components depend on them. Thus we need to
 		// merge our dependencies to a set of artifacts.
-		final Map<Artifact, Result> mergedResults = new HashMap<Artifact, Result>();
+		final Map<Artifact, Result> mergedResults = new HashMap<>();
 
 		for (final DependencyNode node : results.keySet()) {
 			final Artifact a = node.getArtifact();

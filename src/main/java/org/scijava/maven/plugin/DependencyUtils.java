@@ -2,9 +2,7 @@
  * #%L
  * A plugin for managing SciJava-based projects.
  * %%
- * Copyright (C) 2014 - 2018 Board of Regents of the University of
- * Wisconsin-Madison, Broad Institute of MIT and Harvard, Max Planck
- * Institute of Molecular Cell Biology and Genetics, and KNIME GmbH.
+ * Copyright (C) 2014 - 2020 SciJava developers.
  * %%
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -157,15 +155,15 @@ public final class DependencyUtils {
 		final MavenProject baseProject, final MavenProjectBuilder projectBuilder,
 		final ArtifactRepository localRepository) throws ProjectBuildingException
 	{
-		final Set<MavenProject> reactor = new HashSet<MavenProject>();
-		final Set<MavenProject> visited = new HashSet<MavenProject>();
+		final Set<MavenProject> reactor = new HashSet<>();
+		final Set<MavenProject> visited = new HashSet<>();
 		final ProfileManager profileManager = getProfileManager(session);
 
 		findEffectiveReactor(reactor, visited, baseProject, baseProject,
 			projectBuilder, localRepository, profileManager);
 
 		if (reactor.size() <= 1 || !reactor.contains(baseProject)) return defaultReactor;
-		return new ArrayList<MavenProject>(reactor);
+		return new ArrayList<>(reactor);
 	}
 
 	// -- Helper methods --

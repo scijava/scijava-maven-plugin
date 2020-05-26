@@ -2,9 +2,7 @@
  * #%L
  * A plugin for managing SciJava-based projects.
  * %%
- * Copyright (C) 2014 - 2018 Board of Regents of the University of
- * Wisconsin-Madison, Broad Institute of MIT and Harvard, Max Planck
- * Institute of Molecular Cell Biology and Genetics, and KNIME GmbH.
+ * Copyright (C) 2014 - 2020 SciJava developers.
  * %%
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -73,20 +71,21 @@ import org.codehaus.plexus.util.StringUtils;
 /**
  * Downloads .jar artifacts and their dependencies into a SciJava application
  * directory structure.
- * 
+ * <p>
  * ImageJ 1.x plugins (identified by containing a plugins.config file) get
  * copied to the plugins/ subdirectory and all other .jar files to jars/.
- * However, you can override this decision by setting the scijava.app.subdirectory
- * property to a specific subdirectory. It expects the location of the SciJava
- * application directory to be specified in the scijava.app.directory property
- * (which can be set on the Maven command-line). If said property is not set,
- * the install-artifact goal is skipped.
+ * However, you can override this decision by setting the
+ * scijava.app.subdirectory property to a specific subdirectory. It expects the
+ * location of the SciJava application directory to be specified in the
+ * scijava.app.directory property (which can be set on the Maven command-line).
+ * If said property is not set, the install-artifact goal is skipped.
+ * </p>
  * 
  * @author Johannes Schindelin
  * @author Stefan Helfrich
  */
 @Mojo(name = "install-artifact", requiresProject=false)
-public class InstallArtifactMojo extends AbstractCopyJarsMojo {
+public class InstallArtifactMojo extends AbstractInstallMojo {
 
 	/**
 	 * Used to look up Artifacts in the remote repository.
@@ -182,12 +181,9 @@ public class InstallArtifactMojo extends AbstractCopyJarsMojo {
 
 	@Override
 	public void execute() throws MojoExecutionException, MojoFailureException {
-		// Keep backward compatibility
-		handleBackwardCompatibility();
-
 		if (appDirectory == null) {
 			throw new MojoExecutionException(
-				"The '"+appDirectoryProperty+"' property is unset!");
+				"The '"+APP_DIRECTORY_PROPERTY+"' property is unset!");
 		}
 		File appDir = new File(appDirectory);
 		if (!appDir.isDirectory() && !appDir.mkdirs()) {
@@ -197,7 +193,7 @@ public class InstallArtifactMojo extends AbstractCopyJarsMojo {
 
 		if ( appSubdirectory == null )
 		{
-			getLog().info( "No property name for the " + appDirectoryProperty +
+			getLog().info( "No property name for the " + APP_DIRECTORY_PROPERTY +
 					" directory location was specified; Installing in default location" );
 		}
 
@@ -265,7 +261,7 @@ public class InstallArtifactMojo extends AbstractCopyJarsMojo {
 					if (!ignoreDependencies) {
 						ProjectBuildingResult build = mavenProjectBuilder.build(result.getArtifact(), session.getProjectBuildingRequest());
 						Properties properties = build.getProject().getProperties();
-						String subdir = (String) properties.get( appSubdirectoryProperty );
+						String subdir = (String) properties.get( APP_SUBDIRECTORY_PROPERTY );
 
 						installArtifact(result.getArtifact(), appDir, subdir, false, deleteOtherVersionsPolicy);
 					}
@@ -277,7 +273,7 @@ public class InstallArtifactMojo extends AbstractCopyJarsMojo {
 				catch ( ProjectBuildingException e )
 				{
 					throw new MojoExecutionException( "Couldn't determine " +
-							appSubdirectoryProperty + " for " + result.getArtifact(), e );
+							APP_SUBDIRECTORY_PROPERTY + " for " + result.getArtifact(), e );
 				}
 			}
 		}

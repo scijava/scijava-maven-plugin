@@ -2,9 +2,7 @@
  * #%L
  * A plugin for managing SciJava-based projects.
  * %%
- * Copyright (C) 2014 - 2018 Board of Regents of the University of
- * Wisconsin-Madison, Broad Institute of MIT and Harvard, Max Planck
- * Institute of Molecular Cell Biology and Genetics, and KNIME GmbH.
+ * Copyright (C) 2014 - 2020 SciJava developers.
  * %%
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -79,7 +77,6 @@ public class EclipseHelperMojo extends AbstractMojo {
 
 		getLog().info("Parsing SciJava annotations");
 		try {
-			@SuppressWarnings("unchecked")
 			final List<String> elements =
 				currentProject.getCompileClasspathElements();
 			final URL[] classpath = new URL[elements.size() + 1];
@@ -138,8 +135,14 @@ public class EclipseHelperMojo extends AbstractMojo {
 	 * @return true iff the project depends on <code>scijava-common</code>
 	 */
 	private boolean dependsOnScijavaCommon(final MavenProject project) {
-		@SuppressWarnings("unchecked")
-		final List<Dependency> dependencies = project.getCompileDependencies();
+		final List<Dependency> dependencies;
+		try {
+			dependencies = project.getCompileDependencies();
+		}
+		catch (final Exception e) {
+			getLog().debug(e);
+			return false;
+		}
 		if (dependencies == null) return false;
 
 		for (final Dependency dependency : dependencies) {

@@ -2,9 +2,7 @@
  * #%L
  * A plugin for managing SciJava-based projects.
  * %%
- * Copyright (C) 2014 - 2018 Board of Regents of the University of
- * Wisconsin-Madison, Broad Institute of MIT and Harvard, Max Planck
- * Institute of Molecular Cell Biology and Genetics, and KNIME GmbH.
+ * Copyright (C) 2014 - 2020 SciJava developers.
  * %%
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -138,7 +136,7 @@ public class VerifyNoSnapshotsMojo extends AbstractMojo {
 	// -- Helper methods --
 
 	private Set<String> getGroupIds() {
-		final Set<String> ids = new HashSet<String>();
+		final Set<String> ids = new HashSet<>();
 		if (groupIds != null) {
 			for (final Object id : groupIds)
 				ids.add(id == null ? null : id.toString());
