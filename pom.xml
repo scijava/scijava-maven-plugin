@@ -98,8 +98,6 @@
 		<license.copyrightOwners>SciJava developers.</license.copyrightOwners>
 		<license.projectName>A plugin for managing SciJava-based projects.</license.projectName>
 
-		<maven.compiler.source>1.8</maven.compiler.source>
-		<maven.compiler.target>1.6</maven.compiler.target>
 		<maven.version>3.0</maven.version>
 		<maven2.version>2.2.1</maven2.version>
 		<maven-tree.version>2.2</maven-tree.version>
