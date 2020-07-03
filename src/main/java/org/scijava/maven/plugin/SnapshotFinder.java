@@ -86,7 +86,7 @@ public class SnapshotFinder extends AbstractSciJavaDependencyChecker {
 	// -- SciJavaDependencyChecker API --
 
 	/**
-	 * Using this method, a set of projects can be "whitelisted" to accept as
+	 * Using this method, a set of projects can be allowlisted to accept as
 	 * SNAPSHOT couplings. This is because, for a given reactor, building a Maven
 	 * project from the top level is inherently reproducible even with
 	 * inter-dependent SNAPSHOT-coupled modules.
