@@ -92,7 +92,7 @@ public class PopulateAppMojo extends AbstractInstallMojo {
 	@Override
 	public void execute() throws MojoExecutionException {
 		if (appDirectory == null) {
-			getLog().debug("Property '" + APP_DIRECTORY_PROPERTY +
+			getLog().info("Property '" + APP_DIRECTORY_PROPERTY +
 				"' unset; skipping populate-app.");
 			return;
 		}
