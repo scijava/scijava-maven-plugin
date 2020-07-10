@@ -92,23 +92,23 @@ public class PopulateAppMojo extends AbstractInstallMojo {
 	@Override
 	public void execute() throws MojoExecutionException {
 		if (appDirectory == null) {
-			if (hasIJ1Dependency(project)) getLog().info(
-				"Property '" + APP_DIRECTORY_PROPERTY + "' unset; Skipping populate-app");
+			getLog().debug("Property '" + APP_DIRECTORY_PROPERTY +
+				"' unset; skipping populate-app.");
 			return;
 		}
 		final String interpolated = interpolate(appDirectory, project);
 		appDir = new File(interpolated);
 
 		if (appSubdirectory == null) {
-			getLog().info("No property name for the " + APP_SUBDIRECTORY_PROPERTY +
-				" directory location was specified; Installing in default location");
+			getLog().info("Property " + APP_SUBDIRECTORY_PROPERTY +
+				" unset; installing in default location.");
 		}
 
 		if (!appDir.isDirectory()) {
 			getLog().warn(
 				"'" + appDirectory + "'" +
 					(interpolated.equals(appDirectory) ? "" : " (" + appDirectory + ")") +
-					" is not an SciJava application directory; Skipping populate-app");
+					" is not a SciJava application directory; skipping populate-app.");
 			return;
 		}
 
