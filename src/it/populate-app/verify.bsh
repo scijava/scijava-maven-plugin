@@ -31,9 +31,9 @@ source(new File(basedir, "../../../src/it/lib.bsh").getPath());
 assertTrue("Should exist: " + plugin, plugin.exists());
 
 // install-artifact must not copy test scope dependencies
-junit = new File(ijDir, "../Other.app/jars/junit-4.8.1.jar");
+junit = new File(ijDir, "../Other.app/jars/junit-4.13.2.jar");
 assertTrue("Should not exist: " + junit, !junit.exists());
 
 // but it must copy the ij dependency
-ij = new File(ijDir, "../Other.app/jars/ij-1.48s.jar");
+ij = new File(ijDir, "../Other.app/jars/ij-1.53g.jar");
 assertTrue("ImageJ 1.x was not copied: " + ij, ij.exists());
