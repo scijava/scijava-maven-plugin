@@ -32,7 +32,6 @@ package org.scijava.maven.plugin.install;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -55,10 +54,6 @@ import org.apache.maven.project.ProjectBuilder;
 import org.apache.maven.project.ProjectBuildingException;
 import org.apache.maven.project.ProjectBuildingRequest;
 import org.apache.maven.project.ProjectBuildingResult;
-import org.apache.maven.shared.artifact.filter.resolve.AbstractFilter;
-import org.apache.maven.shared.artifact.filter.resolve.AndFilter;
-import org.apache.maven.shared.artifact.filter.resolve.Node;
-import org.apache.maven.shared.artifact.filter.resolve.ScopeFilter;
 import org.apache.maven.shared.artifact.filter.resolve.TransformableFilter;
 import org.apache.maven.shared.artifact.resolve.ArtifactResolver;
 import org.apache.maven.shared.artifact.resolve.ArtifactResult;
@@ -83,6 +78,7 @@ import org.codehaus.plexus.util.StringUtils;
  * 
  * @author Johannes Schindelin
  * @author Stefan Helfrich
+ * @author Philipp Hanslovsky
  */
 @Mojo(name = "install-artifact", requiresProject=false)
 public class InstallArtifactMojo extends AbstractInstallMojo {
@@ -172,6 +168,12 @@ public class InstallArtifactMojo extends AbstractInstallMojo {
 	private boolean force;
 
 	/**
+	 * If this option is set to <code>true</code>, optional dependencies will not be installed.
+	 */
+	@Parameter(property = IGNORE_OPTIONAL_DEPENDENCIES_PROPERTY, defaultValue = "true")
+	private boolean ignoreOptionalDependencies;
+
+	/**
 	 * The coordinate use for resolving dependencies.
 	 */
 	private DefaultDependableCoordinate coordinate = new DefaultDependableCoordinate();
@@ -240,14 +242,8 @@ public class InstallArtifactMojo extends AbstractInstallMojo {
 			buildingRequest.setLocalRepository(localRepository);
 			buildingRequest.setRemoteRepositories(repoList);
 
-			TransformableFilter scopeFilter = ScopeFilter.excluding("system", "provided", "test");
-			TransformableFilter notOptionalFilter = new AbstractFilter() {
-				@Override
-				public boolean accept(Node node, List<Node> parents) {
-					return !node.getDependency().isOptional();
-				}
-			};
-			TransformableFilter scopeAndNotOptionalFilter = new AndFilter(Arrays.asList(scopeFilter, notOptionalFilter));
+			final TransformableFilter scopeAndNotOptionalFilter =
+					makeTransformableFilterDefaultExclusions(ignoreOptionalDependencies);
 
 			Iterable<ArtifactResult> resolveDependencies = dependencyResolver
 				.resolveDependencies(buildingRequest, coordinate, scopeAndNotOptionalFilter);

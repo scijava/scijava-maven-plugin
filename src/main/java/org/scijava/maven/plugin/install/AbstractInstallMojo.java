@@ -35,6 +35,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -52,6 +53,11 @@ import org.apache.maven.plugin.MojoExecution;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
+import org.apache.maven.shared.artifact.filter.resolve.AbstractFilter;
+import org.apache.maven.shared.artifact.filter.resolve.AndFilter;
+import org.apache.maven.shared.artifact.filter.resolve.Node;
+import org.apache.maven.shared.artifact.filter.resolve.ScopeFilter;
+import org.apache.maven.shared.artifact.filter.resolve.TransformableFilter;
 import org.codehaus.plexus.interpolation.EnvarBasedValueSource;
 import org.codehaus.plexus.interpolation.ObjectBasedValueSource;
 import org.codehaus.plexus.interpolation.PrefixAwareRecursionInterceptor;
@@ -68,6 +74,7 @@ import org.scijava.util.VersionUtils;
  * 
  * @author Johannes Schindelin
  * @author Curtis Rueden
+ * @author Philipp Hanslovsky
  */
 public abstract class AbstractInstallMojo extends AbstractMojo {
 
@@ -123,6 +130,7 @@ public abstract class AbstractInstallMojo extends AbstractMojo {
 	protected static final String DELETE_OTHER_VERSIONS_POLICY_PROPERTY = "scijava.deleteOtherVersions";
 	protected static final String SUBDIRECTORY_PATTERNS_PROPERTY = "scijava.subdirectoryPatterns";
 	protected static final String IGNORE_DEPENDENCIES_PROPERTY = "scijava.ignoreDependencies";
+	protected static final String IGNORE_OPTIONAL_DEPENDENCIES_PROPERTY = "scijava.ignoreOptionalDependencies";
 
 	public enum OtherVersions {
 			always, older, never
@@ -258,6 +266,29 @@ public abstract class AbstractInstallMojo extends AbstractMojo {
 		else {
 			getLog().info("Copying " + fileName + " to " + targetDirectory);
 			FileUtils.copyFile(source, target);
+		}
+	}
+
+	protected static TransformableFilter makeTransformableFilterDefaultExclusions(
+			final boolean ignoreOptionalDependencies) {
+		return makeTransformableFilter(ignoreOptionalDependencies, "system", "provided", "test");
+	}
+
+	protected static TransformableFilter makeTransformableFilter(
+			final boolean ignoreOptionalDependencies,
+			String... excludedScopes) {
+		TransformableFilter scopeFilter = ScopeFilter.excluding(excludedScopes);
+		if (ignoreOptionalDependencies) {
+			TransformableFilter notOptionalFilter = new AbstractFilter() {
+				@Override
+				public boolean accept(Node node, List<Node> parents) {
+					return !node.getDependency().isOptional();
+				}
+			};
+			return new AndFilter(Arrays.asList(scopeFilter, notOptionalFilter));
+		}
+		else {
+			return scopeFilter;
 		}
 	}
 

@@ -44,7 +44,6 @@ import org.apache.maven.project.ProjectBuilder;
 import org.apache.maven.project.ProjectBuildingException;
 import org.apache.maven.project.ProjectBuildingRequest;
 import org.apache.maven.project.ProjectBuildingResult;
-import org.apache.maven.shared.artifact.filter.resolve.ScopeFilter;
 import org.apache.maven.shared.artifact.filter.resolve.TransformableFilter;
 import org.apache.maven.shared.artifact.resolve.ArtifactResult;
 import org.apache.maven.shared.dependencies.DefaultDependableCoordinate;
@@ -66,6 +65,7 @@ import org.apache.maven.shared.dependencies.resolve.DependencyResolverException;
  * 
  * @author Johannes Schindelin
  * @author Stefan Helfrich
+ * @author Philipp Hanslovsky
  */
 @Mojo(name = "populate-app", requiresProject = true, requiresOnline = true)
 public class PopulateAppMojo extends AbstractInstallMojo {
@@ -75,6 +75,12 @@ public class PopulateAppMojo extends AbstractInstallMojo {
 	 */
 	@Parameter(defaultValue = "${project}", required=true, readonly = true)
 	private MavenProject project;
+
+	/**
+	 * If this option is set to <code>true</code>, optional dependencies will not be installed.
+	 */
+	@Parameter(property = IGNORE_OPTIONAL_DEPENDENCIES_PROPERTY, defaultValue = "false")
+	private boolean ignoreOptionalDependencies;
 
 	/**
 	 * The dependency resolver to.
@@ -119,13 +125,14 @@ public class PopulateAppMojo extends AbstractInstallMojo {
 		coordinate.setType(project.getPackaging());
 
 		try {
-			TransformableFilter scopeFilter = ScopeFilter.excluding("system", "provided", "test");
+			final TransformableFilter scopeAndNotOptionalFilter =
+					makeTransformableFilterDefaultExclusions(ignoreOptionalDependencies);
 
 			ProjectBuildingRequest buildingRequest = new DefaultProjectBuildingRequest(session.getProjectBuildingRequest());
 			buildingRequest.setProject( project );
 
 			Iterable<ArtifactResult> resolveDependencies = dependencyResolver
-					.resolveDependencies(buildingRequest, coordinate, scopeFilter);
+					.resolveDependencies(buildingRequest, coordinate, scopeAndNotOptionalFilter);
 				for (ArtifactResult result : resolveDependencies) {
 					Artifact artifact = result.getArtifact();
 					try {
