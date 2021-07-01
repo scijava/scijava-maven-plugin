@@ -92,8 +92,8 @@
 		<url>https://github.com/scijava/scijava-maven-plugin/issues</url>
 	</issueManagement>
 	<ciManagement>
-		<system>Travis CI</system>
-		<url>https://travis-ci.com/scijava/scijava-maven-plugin</url>
+		<system>GitHub Actions</system>
+		<url>https://github.com/scijava/scijava-maven-plugin/actions</url>
 	</ciManagement>
 
 	<properties>
@@ -111,6 +111,9 @@
 		<maven-common-artifact-filters.version>3.0.1</maven-common-artifact-filters.version>
 		<plexus-interpolation.version>1.24</plexus-interpolation.version>
 		<plexus-utils.version>3.1.0</plexus-utils.version>
+
+		<!-- NB: Deploy releases to the SciJava Maven repository. -->
+		<releaseProfiles>sign,deploy-to-scijava</releaseProfiles>
 	</properties>
 
 	<dependencies>
