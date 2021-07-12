@@ -1,4 +1,4 @@
-package de.andrena.tools.nopackagecycles.comparator;
+package org.scijava.packages.plugin.comparator;
 
 import java.util.Comparator;
 

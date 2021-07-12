@@ -1,4 +1,4 @@
-package de.andrena.tools.nopackagecycles;
+package org.scijava.packages.plugin;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.empty;
@@ -14,6 +14,7 @@ import jdepend.framework.JavaPackage;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.scijava.packages.plugin.PackageCycleCollector;
 
 public class PackageCycleCollectorPerformanceTest {
 	private static final int PACKAGE_MATRIX_SIZE = 20;

@@ -1,4 +1,4 @@
-package de.andrena.tools.nopackagecycles;
+package org.scijava.packages.plugin;
 
 import java.util.Iterator;
 import java.util.List;

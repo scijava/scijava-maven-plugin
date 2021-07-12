@@ -1,6 +1,6 @@
-package de.andrena.tools.nopackagecycles;
+package org.scijava.packages.plugin;
 
-import static de.andrena.tools.nopackagecycles.CollectionOutput.joinCollection;
+import static org.scijava.packages.plugin.CollectionOutput.joinCollection;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -8,13 +8,14 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
+import org.scijava.packages.plugin.CollectionOutput.Appender;
+import org.scijava.packages.plugin.CollectionOutput.StringProvider;
+import org.scijava.packages.plugin.comparator.JavaClassNameComparator;
+import org.scijava.packages.plugin.comparator.JavaPackageListComparator;
+import org.scijava.packages.plugin.comparator.JavaPackageNameComparator;
+
 import jdepend.framework.JavaClass;
 import jdepend.framework.JavaPackage;
-import de.andrena.tools.nopackagecycles.CollectionOutput.Appender;
-import de.andrena.tools.nopackagecycles.CollectionOutput.StringProvider;
-import de.andrena.tools.nopackagecycles.comparator.JavaClassNameComparator;
-import de.andrena.tools.nopackagecycles.comparator.JavaPackageListComparator;
-import de.andrena.tools.nopackagecycles.comparator.JavaPackageNameComparator;
 
 public class PackageCycleOutput {
 

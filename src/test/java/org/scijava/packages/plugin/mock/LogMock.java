@@ -1,4 +1,4 @@
-package de.andrena.tools.nopackagecycles.mock;
+package org.scijava.packages.plugin.mock;
 
 import java.util.ArrayList;
 import java.util.List;

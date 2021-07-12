@@ -1,4 +1,4 @@
-package de.andrena.tools.nopackagecycles;
+package org.scijava.packages.plugin;
 
 import java.io.File;
 import java.io.IOException;

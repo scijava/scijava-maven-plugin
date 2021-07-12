@@ -1,19 +1,18 @@
-package de.andrena.tools.nopackagecycles;
+package org.scijava.packages.plugin;
 
-import static de.andrena.tools.nopackagecycles.CollectionOutput.joinArray;
-import static de.andrena.tools.nopackagecycles.CollectionOutput.joinCollection;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.scijava.packages.plugin.CollectionOutput.joinArray;
+import static org.scijava.packages.plugin.CollectionOutput.joinCollection;
 
 import java.util.Collections;
 
 import org.junit.Before;
 import org.junit.Test;
-
-import de.andrena.tools.nopackagecycles.CollectionOutput.Appender;
-import de.andrena.tools.nopackagecycles.CollectionOutput.StringProvider;
+import org.scijava.packages.plugin.CollectionOutput.Appender;
+import org.scijava.packages.plugin.CollectionOutput.StringProvider;
 
 public class CollectionOutputTest {
 	private final DummyAppender appender = new DummyAppender();
