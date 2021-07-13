@@ -1,96 +1,32 @@
+
 package org.scijava.packages.plugin;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
+
+import org.apache.maven.enforcer.rule.api.EnforcerRuleException;
 
 import jdepend.framework.JDepend;
 import jdepend.framework.JavaPackage;
-import jdepend.framework.PackageFilter;
 
-import org.apache.maven.enforcer.rule.api.EnforcerRule;
-import org.apache.maven.enforcer.rule.api.EnforcerRuleException;
-import org.apache.maven.enforcer.rule.api.EnforcerRuleHelper;
-import org.codehaus.plexus.component.configurator.expression.ExpressionEvaluationException;
-
-public class NoPackageCyclesRule implements EnforcerRule {
-
-	private boolean includeTests = true;
-	private List<String> includedPackages = new ArrayList<>();
-	private List<String> excludedPackages = new ArrayList<>();
-
-	public void execute(EnforcerRuleHelper helper) throws EnforcerRuleException {
-		try {
-			executePackageCycleCheckIfNecessary(helper);
-		} catch (ExpressionEvaluationException e) {
-			throw new EnforcerRuleException("Unable to lookup an expression " + e.getLocalizedMessage(), e);
-		} catch (IOException e) {
-			throw new EnforcerRuleException("Unable to access target directory " + e.getLocalizedMessage(), e);
-		}
-	}
-
-	private void executePackageCycleCheckIfNecessary(EnforcerRuleHelper helper)
-			throws ExpressionEvaluationException, IOException, EnforcerRuleException {
-		DirectoriesWithClasses directories = new DirectoriesWithClasses(helper, "package cycles", includeTests);
-		if (directories.directoriesWithClassesFound()) {
-			executePackageCycleCheck(helper, directories);
-		} else {
-			helper.getLog().info("No directories with classes to check for cycles found.");
-		}
-	}
-
-	private void executePackageCycleCheck(EnforcerRuleHelper helper, Iterable<File> directories) throws IOException, EnforcerRuleException {
-		JDepend jdepend = createJDepend(helper);
-		for (File directory : directories) {
-			jdepend.addDirectory(directory.getAbsolutePath());
-		}
-		jdepend.analyze();
-		if (jdepend.containsCycles()) {
-			throw new EnforcerRuleException("There are package cycles:" + getPackageCycles(jdepend));
-		}
-	}
-
-	protected JDepend createJDepend(EnforcerRuleHelper helper) {
-		if (!includedPackages.isEmpty()) {
-			helper.getLog().warn("Package cycles rule check is restricted to check only these packages: " + includedPackages);
-		}
-		if (!excludedPackages.isEmpty()) {
-			helper.getLog().warn("These packages were excluded from package cycle rule check: " + excludedPackages);
-		}
-		return new JDepend(PackageFilter.all()
-				.including(includedPackages)
-				.excluding(excludedPackages));
-	}
+/**
+ * Detects the presence of cycles in the package hierarchy.
+ *
+ * @author Gabriel Selzer
+ */
+public class NoPackageCyclesRule extends AbstractPackageEnforcementRule {
 
 	private String getPackageCycles(JDepend jdepend) {
 		Collection<JavaPackage> packages = jdepend.getPackages();
-		return new PackageCycleOutput(new ArrayList<JavaPackage>(packages)).getOutput();
+		return new PackageCycleOutput(new ArrayList<>(packages)).getOutput();
 	}
 
-	public String getCacheId() {
-		return "";
-	}
-
-	public boolean isCacheable() {
-		return false;
-	}
-
-	public boolean isResultValid(EnforcerRule arg0) {
-		return false;
-	}
-
-	public void setIncludeTests(boolean includeTests) {
-		this.includeTests = includeTests;
-	}
-
-	public void setIncludedPackages(List<String> includedPackages) {
-		this.includedPackages = includedPackages;
-	}
-
-	public void setExcludedPackages(List<String> excludedPackages) {
-		this.excludedPackages = excludedPackages;
+	@Override
+	void enforceRule(JDepend jdepend) throws EnforcerRuleException {
+		if (jdepend.containsCycles()) {
+			throw new EnforcerRuleException("There are package cycles:" +
+				getPackageCycles(jdepend));
+		}
 	}
 
 }

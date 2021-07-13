@@ -62,9 +62,3 @@ Package fitnesse.wiki depends on subpackages:
 Package fitnesse.wikitext depends on subpackages: 
         fitnesse.wikitext.parser (PerformanceTest)
         fitnesse.wikitext.test (PerformanceTest)
-
-Package util depends on subpackages: 
-        fitnesse.testutil (TemplateUtilTest)
-        java.util (Clock, ClockTest, CommandLine, DateAlteringClock, DateAlteringClockTest, DateTimeUtil, FileUtil, FormattedExpression, ListUtility, MemoryFileSystem, Option, StringUtil, SystemTimeKeeper, TemplateUtil, TemplateUtilTest, TestTimeKeeper, TimeKeeper, TimeMeasurement, TimeMeasurementTest, WildcardTest)
-        java.util.concurrent (CommandLine)
-        java.util.regex (CommandLine, EnvironmentVariableTool, FormattedExpression, GracefulNamer, RegexTestCase)
