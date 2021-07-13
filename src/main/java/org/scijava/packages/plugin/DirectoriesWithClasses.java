@@ -17,18 +17,18 @@ public class DirectoriesWithClasses implements Iterable<File>{
 
 	private final List<File> directories = new LinkedList<File>();
 	
-	public DirectoriesWithClasses(EnforcerRuleHelper helper, boolean includeTests) throws ExpressionEvaluationException {
-		addDirectoryIfExists(helper, MAVEN_PROJECT_BUILD_OUTPUT_DIRECTORY_VAR);
+	public DirectoriesWithClasses(EnforcerRuleHelper helper, String rule, boolean includeTests) throws ExpressionEvaluationException {
+		addDirectoryIfExists(helper, MAVEN_PROJECT_BUILD_OUTPUT_DIRECTORY_VAR, rule);
 		if (includeTests) {
-			addDirectoryIfExists(helper, MAVEN_PROJECT_BUILD_TEST_OUTPUT_DIRECTORY_VAR);
+			addDirectoryIfExists(helper, MAVEN_PROJECT_BUILD_TEST_OUTPUT_DIRECTORY_VAR, rule);
 		}
 	}
 
-	private void addDirectoryIfExists(EnforcerRuleHelper helper, String variable)
+	private void addDirectoryIfExists(EnforcerRuleHelper helper, String variable, String rule)
 			throws ExpressionEvaluationException {
 		File directory = new File((String) helper.evaluate(variable));
 		if(directory.exists()) {
-			helper.getLog().info("Adding directory " + directory.getAbsolutePath() + " for package cycles search.");
+			helper.getLog().info("Adding directory " + directory.getAbsolutePath() + " for " + rule + " search.");
 			directories.add(directory);
 		} else {			
 			helper.getLog().info("Directory " + directory.getAbsolutePath() + " could not be found.");

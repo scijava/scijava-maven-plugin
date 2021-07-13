@@ -33,7 +33,7 @@ public class NoPackageCyclesRule implements EnforcerRule {
 
 	private void executePackageCycleCheckIfNecessary(EnforcerRuleHelper helper)
 			throws ExpressionEvaluationException, IOException, EnforcerRuleException {
-		DirectoriesWithClasses directories = new DirectoriesWithClasses(helper, includeTests);
+		DirectoriesWithClasses directories = new DirectoriesWithClasses(helper, "package cycles", includeTests);
 		if (directories.directoriesWithClassesFound()) {
 			executePackageCycleCheck(helper, directories);
 		} else {
