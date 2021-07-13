@@ -15,18 +15,18 @@ import org.junit.Test;
 import org.scijava.packages.plugin.NoPackageCyclesRule;
 import org.scijava.packages.plugin.mock.EnforcerRuleHelperMock;
 
-public class NoPackageCyclesRuleIntegrationTest {
+public class NoSubpackageDependenceRuleIntegrationTest {
 	private static final URL FITNESSE_TARGET_FOLDER = getResource("fitnesse-target");
-	private static final URL FITNESSE_EXPECTED_OUTPUT = getResource("fitnesse-expected-output-package-cycle.txt");
+	private static final URL FITNESSE_EXPECTED_OUTPUT = getResource("fitnesse-expected-output-subpackage-dependence.txt");
 	private static final URL JUNIT_TARGET_FOLDER = getResource("junit-target");
-	private static final URL JUNIT_EXPECTED_OUTPUT = getResource("junit-expected-output-package-cycle.txt");
+	private static final URL JUNIT_EXPECTED_OUTPUT = getResource("junit-expected-output-subpackage-dependence.txt");
 
-	private NoPackageCyclesRule rule;
+	private NoSubpackageDependenceRule rule;
 	private EnforcerRuleHelperMock helper;
 
 	@Before
 	public void setUp() throws Exception {
-		rule = new NoPackageCyclesRule();
+		rule = new NoSubpackageDependenceRule();
 		helper = new EnforcerRuleHelperMock();
 	}
 
