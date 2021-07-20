@@ -15,7 +15,7 @@
 	<version>0-SNAPSHOT</version>
 
 	<name>SciJava Packages Rules</name>
-	<description>A set of rules for the maven-enforcer-plugin that enforces package dependency commands</description>
+	<description>A set of rules for the maven-enforcer-plugin enforcing package hierarchy</description>
 	<url>https://github.com/scijava/scijava-packages-rules</url>
 	<inceptionYear>2021</inceptionYear>
 	<organization>
