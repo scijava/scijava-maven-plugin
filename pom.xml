@@ -11,12 +11,12 @@
 		<relativePath />
 	</parent>
 
-	<artifactId>scijava-packages-plugin</artifactId>
+	<artifactId>scijava-packages-rules</artifactId>
 	<version>0-SNAPSHOT</version>
 
-	<name>SciJava Packages Plugin</name>
-	<description>A rule for the maven-enforcer-plugin that enforces package dependency commands</description>
-	<url>https://github.com/scijava/scijava-packages-rule</url>
+	<name>SciJava Packages Rules</name>
+	<description>A set of rules for the maven-enforcer-plugin that enforces package dependency commands</description>
+	<url>https://github.com/scijava/scijava-packages-rules</url>
 	<inceptionYear>2021</inceptionYear>
 	<organization>
 		<name>SciJava</name>
@@ -63,28 +63,28 @@
 	<mailingLists>
 		<mailingList>
 			<name>Image.sc Forum</name>
-			<archive>https://forum.image.sc/tags/scijava-packages-plugin</archive>
+			<archive>https://forum.image.sc/tags/scijava-packages-rules</archive>
 		</mailingList>
 	</mailingLists>
 
 	<scm>
-		<connection>scm:git:git://github.com/scijava/scijava-packages-plugin</connection>
-		<developerConnection>scm:git:git@github.com:scijava/scijava-packages-plugin</developerConnection>
+		<connection>scm:git:git://github.com/scijava/scijava-packages-rules</connection>
+		<developerConnection>scm:git:git@github.com:scijava/scijava-packages-rules</developerConnection>
 		<tag>HEAD</tag>
-		<url>git@github.com:andrena/no-package-cycles-enforcer-rule.git</url>
+		<url>git@github.com:scijava/scijava-packages-rules.git</url>
 	</scm>
 	<issueManagement>
 		<system>GitHub Issues</system>
-		<url>https://github.com/scijava/scijava-packages-plugin/issues</url>
+		<url>https://github.com/scijava/scijava-packages-rules/issues</url>
 	</issueManagement>
 	<ciManagement>
 		<system>Travis CI</system>
-		<url>https://travis-ci.org/scijava/scijava-packages-plugin</url>
+		<url>https://travis-ci.org/scijava/scijava-packages-rules</url>
 	</ciManagement>
 
 	<properties>
-		<package-name>org.scijava.packages.plugin</package-name>
-		<main-class>org.scijava.packages.plugin.Main</main-class>
+		<package-name>org.scijava.packages.rules</package-name>
+		<main-class>org.scijava.packages.rules.Main</main-class>
 		<license.licenseName>apache_2.0</license.licenseName>
 		<license.copyrightOwners>SciJava developers.</license.copyrightOwners>
 
@@ -104,7 +104,6 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
-				<version>2.19.1</version>
 				<configuration>
 					<excludes>
 						<exclude>*-target/**</exclude>
@@ -115,7 +114,6 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-failsafe-plugin</artifactId>
-				<version>2.19.1</version>
 				<executions>
 					<execution>
 						<goals>
@@ -133,54 +131,6 @@
 					</includes>
 					<encoding>UTF-8</encoding>
 				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-release-plugin</artifactId>
-				<version>2.5.3</version>
-				<configuration>
-					<autoVersionSubmodules>true</autoVersionSubmodules>
-					<useReleaseProfile>false</useReleaseProfile>
-					<releaseProfiles>release</releaseProfiles>
-					<goals>deploy</goals>
-				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.sonatype.plugins</groupId>
-				<artifactId>nexus-staging-maven-plugin</artifactId>
-				<version>1.6.7</version>
-				<extensions>true</extensions>
-				<configuration>
-					<serverId>ossrh</serverId>
-					<nexusUrl>https://oss.sonatype.org/</nexusUrl>
-					<autoReleaseAfterClose>true</autoReleaseAfterClose>
-				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-source-plugin</artifactId>
-				<version>2.2.1</version>
-				<executions>
-					<execution>
-						<id>attach-sources</id>
-						<goals>
-							<goal>jar-no-fork</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-javadoc-plugin</artifactId>
-				<version>2.9.1</version>
-				<executions>
-					<execution>
-						<id>attach-javadocs</id>
-						<goals>
-							<goal>jar</goal>
-						</goals>
-					</execution>
-				</executions>
 			</plugin>
 		</plugins>
 	</build>
