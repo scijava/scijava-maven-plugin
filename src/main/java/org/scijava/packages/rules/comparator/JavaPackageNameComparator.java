@@ -1,4 +1,4 @@
-package org.scijava.packages.plugin.comparator;
+package org.scijava.packages.rules.comparator;
 
 import java.util.Comparator;
 

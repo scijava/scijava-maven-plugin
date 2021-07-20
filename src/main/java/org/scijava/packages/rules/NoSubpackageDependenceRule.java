@@ -1,5 +1,5 @@
 
-package org.scijava.packages.plugin;
+package org.scijava.packages.rules;
 
 import java.util.ArrayList;
 import java.util.Collection;

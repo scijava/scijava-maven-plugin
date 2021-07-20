@@ -1,4 +1,4 @@
-package org.scijava.packages.plugin;
+package org.scijava.packages.rules;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
@@ -12,8 +12,8 @@ import org.apache.commons.io.IOUtils;
 import org.apache.maven.enforcer.rule.api.EnforcerRuleException;
 import org.junit.Before;
 import org.junit.Test;
-import org.scijava.packages.plugin.NoPackageCyclesRule;
-import org.scijava.packages.plugin.mock.EnforcerRuleHelperMock;
+import org.scijava.packages.rules.NoPackageCyclesRule;
+import org.scijava.packages.rules.mock.EnforcerRuleHelperMock;
 
 public class NoPackageCyclesRuleIntegrationTest {
 	private static final URL FITNESSE_TARGET_FOLDER = getResource("fitnesse-target");

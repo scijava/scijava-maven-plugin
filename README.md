@@ -1,11 +1,11 @@
-[![](https://github.com/scijava/scijava-packages-plugin/actions/workflows/build-main.yml/badge.svg)](https://github.com/scijava/scijava-packages-plugin/actions/workflows/build-main.yml)
+[![](https://github.com/scijava/scijava-packages-rules/actions/workflows/build-main.yml/badge.svg)](https://github.com/scijava/scijava-packages-rules/actions/workflows/build-main.yml)
 
-[![](https://img.shields.io/maven-central/v/org.scijava/scijava-packages-plugin.svg)](http://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22org.scijava%22%20AND%20a%3A%22scijava-packages-plugin%22)
+[![](https://img.shields.io/maven-central/v/org.scijava/scijava-packages-rules.svg)](http://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22org.scijava%22%20AND%20a%3A%22scijava-packages-rules%22)
 
-SciJava Packages Plugin
+SciJava Packages Rules
 ====================
 
-scijava-packages-plugin provides a set of [Maven Enforcer Plugin](https://maven.apache.org/enforcer/maven-enforcer-plugin/) rules for policing the package hierarchy at build time.
+scijava-packages-rules provides a set of [Maven Enforcer Plugin](https://maven.apache.org/enforcer/maven-enforcer-plugin/) rules for policing the package hierarchy at build time.
 
 ## Usage
 
@@ -17,7 +17,7 @@ Currently, the only way to utilize these rules is by explicitly declaring it in 
 	<dependencies>
 		<dependency>
 			<groupId>org.scijava</groupId>
-			<artifactId>scijava-packages-plugin</artifactId>
+			<artifactId>scijava-packages-rules</artifactId>
 			<version>0-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
@@ -43,7 +43,7 @@ Rules
 	<configuration>
 		<rules>
 			<NoPackageCyclesRule
-				implementation="org.scijava.packages.plugin.NoPackageCyclesRule" />
+				implementation="org.scijava.packages.rules.NoPackageCyclesRule" />
 		</rules>
 	</configuration>
 </execution>
@@ -56,7 +56,7 @@ If you want to exclude tests from cycle checking, you can use the parameter `inc
 ```xml
         ...
         <rules>
-            <NoPackageCyclesRule implementation="org.scijava.packages.plugin.NoPackageCyclesRule">
+            <NoPackageCyclesRule implementation="org.scijava.packages.rules.NoPackageCyclesRule">
                 <includeTests>false</includeTests>
             </NoPackageCyclesRule>
         </rules>
@@ -73,7 +73,7 @@ If you want to exclude packages or restrict check to certain packages only, you 
 ```xml
         ...
         <rules>
-            <NoPackageCyclesRule implementation="org.scijava.packages.plugin.NoPackageCyclesRule">
+            <NoPackageCyclesRule implementation="org.scijava.packages.rules.NoPackageCyclesRule">
                 <includedPackages>
                     <includedPackage>myapp.code.good</includedPackage>
                 </includedPackages>
@@ -108,7 +108,7 @@ Subpackage Dependence can throw a wrench into libraries wishing to follow the [D
 	<configuration>
 		<rules>
 			<NoSubpackageDependenceRule
-				implementation="org.scijava.packages.plugin.NoSubpackageDependenceRule" />
+				implementation="org.scijava.packages.rules.NoSubpackageDependenceRule" />
 		</rules>
 	</configuration>
 </execution>

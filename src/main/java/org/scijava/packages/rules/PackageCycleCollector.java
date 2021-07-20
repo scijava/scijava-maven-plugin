@@ -1,4 +1,4 @@
-package org.scijava.packages.plugin;
+package org.scijava.packages.rules;
 
 import java.util.Iterator;
 import java.util.List;

@@ -1,4 +1,4 @@
-package org.scijava.packages.plugin;
+package org.scijava.packages.rules;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
@@ -17,9 +17,9 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
-import org.scijava.packages.plugin.NoPackageCyclesRule;
-import org.scijava.packages.plugin.mock.EnforcerRuleHelperMock;
-import org.scijava.packages.plugin.mock.JDependMock;
+import org.scijava.packages.rules.NoPackageCyclesRule;
+import org.scijava.packages.rules.mock.EnforcerRuleHelperMock;
+import org.scijava.packages.rules.mock.JDependMock;
 
 public class NoPackageCyclesRuleTest {
 

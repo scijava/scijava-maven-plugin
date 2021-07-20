@@ -1,4 +1,4 @@
-package org.scijava.packages.plugin;
+package org.scijava.packages.rules;
 
 import static java.util.Collections.unmodifiableList;
 

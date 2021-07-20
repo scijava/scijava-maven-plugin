@@ -1,4 +1,4 @@
-package org.scijava.packages.plugin.mock;
+package org.scijava.packages.rules.mock;
 
 import java.io.IOException;
 

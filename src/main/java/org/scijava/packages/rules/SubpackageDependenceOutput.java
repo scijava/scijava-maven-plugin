@@ -1,6 +1,6 @@
-package org.scijava.packages.plugin;
+package org.scijava.packages.rules;
 
-import static org.scijava.packages.plugin.CollectionOutput.joinCollection;
+import static org.scijava.packages.rules.CollectionOutput.joinCollection;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -8,9 +8,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import org.scijava.packages.plugin.CollectionOutput.Appender;
-import org.scijava.packages.plugin.comparator.JavaClassNameComparator;
-import org.scijava.packages.plugin.comparator.JavaPackageNameComparator;
+import org.scijava.packages.rules.CollectionOutput.Appender;
+import org.scijava.packages.rules.comparator.JavaClassNameComparator;
+import org.scijava.packages.rules.comparator.JavaPackageNameComparator;
 
 import jdepend.framework.JavaClass;
 import jdepend.framework.JavaPackage;
