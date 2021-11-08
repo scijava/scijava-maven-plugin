@@ -82,7 +82,7 @@
 	</mailingLists>
 
 	<scm>
-		<connection>scm:git:git://github.com/scijava/scijava-maven-plugin</connection>
+		<connection>scm:git:https://github.com/scijava/scijava-maven-plugin</connection>
 		<developerConnection>scm:git:git@github.com:scijava/scijava-maven-plugin</developerConnection>
 		<tag>HEAD</tag>
 		<url>https://github.com/scijava/scijava-maven-plugin</url>
