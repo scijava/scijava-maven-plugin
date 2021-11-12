@@ -1,3 +1,4 @@
+
 package org.scijava.maven.plugin.enforcer;
 
 import static org.scijava.maven.plugin.enforcer.CollectionOutput.joinCollection;
@@ -13,6 +14,11 @@ import org.scijava.maven.plugin.enforcer.CollectionOutput.Appender;
 import jdepend.framework.JavaClass;
 import jdepend.framework.JavaPackage;
 
+/**
+ * TODO
+ *
+ * @author Gabriel Selzer
+ */
 public class SubpackageDependenceOutput {
 
 	private Map<JavaPackage, List<JavaPackage>> packages;
