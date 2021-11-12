@@ -1,4 +1,4 @@
-package org.scijava.packages.rules.mock;
+package org.scijava.maven.plugin.enforcer;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -1,5 +1,5 @@
 
-package org.scijava.packages.rules;
+package org.scijava.maven.plugin.enforcer;
 
 import java.util.ArrayList;
 import java.util.Collection;

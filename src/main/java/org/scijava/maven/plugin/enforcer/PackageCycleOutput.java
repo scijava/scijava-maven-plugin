@@ -1,6 +1,6 @@
-package org.scijava.packages.rules;
+package org.scijava.maven.plugin.enforcer;
 
-import static org.scijava.packages.rules.CollectionOutput.joinCollection;
+import static org.scijava.maven.plugin.enforcer.CollectionOutput.joinCollection;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -8,11 +8,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-import org.scijava.packages.rules.CollectionOutput.Appender;
-import org.scijava.packages.rules.CollectionOutput.StringProvider;
-import org.scijava.packages.rules.comparator.JavaClassNameComparator;
-import org.scijava.packages.rules.comparator.JavaPackageListComparator;
-import org.scijava.packages.rules.comparator.JavaPackageNameComparator;
+import org.scijava.maven.plugin.enforcer.CollectionOutput.Appender;
+import org.scijava.maven.plugin.enforcer.CollectionOutput.StringProvider;
 
 import jdepend.framework.JavaClass;
 import jdepend.framework.JavaPackage;

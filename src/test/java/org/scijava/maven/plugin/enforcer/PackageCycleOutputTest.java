@@ -1,8 +1,8 @@
-package org.scijava.packages.rules;
+package org.scijava.maven.plugin.enforcer;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.scijava.packages.rules.CollectionOutput.joinArray;
+import static org.scijava.maven.plugin.enforcer.CollectionOutput.joinArray;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,9 +12,7 @@ import jdepend.framework.JavaPackage;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.scijava.packages.rules.CollectionOutput;
-import org.scijava.packages.rules.PackageCycleOutput;
-import org.scijava.packages.rules.CollectionOutput.StringProvider;
+import org.scijava.maven.plugin.enforcer.CollectionOutput.StringProvider;
 
 public class PackageCycleOutputTest {
 

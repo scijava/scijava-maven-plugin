@@ -1,4 +1,4 @@
-package org.scijava.packages.rules.comparator;
+package org.scijava.maven.plugin.enforcer;
 
 import java.util.Comparator;
 import java.util.List;

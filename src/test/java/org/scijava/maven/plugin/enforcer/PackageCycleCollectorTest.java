@@ -1,4 +1,4 @@
-package org.scijava.packages.rules;
+package org.scijava.maven.plugin.enforcer;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
@@ -13,7 +13,6 @@ import jdepend.framework.JavaPackage;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.scijava.packages.rules.PackageCycleCollector;
 
 public class PackageCycleCollectorTest {
 

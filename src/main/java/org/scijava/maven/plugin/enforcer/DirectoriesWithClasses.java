@@ -1,4 +1,4 @@
-package org.scijava.packages.rules;
+package org.scijava.maven.plugin.enforcer;
 
 import static java.util.Collections.unmodifiableList;
 

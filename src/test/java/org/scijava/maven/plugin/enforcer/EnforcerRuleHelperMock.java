@@ -1,4 +1,4 @@
-package org.scijava.packages.rules.mock;
+package org.scijava.maven.plugin.enforcer;
 
 import java.io.File;
 import java.util.List;
@@ -9,7 +9,6 @@ import org.apache.maven.plugin.logging.Log;
 import org.codehaus.plexus.PlexusContainer;
 import org.codehaus.plexus.component.configurator.expression.ExpressionEvaluationException;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
-import org.scijava.packages.rules.DirectoriesWithClasses;
 
 public class EnforcerRuleHelperMock implements EnforcerRuleHelper {
 
