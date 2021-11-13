@@ -1,0 +1,64 @@
+Some packages depend on subpackages:
+
+Package fit depends on subpackages: 
+        fit.exception (ActionFixture, Binding, Binding$RecallBinding, BindingTest, CannotLoadFixtureTest, FitMatcher, FitServer, Fixture, Fixture$CellComparator, FixtureClass, FixtureLoader, Parse, ParseTest)
+        fit.testFxtr (CannotLoadFixtureTest)
+
+Package fit.decorator depends on subpackages: 
+        fit.decorator.exceptions (CopyAndAppendLastRow, CopyAndAppendLastRowTest, FixtureDecorator, FixtureDecoratorTestCase$2, IncrementColumnsValue, IncrementColumnsValueTest, Loop, LoopTest)
+        fit.decorator.util (CopyAndAppendLastRow, CopyAndAppendLastRowTest, FixtureDecorator, FixtureDecoratorTestCase, FixtureDecoratorTestCase$1, IncrementColumnsValue, IncrementColumnsValueTest, LoopTest, TestFixture)
+
+Package fitnesse depends on subpackages: 
+        fitnesse.authentication (ComponentFactory, ComponentFactoryTest, FitNesseContext, FitNesseContext$Builder, FitNesseExpediter, FitNesseExpediterTest$StoneWallAuthenticator)
+        fitnesse.components (FitNesseContext, FitNesseContext$Builder, FitNesseExpediter, FitNesseServerTest)
+        fitnesse.http (FitNesse, FitNesseExpediter, FitNesseExpediter$1, FitNesseExpediterTest, FitNesseExpediterTest$2, FitNesseExpediterTest$StoneWallAuthenticator, FitNesseServerTest, Responder, Shutdown, ShutdownTest)
+        fitnesse.responders (ComponentFactory, ComponentFactoryTest, ComponentFactoryTest$DummyPlugin, FitNesseContext, FitNesseExpediter)
+        fitnesse.responders.editing (ComponentFactory, ComponentFactoryTest, ComponentFactoryTest$DummyPlugin, ComponentFactoryTest$TestContentFilter)
+        fitnesse.responders.run (FitNesseContext)
+        fitnesse.socketservice (FitNesse, FitNesseServer)
+        fitnesse.testsystems.slim (ComponentFactoryTest, ComponentFactoryTest$TestSlimTable)
+        fitnesse.testsystems.slim.tables (ComponentFactory, ComponentFactoryTest, ComponentFactoryTest$TestSlimTable)
+        fitnesse.testutil (ComponentFactoryTest, FitNesseExpediterTest, FitNesseServerTest)
+        fitnesse.util (FitNesse, FitNesseExpediterTest, FitNesseServerTest)
+        fitnesse.wiki (ComponentFactory, ComponentFactoryTest, ComponentFactoryTest$DummyPlugin, FitNesseContext, FitNesseContext$Builder, FitNesseExpediterTest, FitNesseServerTest, WikiPageFactory)
+        fitnesse.wiki.zip (ComponentFactory, ComponentFactoryTest)
+        fitnesse.wikitext.parser (ComponentFactory, ComponentFactoryTest, ComponentFactoryTest$DummyPlugin)
+
+Package fitnesse.responders depends on subpackages: 
+        fitnesse.responders.editing (ResponderFactory, ResponderFactoryTest, WikiPageResponder)
+        fitnesse.responders.files (ResponderFactory, ResponderFactoryTest)
+        fitnesse.responders.refactoring (ResponderFactory, ResponderFactoryTest)
+        fitnesse.responders.run (ResponderFactory, ResponderFactoryTest, WikiImportTestEventListener, WikiImportTestEventListener$TestEventProcessor, WikiImportTestEventListenerTest$MockSuiteResponder, WikiImportTestEventListenerTest$MockTestResponder)
+        fitnesse.responders.search (ResponderFactory, ResponderFactoryTest)
+        fitnesse.responders.templateUtilities (DefaultResponder, ErrorResponder, NotFoundResponder, PageFactory, ShutdownResponder, WikiImportingResponder, WikiPageResponder)
+        fitnesse.responders.testHistory (ResponderFactory, ResponderFactoryTest)
+        fitnesse.responders.versions (ResponderFactory, ResponderFactoryTest)
+
+Package fitnesse.responders.run depends on subpackages: 
+        fitnesse.responders.run.formatters (JavaFormatter, SuiteResponder, SuiteResponder$1, SuiteXmlFormatter, TestResponder, TestResponder$1, TestResponder$2, TestResponder$HistoryWriterFactory)
+
+Package fitnesse.slim depends on subpackages: 
+        fitnesse.slim.converters (ConverterSupport, ConverterTest, MethodExecutionResult, SlimMethodInvocationTestBase, StatementExecutor)
+        fitnesse.slim.fixtureInteraction (MethodExecutor, SlimExecutionContext, SlimService)
+        fitnesse.slim.instructions (ListExecutor$Executive, SlimClient, SlimClient$1, SlimClient$ToListExecutor, SlimServiceTestBase, StatementExecutorInterface)
+        fitnesse.slim.protocol (SlimClient, SlimServer)
+        fitnesse.slim.test (ConverterTest, SlimInstanceCreationTest, SlimMethodInvocationTest, SlimMethodInvocationTestBase)
+
+Package fitnesse.testsystems depends on subpackages: 
+        fitnesse.testsystems.fit (TestSystemGroup)
+        fitnesse.testsystems.slim (TestSystemGroup)
+        fitnesse.testsystems.slim.results (TestSystem, TestSystemListener)
+        fitnesse.testsystems.slim.tables (TestSystem, TestSystemListener)
+
+Package fitnesse.testsystems.slim depends on subpackages: 
+        fitnesse.testsystems.slim.results (HtmlTable, HtmlTable$Cell, SlimTestSystem, SlimTestSystemTest$DummyListener, Table)
+        fitnesse.testsystems.slim.tables (HtmlSlimTestSystem, HtmlTable, SlimTestContext, SlimTestContextImpl, SlimTestSystem, SlimTestSystemTest$DummyListener, Table, Table$CellContentSubstitution)
+
+Package fitnesse.wiki depends on subpackages: 
+        fitnesse.wiki.zip (FileSystemPage, FileSystemPageZipFileVersioningTest)
+        fitnesse.wikitext (WikiPageProperties)
+        fitnesse.wikitext.parser (FileSystemPage, PageData, PageData$1, PageRepository, PathParser, ReadOnlyPageData, WikiWordReference)
+
+Package fitnesse.wikitext depends on subpackages: 
+        fitnesse.wikitext.parser (PerformanceTest)
+        fitnesse.wikitext.test (PerformanceTest)
