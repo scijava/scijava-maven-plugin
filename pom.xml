@@ -137,6 +137,7 @@
 		<license.licenseName>bsd_2</license.licenseName>
 		<license.copyrightOwners>SciJava developers.</license.copyrightOwners>
 		<license.projectName>A plugin for managing SciJava-based projects.</license.projectName>
+		<license.excludes>**/fitnesse-target/**</license.excludes>
 
 		<jdepend.version>2.9.5</jdepend.version>
 		<jgrapht.version>0.8.3</jgrapht.version>
