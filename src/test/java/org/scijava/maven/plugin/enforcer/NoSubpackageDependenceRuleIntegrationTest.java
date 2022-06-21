@@ -63,6 +63,10 @@ import org.apache.maven.enforcer.rule.api.EnforcerRuleException;
 import org.junit.Before;
 import org.junit.Test;
 
+/**
+ * Tests {@link NoSubpackageDependenceRule} on a dummy project
+ * @author Gabriel Selzer
+ */
 public class NoSubpackageDependenceRuleIntegrationTest {
     // Subpackage dependence test files
     private static final URL SUBPACKAGE_DEPENDENT_TARGET_FOLDER = //

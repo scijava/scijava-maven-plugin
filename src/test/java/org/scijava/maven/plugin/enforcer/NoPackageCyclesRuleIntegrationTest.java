@@ -6,13 +6,13 @@
  * %%
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- * 
+ *
  * 1. Redistributions of source code must retain the above copyright notice,
  *    this list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright notice,
  *    this list of conditions and the following disclaimer in the documentation
  *    and/or other materials provided with the distribution.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -56,54 +56,67 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.charset.Charset;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.maven.enforcer.rule.api.EnforcerRuleException;
 import org.junit.Before;
 import org.junit.Test;
 
+/**
+ * Tests {@link NoPackageCyclesRule} on a dummy project
+ * @author Gabriel Selzer
+ */
 public class NoPackageCyclesRuleIntegrationTest {
-	private static final URL FITNESSE_TARGET_FOLDER = getResource("fitnesse-target");
-	private static final URL FITNESSE_EXPECTED_OUTPUT = getResource("fitnesse-expected-output-package-cycle.txt");
-	private static final URL JUNIT_TARGET_FOLDER = getResource("junit-target");
-	private static final URL JUNIT_EXPECTED_OUTPUT = getResource("junit-expected-output-package-cycle.txt");
+    // Cyclic dependency test files
+    private static final URL CYCLIC_TARGET_FOLDER = getResource("cyclic-target");
+    private static final URL CYCLIC_EXPECTED_OUTPUT = getResource("cyclic-expected-output.txt");
+    // Control test files
+    private static final URL CONTROL_TARGET_FOLDER = getResource("control-target");
 
-	private NoPackageCyclesRule rule;
-	private EnforcerRuleHelperMock helper;
+    private NoPackageCyclesRule rule;
+    private EnforcerRuleHelperMock helper;
 
-	@Before
-	public void setUp() throws Exception {
-		rule = new NoPackageCyclesRule();
-		helper = new EnforcerRuleHelperMock();
-	}
+    @Before
+    public void setUp() throws Exception {
+        rule = new NoPackageCyclesRule();
+        helper = new EnforcerRuleHelperMock();
+    }
 
-	@Test
-	public void fitnesseIntegrationTest() throws Exception {
-		assertPackageCycles(FITNESSE_TARGET_FOLDER, FITNESSE_EXPECTED_OUTPUT);
-	}
+    /**
+     * Test that package cycles throw an error
+     */
+    @Test
+    public void cyclicIntegrationTest() throws URISyntaxException, IOException {
+        helper.setTestClassesDir(new File("non-existent"));
+        helper.setClassesDir(new File(CYCLIC_TARGET_FOLDER.toURI()));
+        try {
+            rule.execute(helper);
+            fail("expected EnforcerRuleException");
+        } catch (EnforcerRuleException e) {
+            String expected = IOUtils.toString(CYCLIC_EXPECTED_OUTPUT.openStream(), (Charset) null) //
+                    .replaceAll("\r", "") //
+                    .trim();
+            String actual = e.getMessage().trim();
+            assertEquals(expected, actual);
+        }
+    }
 
-	@Test
-	public void junitIntegrationTest() throws Exception {
-		assertPackageCycles(JUNIT_TARGET_FOLDER, JUNIT_EXPECTED_OUTPUT);
-	}
+    /**
+     * Test no error thrown for acyclic package structure
+     */
+    @Test
+    public void controlIntegrationTest() throws URISyntaxException {
+        helper.setTestClassesDir(new File("non-existent"));
+        helper.setClassesDir(new File(CONTROL_TARGET_FOLDER.toURI()));
+        try {
+            rule.execute(helper);
+        } catch (EnforcerRuleException e) {
+            fail("expected EnforcerRuleException");
+        }
+    }
 
-	private void assertPackageCycles(URL targetFolder, URL expectedOutput) throws URISyntaxException, IOException {
-		helper.setTestClassesDir(new File("non-existent"));
-		helper.setClassesDir(new File(targetFolder.toURI()));
-		try {
-			rule.execute(helper);
-			fail("expected EnforcerRuleException");
-		} catch (EnforcerRuleException e) {
-			// using assertEquals to get a nice comparison editor in eclipse
-			assertEquals(getExpectedOutput(expectedOutput), e.getMessage());
-		}
-	}
-
-	private String getExpectedOutput(URL expectedOutput) throws IOException {
-		return IOUtils.toString(expectedOutput.openStream()).replaceAll("\r", "");
-	}
-
-	private static URL getResource(String path) {
-		return Thread.currentThread().getContextClassLoader().getResource(path);
-	}
+    private static URL getResource(String path) {
+        return Thread.currentThread().getContextClassLoader().getResource(path);
+    }
 }

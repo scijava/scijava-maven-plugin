@@ -1,0 +1,7 @@
+There are package cycles:
+
+Package-cycle found involving com.example.bar, com.example.foo:
+    com.example.bar depends on:
+        com.example.foo (Bar)
+    com.example.foo depends on:
+        com.example.bar (Foo)
