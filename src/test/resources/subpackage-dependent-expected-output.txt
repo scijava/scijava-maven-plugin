@@ -1,0 +1,4 @@
+Some packages depend on subpackages:
+
+Package com.example.foo depends on subpackages: 
+        com.example.foo.bar (Foo)
