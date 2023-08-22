@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.scijava</groupId>
 		<artifactId>pom-scijava</artifactId>
-		<version>31.1.0</version>
+		<version>36.0.0</version>
 		<relativePath />
 	</parent>
 
@@ -171,6 +171,7 @@
 			<groupId>org.apache.maven</groupId>
 			<artifactId>maven-plugin-api</artifactId>
 			<version>${maven.version}</version>
+			<scope>provided</scope>
 			<exclusions>
 				<exclusion>
 					<groupId>org.sonatype.sisu</groupId>
@@ -182,11 +183,13 @@
 			<groupId>org.apache.maven</groupId>
 			<artifactId>maven-artifact</artifactId>
 			<version>${maven.version}</version>
+			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.maven</groupId>
 			<artifactId>maven-compat</artifactId>
 			<version>${maven.version}</version>
+			<scope>provided</scope>
 			<exclusions>
 				<exclusion>
 					<groupId>org.sonatype.sisu</groupId>
@@ -197,6 +200,7 @@
 		<dependency>
 			<groupId>org.apache.maven</groupId>
 			<artifactId>maven-core</artifactId>
+			<scope>provided</scope>
 			<exclusions>
 				<exclusion>
 					<groupId>org.sonatype.sisu</groupId>
@@ -212,6 +216,7 @@
 			<groupId>org.apache.maven</groupId>
 			<artifactId>maven-model</artifactId>
 			<version>${maven.version}</version>
+			<scope>provided</scope>
 		</dependency>
 
 		<dependency>
@@ -381,7 +386,7 @@
 			</plugin>
 			<plugin>
 				<artifactId>maven-invoker-plugin</artifactId>
-				<version>1.8</version>
+				<version>3.6.0</version>
 				<configuration>
 					<!-- <debug>true</debug> -->
 					<showErrors>true</showErrors>

@@ -52,6 +52,7 @@ package org.scijava.maven.plugin.enforcer;
 import java.io.File;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
 
 import org.apache.maven.enforcer.rule.api.EnforcerRuleHelper;
 import org.apache.maven.plugin.logging.Log;
@@ -133,6 +134,10 @@ public class EnforcerRuleHelperMock implements EnforcerRuleHelper {
 
 	@Override
 	public PlexusContainer getContainer() {
+		return null;
+	}
+
+	@Override public Object getCache(String s, Supplier<?> supplier) {
 		return null;
 	}
 
