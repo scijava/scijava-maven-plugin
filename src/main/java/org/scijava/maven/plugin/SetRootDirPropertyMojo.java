@@ -45,7 +45,7 @@ import org.apache.maven.project.MavenProject;
  * 
  * @author Johannes Schindelin
  */
-@Mojo(name = "set-rootdir", defaultPhase = LifecyclePhase.VALIDATE)
+@Mojo(name = "set-rootdir", defaultPhase = LifecyclePhase.VALIDATE, threadSafe = true)
 public class SetRootDirPropertyMojo extends AbstractMojo {
 
 	/**
@@ -67,25 +67,40 @@ public class SetRootDirPropertyMojo extends AbstractMojo {
 
 	@Override
 	public void execute() throws MojoExecutionException {
-		if (currentProject.getProperties().getProperty(rootdirPropertyName) != null)
-		{
-			getLog().debug("Using previously defined rootdir");
-			return;
+		if (isRootdirPropertyNameDefined()) {
+			logUsingPreviouslyDefinedRootdir();
+		} else {
+			setRootdirPropertyName();
 		}
+	}
 
-		if (!isLocalProject(currentProject)) return;
+	private synchronized void setRootdirPropertyName() {
+		if (isRootdirPropertyNameDefined()) {
+			logUsingPreviouslyDefinedRootdir();
+		} else if (isLocalProject(currentProject)) {
+			MavenProject project = currentProject;
+			for (;;) {
+				final MavenProject parent = project.getParent();
+				if (parent == null || ! isLocalProject(parent)) {
+					break;
+				}
+				project = parent;
+			}
 
-		MavenProject project = currentProject;
-		for (;;) {
-			final MavenProject parent = project.getParent();
-			if (parent == null || !isLocalProject(parent)) break;
-			project = parent;
+			final String rootdir = project.getBasedir().getAbsolutePath();
+			getLog().info("Setting rootdir: " + rootdir);
+			for (final MavenProject reactorProject : reactorProjects) {
+				reactorProject.getProperties().setProperty(rootdirPropertyName, rootdir);
+			}
 		}
+	}
 
-		final String rootdir = project.getBasedir().getAbsolutePath();
-		getLog().info("Setting rootdir: " + rootdir);
-		for (final MavenProject reactorProject : reactorProjects)
-			reactorProject.getProperties().setProperty(rootdirPropertyName, rootdir);
+	private boolean isRootdirPropertyNameDefined() {
+		return currentProject.getProperties().getProperty(rootdirPropertyName) != null;
+	}
+
+	private void logUsingPreviouslyDefinedRootdir() {
+		getLog().debug("Using previously defined rootdir");
 	}
 
 	/**
