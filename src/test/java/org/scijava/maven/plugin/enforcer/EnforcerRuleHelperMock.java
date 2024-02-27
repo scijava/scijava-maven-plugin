@@ -52,6 +52,7 @@ package org.scijava.maven.plugin.enforcer;
 import java.io.File;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
 
 import org.apache.maven.enforcer.rule.api.EnforcerRuleHelper;
 import org.apache.maven.plugin.logging.Log;
@@ -98,6 +99,11 @@ public class EnforcerRuleHelperMock implements EnforcerRuleHelper {
 		if (DirectoriesWithClasses.MAVEN_PROJECT_BUILD_TEST_OUTPUT_DIRECTORY_VAR.equals(variable)) {
 			return testClassesDir.getPath();
 		}
+		return null;
+	}
+
+	@Override
+	public Object getCache(String s, Supplier<?> supplier) {
 		return null;
 	}
 

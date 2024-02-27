@@ -5,12 +5,12 @@
 	<parent>
 		<groupId>org.scijava</groupId>
 		<artifactId>pom-scijava</artifactId>
-		<version>31.1.0</version>
+		<version>37.0.0</version>
 		<relativePath />
 	</parent>
 
 	<artifactId>scijava-maven-plugin</artifactId>
-	<version>2.2.1-SNAPSHOT</version>
+	<version>3.0.0-SNAPSHOT</version>
 	<packaging>maven-plugin</packaging>
 
 	<name>SciJava plugin for Maven</name>
@@ -143,16 +143,20 @@
 
 		<maven.version>3.0</maven.version>
 		<maven-core.version>3.0</maven-core.version>
-		<maven2.version>2.2.1</maven2.version>
-		<maven-tree.version>2.2</maven-tree.version>
+		<maven-dependency-tree.version>2.2</maven-dependency-tree.version>
 		<maven-plugin-annotations.version>3.5</maven-plugin-annotations.version>
 		<maven-artifact-transfer.version>0.9.1</maven-artifact-transfer.version>
 		<maven-common-artifact-filters.version>3.0.1</maven-common-artifact-filters.version>
-		<plexus-container-default.version>2.1.0</plexus-container-default.version>
 		<plexus-interpolation.version>1.24</plexus-interpolation.version>
 		<plexus-utils.version>3.1.0</plexus-utils.version>
+		<org.eclipse.sisu.plexus.version>0.3.0</org.eclipse.sisu.plexus.version>
 
 		<hamcrest.version>1.3</hamcrest.version>
+
+		<!--
+		Allow org.eclipse.aether:aether-util + org.apache.maven.shared:maven-artifact-transfer.
+		-->
+		<scijava.allowedDuplicateClasses>org.eclipse.aether.util.*</scijava.allowedDuplicateClasses>
 	</properties>
 
 	<dependencies>
@@ -171,71 +175,36 @@
 			<groupId>org.apache.maven</groupId>
 			<artifactId>maven-plugin-api</artifactId>
 			<version>${maven.version}</version>
-			<exclusions>
-				<exclusion>
-					<groupId>org.sonatype.sisu</groupId>
-					<artifactId>sisu-inject-plexus</artifactId>
-				</exclusion>
-			</exclusions>
+			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.maven</groupId>
 			<artifactId>maven-artifact</artifactId>
 			<version>${maven.version}</version>
+			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.maven</groupId>
 			<artifactId>maven-compat</artifactId>
 			<version>${maven.version}</version>
-			<exclusions>
-				<exclusion>
-					<groupId>org.sonatype.sisu</groupId>
-					<artifactId>sisu-inject-plexus</artifactId>
-				</exclusion>
-			</exclusions>
+			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.maven</groupId>
 			<artifactId>maven-core</artifactId>
-			<exclusions>
-				<exclusion>
-					<groupId>org.sonatype.sisu</groupId>
-					<artifactId>sisu-inject-plexus</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.codehaus.plexus</groupId>
-					<artifactId>plexus-utils</artifactId>
-				</exclusion>
-			</exclusions>
+			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.maven</groupId>
 			<artifactId>maven-model</artifactId>
 			<version>${maven.version}</version>
+			<scope>provided</scope>
 		</dependency>
 
 		<dependency>
 			<groupId>org.apache.maven.enforcer</groupId>
 			<artifactId>enforcer-api</artifactId>
 			<version>${maven-enforcer-plugin.version}</version>
-			<exclusions>
-				<exclusion>
-					<groupId>classworlds</groupId>
-					<artifactId>classworlds</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.apache.maven</groupId>
-					<artifactId>maven-plugin-api</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.codehaus.plexus</groupId>
-					<artifactId>plexus-utils</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.codehaus.plexus</groupId>
-					<artifactId>plexus-container-default</artifactId>
-				</exclusion>
-			</exclusions>
 		</dependency>
 
 		<dependency>
@@ -251,24 +220,13 @@
 		<dependency>
 			<groupId>org.apache.maven.shared</groupId>
 			<artifactId>maven-common-artifact-filters</artifactId>
-			<exclusions>
-				<exclusion>
-					<groupId>org.sonatype.sisu</groupId>
-					<artifactId>sisu-inject-plexus</artifactId>
-				</exclusion>
-			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.maven.shared</groupId>
 			<artifactId>maven-dependency-tree</artifactId>
-			<version>${maven-tree.version}</version>
+			<version>${maven-dependency-tree.version}</version>
 		</dependency>
 
-		<dependency>
-			<groupId>org.codehaus.plexus</groupId>
-			<artifactId>plexus-container-default</artifactId>
-			<version>${plexus-container-default.version}</version>
-		</dependency>
 		<dependency>
 			<groupId>org.codehaus.plexus</groupId>
 			<artifactId>plexus-interpolation</artifactId>
@@ -278,6 +236,12 @@
 			<groupId>org.codehaus.plexus</groupId>
 			<artifactId>plexus-utils</artifactId>
 			<version>${plexus-utils.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.eclipse.sisu</groupId>
+			<artifactId>org.eclipse.sisu.plexus</artifactId>
+			<version>${org.eclipse.sisu.plexus.version}</version>
 		</dependency>
 
 		<dependency>
@@ -343,26 +307,6 @@
 		</pluginManagement>
 		<plugins>
 			<plugin>
-				<artifactId>maven-enforcer-plugin</artifactId>
-				<configuration>
-					<rules>
-						<banDuplicateClasses>
-							<!--
-							NB: maven-artifact and maven-project are 2.0 artifacts
-							that clash with maven-core 3.0.
-							-->
-							<ignoreClasses>
-								<ignoreClass>org/apache/maven/artifact/*</ignoreClass>
-
-								<ignoreClass>org/apache/maven/project/*</ignoreClass>
-							</ignoreClasses>
-							<findAllDuplicates>true</findAllDuplicates>
-							<ignoreWhenIdentical>true</ignoreWhenIdentical>
-						</banDuplicateClasses>
-					</rules>
-				</configuration>
-			</plugin>
-			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-plugin-plugin</artifactId>
 				<configuration>
@@ -381,7 +325,7 @@
 			</plugin>
 			<plugin>
 				<artifactId>maven-invoker-plugin</artifactId>
-				<version>1.8</version>
+				<version>${maven-invoker-plugin.version}</version>
 				<configuration>
 					<!-- <debug>true</debug> -->
 					<showErrors>true</showErrors>
