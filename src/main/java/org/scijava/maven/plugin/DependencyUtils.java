@@ -47,10 +47,10 @@ import org.apache.maven.profiles.ProfileManager;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectBuilder;
 import org.apache.maven.project.ProjectBuildingException;
-import org.apache.maven.shared.dependency.graph.DependencyGraphBuilder;
-import org.apache.maven.shared.dependency.tree.DependencyNode;
-import org.apache.maven.shared.dependency.tree.DependencyTreeBuilder;
-import org.apache.maven.shared.dependency.tree.DependencyTreeBuilderException;
+import org.scijava.maven.plugin.dependency.graph.DependencyGraphBuilder;
+import org.scijava.maven.plugin.dependency.tree.DependencyNode;
+import org.scijava.maven.plugin.dependency.tree.DependencyTreeBuilder;
+import org.scijava.maven.plugin.dependency.tree.DependencyTreeBuilderException;
 import org.codehaus.plexus.PlexusContainer;
 
 /**

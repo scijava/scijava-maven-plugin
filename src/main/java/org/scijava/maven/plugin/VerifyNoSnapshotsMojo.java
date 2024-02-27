@@ -43,7 +43,7 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectBuilder;
 import org.apache.maven.project.ProjectBuildingException;
-import org.apache.maven.shared.dependency.tree.DependencyTreeBuilder;
+import org.scijava.maven.plugin.dependency.tree.DependencyTreeBuilder;
 
 /**
  * Mojo wrapper for the {@link SnapshotFinder}.
@@ -72,7 +72,7 @@ public class VerifyNoSnapshotsMojo extends AbstractMojo {
 
 	/**
 	 * @component role =
-	 *            "org.apache.maven.shared.dependency.tree.DependencyTreeBuilder"
+	 *            "org.scijava.maven.plugin.dependency.tree.DependencyTreeBuilder"
 	 */
 	private DependencyTreeBuilder dependencyTreeBuilder;
 

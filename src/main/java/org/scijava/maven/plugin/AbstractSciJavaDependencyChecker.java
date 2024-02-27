@@ -32,7 +32,7 @@ package org.scijava.maven.plugin;
 import java.util.Set;
 
 import org.apache.maven.plugin.logging.Log;
-import org.apache.maven.shared.dependency.tree.DependencyNode;
+import org.scijava.maven.plugin.dependency.tree.DependencyNode;
 
 /**
  * Abstract {@link SciJavaDependencyChecker} superclass, containing useful

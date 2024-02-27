@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component-set>
+  <components>
+    <component>
+      <role>org.scijava.maven.plugin.dependency.graph.DependencyGraphBuilder</role>
+      <role-hint>default</role-hint>
+      <implementation>org.scijava.maven.plugin.dependency.graph.internal.DefaultDependencyGraphBuilder</implementation>
+      <description />
+      <isolated-realm>false</isolated-realm>
+    </component>
+    <component>
+      <role>org.scijava.maven.plugin.dependency.graph.DependencyGraphBuilder</role>
+      <role-hint>maven2</role-hint>
+      <implementation>org.scijava.maven.plugin.dependency.graph.internal.Maven2DependencyGraphBuilder</implementation>
+      <description />
+      <isolated-realm>false</isolated-realm>
+      <requirements>
+        <requirement>
+          <role>org.scijava.maven.plugin.dependency.tree.DependencyTreeBuilder</role>
+          <role-hint />
+          <field-name>treeBuilder</field-name>
+        </requirement>
+      </requirements>
+    </component>
+    <component>
+      <role>org.scijava.maven.plugin.dependency.graph.DependencyGraphBuilder</role>
+      <role-hint>maven31</role-hint>
+      <implementation>org.scijava.maven.plugin.dependency.graph.internal.Maven31DependencyGraphBuilder</implementation>
+      <description />
+      <isolated-realm>false</isolated-realm>
+      <requirements>
+        <requirement>
+          <role>org.apache.maven.project.ProjectDependenciesResolver</role>
+          <role-hint />
+          <field-name>resolver</field-name>
+        </requirement>
+        <requirement>
+          <role>org.apache.maven.artifact.factory.ArtifactFactory</role>
+          <role-hint />
+          <field-name>factory</field-name>
+        </requirement>
+      </requirements>
+    </component>
+    <component>
+      <role>org.scijava.maven.plugin.dependency.graph.DependencyGraphBuilder</role>
+      <role-hint>maven3</role-hint>
+      <implementation>org.scijava.maven.plugin.dependency.graph.internal.Maven3DependencyGraphBuilder</implementation>
+      <description />
+      <isolated-realm>false</isolated-realm>
+      <requirements>
+        <requirement>
+          <role>org.apache.maven.project.ProjectDependenciesResolver</role>
+          <role-hint />
+          <field-name>resolver</field-name>
+        </requirement>
+        <requirement>
+          <role>org.apache.maven.artifact.factory.ArtifactFactory</role>
+          <role-hint />
+          <field-name>factory</field-name>
+        </requirement>
+      </requirements>
+    </component>
+    <component>
+      <role>org.scijava.maven.plugin.dependency.tree.DependencyTreeBuilder</role>
+      <role-hint>default</role-hint>
+      <implementation>org.scijava.maven.plugin.dependency.tree.DefaultDependencyTreeBuilder</implementation>
+      <description />
+      <isolated-realm>false</isolated-realm>
+      <requirements>
+        <requirement>
+          <role>org.apache.maven.artifact.factory.ArtifactFactory</role>
+          <role-hint />
+          <field-name>factory</field-name>
+        </requirement>
+        <requirement>
+          <role>org.apache.maven.artifact.metadata.ArtifactMetadataSource</role>
+          <role-hint />
+          <field-name>metadataSource</field-name>
+        </requirement>
+        <requirement>
+          <role>org.apache.maven.artifact.resolver.ArtifactCollector</role>
+          <role-hint />
+          <field-name>collector</field-name>
+        </requirement>
+      </requirements>
+    </component>
+  </components>
+</component-set>

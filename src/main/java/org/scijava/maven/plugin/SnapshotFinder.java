@@ -40,7 +40,7 @@ import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectBuilder;
 import org.apache.maven.project.ProjectBuildingException;
-import org.apache.maven.shared.dependency.tree.DependencyNode;
+import org.scijava.maven.plugin.dependency.tree.DependencyNode;
 
 /**
  * {@link SciJavaDependencyChecker} implementation that fails when it encounters
