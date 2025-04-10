@@ -210,9 +210,6 @@ public abstract class AbstractInstallMojo extends AbstractMojo {
 		else if (isIJ1Plugin(source)) {
 			targetDirectory = new File(appDir, "plugins");
 		}
-		else if (isBioFormatsArtifact(artifact)) {
-			targetDirectory = new File(appDir, "jars/bio-formats");
-		}
 		else {
 			final String subDir = subdirectory(artifact);
 			targetDirectory = subDir == null ? //
@@ -294,13 +291,6 @@ public abstract class AbstractInstallMojo extends AbstractMojo {
 
 	private static String versionToString(final String v) {
 		return v == null || v.isEmpty() ? "(none)" : v;
-	}
-
-	private static boolean isBioFormatsArtifact(final Artifact artifact) {
-		final String fileName = artifact.getFile().getName();
-		return "ome".equals(artifact.getGroupId()) ||
-			("loci".equals(artifact.getGroupId()) && (fileName.startsWith(
-				"scifio-4.4.") || fileName.startsWith("jai_imageio-4.4.")));
 	}
 
 	private static boolean isIJ1Plugin(final File file) {
