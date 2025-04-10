@@ -10,7 +10,7 @@
 	</parent>
 
 	<artifactId>scijava-maven-plugin</artifactId>
-	<version>3.0.1-SNAPSHOT</version>
+	<version>3.0.1</version>
 	<packaging>maven-plugin</packaging>
 
 	<name>SciJava plugin for Maven</name>
@@ -119,7 +119,7 @@
 	<scm>
 		<connection>scm:git:https://github.com/scijava/scijava-maven-plugin</connection>
 		<developerConnection>scm:git:git@github.com:scijava/scijava-maven-plugin</developerConnection>
-		<tag>HEAD</tag>
+		<tag>scijava-maven-plugin-3.0.1</tag>
 		<url>https://github.com/scijava/scijava-maven-plugin</url>
 	</scm>
 	<issueManagement>
