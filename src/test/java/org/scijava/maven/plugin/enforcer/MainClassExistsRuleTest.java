@@ -29,13 +29,6 @@
 
 package org.scijava.maven.plugin.enforcer;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
-import static org.junit.Assert.assertTrue;
-
-import java.io.File;
-import java.io.IOException;
-
 import org.apache.maven.enforcer.rule.api.EnforcerLogger;
 import org.apache.maven.enforcer.rule.api.EnforcerRuleException;
 import org.apache.maven.model.Build;
@@ -44,8 +37,12 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
+
+import java.io.File;
+import java.io.IOException;
+
+import static org.junit.Assert.assertTrue;
 
 /**
  * Tests for {@link MainClassExistsRule}.
@@ -91,15 +88,23 @@ public class MainClassExistsRuleTest {
 	}
 
 	@Test
-	public void execute_NoMainClassProperty_Passes() throws Exception {
+	public void TestNoMainClassProperty() throws Exception {
 		// No "main-class" property set
 		MainClassExistsRule rule = new MainClassExistsRuleMock(project);
         // Execute the rule and make sure it passes
 		rule.execute();
 	}
 
+    @Test
+    public void TestEmptyMainClassProperty() throws Exception {
+        // No "main-class" property set
+        MainClassExistsRule rule = new MainClassExistsRuleMock(project);
+        // Execute the rule and make sure it passes
+        rule.execute();
+    }
+
 	@Test
-	public void execute_MainClassExists_Passes() throws Exception {
+	public void TestMainClassExists() throws Exception {
 		// Set main-class property
 		project.getProperties().setProperty("main-class", "com.example.Main");
 
@@ -112,7 +117,7 @@ public class MainClassExistsRuleTest {
 	}
 
 	@Test
-	public void execute_MainClassDoesNotExist_ThrowsException() throws Exception {
+	public void TestMainClassDoesNotExist() {
 		// Set main-class property...
 		project.getProperties().setProperty("main-class", "com.example.NonExistent");
 

@@ -82,6 +82,9 @@ public class MainClassExistsRule extends AbstractEnforcerRule {
             return;
         }
         String mainClass = properties.getProperty("main-class");
+        if (mainClass.trim().isEmpty()) {
+            return;
+        }
 
         // Get the build output directory (e.g., target/classes)
         String outputDirectory = project.getBuild().getOutputDirectory();
