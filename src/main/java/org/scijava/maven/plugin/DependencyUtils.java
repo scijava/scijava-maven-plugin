@@ -30,6 +30,7 @@
 package org.scijava.maven.plugin;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -209,6 +210,67 @@ public final class DependencyUtils {
 		if (currentProject.hasParent()) findEffectiveReactor(reactor, visited,
 			currentProject.getParent(), target, projectBuilder, localRepository,
 			profileManager);
+
+		// Recurse into the aggregator, if any.
+		//
+		// NB: this is not the same as the parent above. A module's <parent> is
+		// often a shared parent POM such as pom-scijava, which knows nothing
+		// about its siblings; the aggregator that actually lists the module is
+		// then only discoverable by looking at the enclosing directory. Without
+		// this step, building a single module of a multi-module project sees an
+		// effective reactor of one, and every sibling SNAPSHOT dependency looks
+		// like a non-reproducible external artifact.
+		final MavenProject aggregator = findAggregator(currentProject,
+			projectBuilder, localRepository, profileManager);
+		if (aggregator != null) findEffectiveReactor(reactor, visited, aggregator,
+			target, projectBuilder, localRepository, profileManager);
+	}
+
+	/**
+	 * Finds the project aggregating the given one: the nearest enclosing
+	 * directory whose POM lists the given project's directory as a module.
+	 *
+	 * @return the aggregating project, or null if there is none
+	 */
+	private static MavenProject findAggregator(final MavenProject project,
+		final MavenProjectBuilder projectBuilder,
+		final ArtifactRepository localRepository,
+		final ProfileManager profileManager) throws ProjectBuildingException
+	{
+		final File baseDir = project.getBasedir();
+		if (baseDir == null) return null;
+		final File parentDir = baseDir.getParentFile();
+		if (parentDir == null) return null;
+		final File pom = new File(parentDir, "pom.xml");
+		if (!pom.isFile()) return null;
+
+		final MavenProject candidate =
+			projectBuilder.build(pom, localRepository, profileManager);
+		return declaresModule(candidate, baseDir) ? candidate : null;
+	}
+
+	/** Gets whether the given project lists the given directory as a module. */
+	// NB: package-private for testing.
+	static boolean declaresModule(final MavenProject project,
+		final File moduleDir)
+	{
+		final File baseDir = project.getBasedir();
+		if (baseDir == null) return false;
+		for (final Object module : project.getModules()) {
+			final File dir = new File(baseDir, module.toString());
+			if (sameFile(dir, moduleDir)) return true;
+		}
+		return false;
+	}
+
+	/** Compares two files by canonical path, falling back to absolute path. */
+	private static boolean sameFile(final File a, final File b) {
+		try {
+			return a.getCanonicalFile().equals(b.getCanonicalFile());
+		}
+		catch (final IOException exc) {
+			return a.getAbsoluteFile().equals(b.getAbsoluteFile());
+		}
 	}
 
 	/**
