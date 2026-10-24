@@ -71,7 +71,7 @@ import java.util.Collections;
  * code.
  *
  * @see Maven2DependencyGraphBuilder
- * @see Maven3DependencyGraphBuilder
+ * @see Maven31DependencyGraphBuilder
  * @author Hervé Boutemy
  * @since 2.0
  */
@@ -111,7 +111,7 @@ public class DefaultDependencyGraphBuilder
     {
         try
         {
-            String hint = isMaven31() ? "maven31" : isMaven2x() ? "maven2" : "maven3";
+            String hint = isMaven2x() ? "maven2" : "maven31";
 
             DependencyGraphBuilder effectiveGraphBuilder =
                 (DependencyGraphBuilder) container.lookup( DependencyGraphBuilder.class.getCanonicalName(), hint );
