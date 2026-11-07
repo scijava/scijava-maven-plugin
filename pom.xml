@@ -161,9 +161,6 @@
 		<hamcrest.version>3.0</hamcrest.version>
 		<hamcrest-core.version>${hamcrest.version}</hamcrest-core.version>
 		<hamcrest-library.version>${hamcrest.version}</hamcrest-library.version>
-
-		<!-- NB: Deploy releases to the SciJava Maven repository. -->
-		<releaseProfiles>sign,deploy-to-scijava</releaseProfiles>
 	</properties>
 
 	<dependencies>
