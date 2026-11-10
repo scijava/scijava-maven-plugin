@@ -40,7 +40,7 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 
 /**
- * Sets the <tt>project.rootdir</tt> property to the top-level directory of the
+ * Sets the {@code project.rootdir} property to the top-level directory of the
  * current Maven project structure.
  * 
  * @author Johannes Schindelin

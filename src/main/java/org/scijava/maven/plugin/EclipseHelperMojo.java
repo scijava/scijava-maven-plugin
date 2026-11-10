@@ -48,7 +48,7 @@ import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 
 /**
- * Runs the annotation processor of the <tt>scijava-common</tt> artifact even
+ * Runs the annotation processor of the {@code scijava-common} artifact even
  * inside Eclipse.
  * 
  * @author Johannes Schindelin
